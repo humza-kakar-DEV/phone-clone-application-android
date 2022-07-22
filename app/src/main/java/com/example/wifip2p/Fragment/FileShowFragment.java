@@ -1,0 +1,218 @@
+package com.example.wifip2p.Fragment;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+
+import android.util.Log;
+import android.util.Size;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Toast;
+
+import com.example.wifip2p.Adapter.FileRecyclerViewAdapter;
+import com.example.wifip2p.MainActivity2;
+import com.example.wifip2p.Media.Audio;
+import com.example.wifip2p.Media.Image;
+import com.example.wifip2p.Media.Video;
+import com.example.wifip2p.Utils.CommunicationInterface;
+import com.example.wifip2p.Utils.CommunicationInterfaceReference;
+import com.example.wifip2p.databinding.FragmentFileShowBinding;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * A simple {@link Fragment} subclass.
+ * Use the {@link FileShowFragment#newInstance} factory method to
+ * create an instance of this fragment.
+ */
+public class FileShowFragment extends Fragment {
+
+    private static final String ARG_PARAM1 = "param1";
+    private static final String ARG_PARAM2 = "param2";
+    public static final String TAG = "hmFileShow";
+
+    private String mParam1;
+    private List<?> mParam2;
+    private List<Image> imageList = new ArrayList<Image>();
+    private List<Video> videoList = new ArrayList<Video>();
+    private List<Audio> audioList = new ArrayList<Audio>();
+    private List<Bitmap> thumbnails = new ArrayList<Bitmap>();
+    private String fileType;
+
+    private Context context;
+    private FileRecyclerViewAdapter fileRecyclerViewAdapter;
+
+    FragmentFileShowBinding binding;
+    CommunicationInterfaceReference communicationInterfaceReference;
+
+    public FileShowFragment() {
+        // Required empty public constructor
+    }
+
+    public static FileShowFragment newInstance(String param1, List<?> param2) {
+        FileShowFragment fragment = new FileShowFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_PARAM1, param1);
+        args.putSerializable(ARG_PARAM2, (Serializable) param2);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            mParam1 = getArguments().getString(ARG_PARAM1);
+            mParam2 = (List<?>) getArguments().getSerializable(ARG_PARAM2);
+        }
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        binding = FragmentFileShowBinding.inflate(inflater, container, false);
+        View view = binding.getRoot();
+        context = view.getContext();
+
+        switch (mParam1) {
+            case "image":
+                binding.textViewHeading.setText("IMAGES");
+                imageList.addAll((List<Image>) mParam2);
+                communicationInterfaceReference.invokeCheckSelection(binding.allSelectCheckBox, mParam1);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    try {
+                        for (Image image : imageList) {
+                            thumbnails.add(context.getApplicationContext().getContentResolver().loadThumbnail(image.getUri(), new Size(640, 480), null));
+                        }
+                    } catch (IOException e) {
+                    }
+                }
+                fileType = "image";
+                fileRecyclerViewAdapter = new FileRecyclerViewAdapter (imageList, fileType, thumbnails, binding.allSelectCheckBox, context, getActivity());
+                break;
+            case "video":
+                binding.textViewHeading.setText("VIDEOS");
+                videoList.addAll((List<Video>) mParam2);
+                communicationInterfaceReference.invokeCheckSelection(binding.allSelectCheckBox, mParam1);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    try {
+                        for (Video video : videoList) {
+                            thumbnails.add(context.getApplicationContext().getContentResolver().loadThumbnail(video.getUri(), new Size(640, 480), null));
+                        }
+                    } catch (IOException e) {
+                    }
+                }
+                fileType = "video";
+                fileRecyclerViewAdapter = new FileRecyclerViewAdapter (videoList, fileType, thumbnails, binding.allSelectCheckBox, context, getActivity());
+                break;
+            case "audio":
+                binding.textViewHeading.setText("AUDIOS");
+                audioList.addAll((List<Audio>) mParam2);
+                communicationInterfaceReference.invokeCheckSelection(binding.allSelectCheckBox, mParam1);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    try {
+                        for (Audio audio : audioList) {
+                            thumbnails.add(context.getApplicationContext().getContentResolver().loadThumbnail(audio.getUri(), new Size(640, 480), null));
+                        }
+                    } catch (IOException e) {
+                    }
+                }
+                fileType = "audio";
+                fileRecyclerViewAdapter = new FileRecyclerViewAdapter (audioList, fileType, thumbnails, binding.allSelectCheckBox, context, getActivity());
+                break;
+        }
+
+
+
+//        recyclerView.setHasFixedSize(true);
+        binding.recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
+        binding.recyclerView.setAdapter(fileRecyclerViewAdapter);
+
+        binding.doneButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getActivity().onBackPressed();
+            }
+        });
+
+        binding.allSelectCheckBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (binding.allSelectCheckBox.isChecked()) {
+                        switch (fileType) {
+                            case "image":
+                                for (Image image : imageList) {
+                                    communicationInterfaceReference.invokeSingleSelection(image, "image", true);
+                                    image.setSelected(true);
+                                }
+                                fileRecyclerViewAdapter.notifyDataSetChanged();
+                                break;
+                            case "video":
+                                for (Video video : videoList) {
+                                    communicationInterfaceReference.invokeSingleSelection(video, "video", true);
+                                    video.setSelected(true);
+                                }
+                                fileRecyclerViewAdapter.notifyDataSetChanged();
+                                break;
+                            case "audio":
+                                for (Audio audio : audioList) {
+                                    communicationInterfaceReference.invokeSingleSelection(audio, "audio", true);
+                                    audio.setSelected(true);
+                                }
+                                fileRecyclerViewAdapter.notifyDataSetChanged();
+                                break;
+                        }
+                    } else {
+                        switch (fileType) {
+                            case "image":
+                                for (Image image : imageList) {
+                                    communicationInterfaceReference.invokeSingleSelection(image, "image", false);
+                                    image.setSelected(false);
+                                }
+                                fileRecyclerViewAdapter.notifyDataSetChanged();
+                                break;
+                            case "video":
+                                for (Video video : videoList) {
+                                    communicationInterfaceReference.invokeSingleSelection(video, "video", false);
+                                    video.setSelected(false);
+                                }
+                                fileRecyclerViewAdapter.notifyDataSetChanged();
+                                break;
+                            case "audio":
+                                for (Audio audio : audioList) {
+                                    communicationInterfaceReference.invokeSingleSelection(audio, "audio", false);
+                                    audio.setSelected(false);
+                                }
+                                fileRecyclerViewAdapter.notifyDataSetChanged();
+                                break;
+                        }
+                    }
+                }
+        });
+        return view;
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof CommunicationInterface) {
+            communicationInterfaceReference = new CommunicationInterfaceReference((CommunicationInterface) context);
+        }
+    }
+}
