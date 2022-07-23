@@ -147,11 +147,13 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
         RoundedImageView roundedImageView;
         CheckBox checkBox;
 
+
         public MyRecyclerViewHolder(@NonNull View itemView) {
             super(itemView);
 
             roundedImageView = itemView.findViewById(R.id.imageView);
             checkBox = itemView.findViewById(R.id.checkBox);
+
         }
 
         void bind (Object object) {
