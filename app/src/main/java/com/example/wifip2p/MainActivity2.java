@@ -13,6 +13,8 @@ import com.example.wifip2p.Fragment.FileShowFragment;
 import com.example.wifip2p.Fragment.FileTypeFragment;
 import com.example.wifip2p.Media.Audio;
 import com.example.wifip2p.Media.AudioMedia;
+import com.example.wifip2p.Media.Contact;
+import com.example.wifip2p.Media.ContactMedia;
 import com.example.wifip2p.Media.Image;
 import com.example.wifip2p.Media.ImageMedia;
 import com.example.wifip2p.Media.Video;
@@ -29,9 +31,11 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
     private List<Image> imageMegaList = new ArrayList<Image>();
     private List<Video> videoMegaList = new ArrayList<>();
     private List<Audio> audioMegaList = new ArrayList<>();
-    private List<Image> imageList = new ArrayList<>();
-    private List<Video> videoList = new ArrayList<>();
-    private List<Audio> audioList = new ArrayList<>();
+    private List<Contact> contactMegaList = new ArrayList<>();
+    ImageMedia imageMedia;
+    VideoMedia videoMedia;
+    AudioMedia audioMedia;
+    ContactMedia contactMedia;
 
     private FrameLayout frameLayout;
     private FileTypeFragment fileTypeFragment;
@@ -44,15 +48,12 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
 
         frameLayout = findViewById(R.id.frameLayout);
 
-        ImageMedia imageMedia = new ImageMedia(this);
-        VideoMedia videoMedia = new VideoMedia(this);
-        AudioMedia audioMedia = new AudioMedia(this);
+         imageMedia = new ImageMedia(this);
+         videoMedia = new VideoMedia(this);
+         audioMedia = new AudioMedia(this);
+         contactMedia = new ContactMedia(this);
 
-//        imageList.addAll(imageMedia.generateImages());
-//        videoList.addAll(videoMedia.generateVideos());
-//        audioList.addAll(audioMedia.generateAudios());
-
-        fileTypeFragment = FileTypeFragment.newInstance(imageMedia.generateImages(), videoMedia.generateVideos(), audioMedia.generateAudios());
+        fileTypeFragment = FileTypeFragment.newInstance(imageMedia.generateImages(), videoMedia.generateVideos(), audioMedia.generateAudios(), contactMedia.getContactList());
         getSupportFragmentManager()
                 .beginTransaction()
                 .setCustomAnimations(
@@ -96,6 +97,9 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
             case "audio":
                 audioMegaList.clear();
                 break;
+            case "contact":
+                contactMegaList.clear();
+                break;
         }
     }
 
@@ -126,6 +130,14 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
                     audioMegaList.remove(audio);
                 }
                 break;
+            case "contact":
+                Contact contact = (Contact) object;
+                if (state && !contactMegaList.contains(contact)) {
+                    contactMegaList.add(contact);
+                } else {
+                    contactMegaList.remove(contact);
+                }
+                break;
         }
     }
 
@@ -137,6 +149,8 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
             checkBox.setChecked(true);
         } else if (audioMegaList.size() == 51 && type.equals("audio")) {
             checkBox.setChecked(true);
+        } else if (contactMegaList.size() == 14 && type.equals("contact")) {
+            checkBox.setChecked(true);
         } else {
             checkBox.setChecked(false);
         }
@@ -147,5 +161,6 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
         Toast.makeText(MainActivity2.this, "image size: " + imageMegaList.size(), Toast.LENGTH_SHORT).show();
         Toast.makeText(MainActivity2.this, "video size: " + videoMegaList.size(), Toast.LENGTH_SHORT).show();
         Toast.makeText(MainActivity2.this, "audio size: " + audioMegaList.size(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainActivity2.this, "contact size: " + contactMegaList.size(), Toast.LENGTH_SHORT).show();
     }
 }

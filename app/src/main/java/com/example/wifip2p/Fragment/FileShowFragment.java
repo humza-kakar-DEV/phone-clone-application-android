@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.example.wifip2p.Adapter.FileRecyclerViewAdapter;
 import com.example.wifip2p.MainActivity2;
 import com.example.wifip2p.Media.Audio;
+import com.example.wifip2p.Media.Contact;
 import com.example.wifip2p.Media.Image;
 import com.example.wifip2p.Media.Video;
 import com.example.wifip2p.Utils.CommunicationInterface;
@@ -51,6 +52,7 @@ public class FileShowFragment extends Fragment {
     private List<Image> imageList = new ArrayList<Image>();
     private List<Video> videoList = new ArrayList<Video>();
     private List<Audio> audioList = new ArrayList<Audio>();
+    private List<Contact> contactList = new ArrayList<Contact>();
     private List<Bitmap> thumbnails = new ArrayList<Bitmap>();
     private String fileType;
 
@@ -136,6 +138,13 @@ public class FileShowFragment extends Fragment {
                 fileType = "audio";
                 fileRecyclerViewAdapter = new FileRecyclerViewAdapter (audioList, fileType, thumbnails, binding.allSelectCheckBox, context, getActivity());
                 break;
+            case "contact":
+                binding.textViewHeading.setText("CONTACTS");
+                contactList.addAll((List<Contact>) mParam2);
+                communicationInterfaceReference.invokeCheckSelection(binding.allSelectCheckBox, mParam1);
+                fileType = "contact";
+                fileRecyclerViewAdapter = new FileRecyclerViewAdapter (contactList, fileType, thumbnails, binding.allSelectCheckBox, context, getActivity());
+                break;
         }
 
 
@@ -177,6 +186,13 @@ public class FileShowFragment extends Fragment {
                                 }
                                 fileRecyclerViewAdapter.notifyDataSetChanged();
                                 break;
+                            case "contact":
+                                for (Contact contact : contactList) {
+                                    communicationInterfaceReference.invokeSingleSelection(contact, "contact", true);
+                                    contact.setSelected(true);
+                                }
+                                fileRecyclerViewAdapter.notifyDataSetChanged();
+                                break;
                         }
                     } else {
                         switch (fileType) {
@@ -198,6 +214,13 @@ public class FileShowFragment extends Fragment {
                                 for (Audio audio : audioList) {
                                     communicationInterfaceReference.invokeSingleSelection(audio, "audio", false);
                                     audio.setSelected(false);
+                                }
+                                fileRecyclerViewAdapter.notifyDataSetChanged();
+                                break;
+                            case "contact":
+                                for (Contact contact : contactList) {
+                                    communicationInterfaceReference.invokeSingleSelection(contact, "contact", false);
+                                    contact.setSelected(false);
                                 }
                                 fileRecyclerViewAdapter.notifyDataSetChanged();
                                 break;

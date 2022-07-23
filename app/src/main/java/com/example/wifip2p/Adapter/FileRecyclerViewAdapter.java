@@ -15,6 +15,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.wifip2p.Media.Audio;
+import com.example.wifip2p.Media.Contact;
 import com.example.wifip2p.Media.Image;
 import com.example.wifip2p.Media.Video;
 import com.example.wifip2p.R;
@@ -31,6 +32,7 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
     List<Image> imageList = new ArrayList<>();
     List<Video> videoList = new ArrayList<>();
     List<Audio> audioList = new ArrayList<>();
+    List<Contact> contactList = new ArrayList<>();
 
     private List<Bitmap> thumbnails;
     private List<?> dynamicList;
@@ -67,6 +69,9 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
             case "audio":
                 audioList.addAll((List<Audio>) dynamicList);
                 break;
+            case "contact":
+                contactList.addAll((List<Contact>) dynamicList);
+                break;
         }
         return new MyRecyclerViewHolder(view);
     }
@@ -101,16 +106,28 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
                     holder.checkBox.setChecked(false);
                 }
                 break;
+            case "contact":
+                Contact contact = contactList.get(position);
+                holder.bind(contact);
+                if (contact.isSelected()) {
+                    holder.checkBox.setChecked(true);
+                } else {
+                    holder.checkBox.setChecked(false);
+                }
+                break;
         }
+
 ////        setting drawable image for audio files
 ////        because they don't have bitmap thumbnails
-        if ("audio".equals(fileType)) {
+        if (fileType.equals("audio")) {
             holder.roundedImageView.setImageResource(R.drawable.ic_baseline_audiotrack_24);
+        } else if (fileType.equals("contact")) {
+            holder.roundedImageView.setImageResource(R.drawable.ic_baseline_person_24);
         } else {
             Bitmap thumbnail = thumbnails.get(position);
             holder.roundedImageView.setImageBitmap(thumbnail);
         }
-//
+
 ////        android intent to open image on click
 //        holder.roundedImageView.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -180,6 +197,12 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
                                 communicationInterfaceReference.invokeSingleSelection(audio, "audio", true);
                                 communicationInterfaceReference.invokeCheckSelection(typeCheckBox, fileType);
                                 break;
+                            case "contact":
+                                Contact contact = (Contact) object;
+                                contact.setSelected(true);
+                                communicationInterfaceReference.invokeSingleSelection(contact, "contact", true);
+                                communicationInterfaceReference.invokeCheckSelection(typeCheckBox, fileType);
+                                break;
                         }
                     } else {
                         switch (fileType) {
@@ -199,6 +222,12 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
                                 Audio audio = (Audio) object;
                                 audio.setSelected(false);
                                 communicationInterfaceReference.invokeSingleSelection(audio, "audio", false);
+                                communicationInterfaceReference.invokeCheckSelection(typeCheckBox, fileType);
+                                break;
+                            case "contact":
+                                Contact contact = (Contact) object;
+                                contact.setSelected(false);
+                                communicationInterfaceReference.invokeSingleSelection(contact, "contact", false);
                                 communicationInterfaceReference.invokeCheckSelection(typeCheckBox, fileType);
                                 break;
                         }

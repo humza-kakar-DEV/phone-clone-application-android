@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 
 import com.example.wifip2p.Media.Audio;
+import com.example.wifip2p.Media.Contact;
 import com.example.wifip2p.Media.Image;
 import com.example.wifip2p.Media.Video;
 import com.example.wifip2p.R;
@@ -22,21 +23,18 @@ import com.example.wifip2p.databinding.FragmentFileTypeBinding;
 import java.io.Serializable;
 import java.util.List;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link FileTypeFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class FileTypeFragment extends Fragment {
 
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private static final String ARG_PARAM3 = "param3";
+    private static final String ARG_PARAM4 = "param4";
     private static final String TAG = "hmFileType";
 
     private List<Image> imageList;
     private List<Video> videoList;
     private List<Audio> audioList;
+    private List<Contact> contactList;
 
     private Context context;
     private CommunicationInterfaceReference communicationInterfaceReference;
@@ -64,12 +62,13 @@ public class FileTypeFragment extends Fragment {
 
     }
 
-    public static FileTypeFragment newInstance(List<Image> imageList, List<Video> videoList, List<Audio> audioList) {
+    public static FileTypeFragment newInstance(List<Image> imageList, List<Video> videoList, List<Audio> audioList, List<Contact> contactList) {
         FileTypeFragment fragment = new FileTypeFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_PARAM1, (Serializable) imageList);
         args.putSerializable(ARG_PARAM2, (Serializable) videoList);
         args.putSerializable(ARG_PARAM3, (Serializable) audioList);
+        args.putSerializable(ARG_PARAM4, (Serializable) contactList);
         fragment.setArguments(args);
         return fragment;
     }
@@ -81,6 +80,7 @@ public class FileTypeFragment extends Fragment {
             imageList = (List<Image>) getArguments().getSerializable(ARG_PARAM1);
             videoList = (List<Video>) getArguments().getSerializable(ARG_PARAM2);
             audioList = (List<Audio>) getArguments().getSerializable(ARG_PARAM3);
+            contactList = (List<Contact>) getArguments().getSerializable(ARG_PARAM4);
         }
     }
 
@@ -96,6 +96,7 @@ public class FileTypeFragment extends Fragment {
         binding.imageTextView.setText(imageList.size() + " items");
         binding.videoTextView.setText(videoList.size() + " items");
         binding.audioTextView.setText(audioList.size() + " items");
+        binding.contactTextView.setText(contactList.size() + " items");
 
         binding.imageContainer.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,6 +116,13 @@ public class FileTypeFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 communicationInterfaceReference.invokeChangeFragment("audio", audioList);
+            }
+        });
+
+        binding.contactContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                communicationInterfaceReference.invokeChangeFragment("contact", contactList);
             }
         });
 
@@ -172,6 +180,24 @@ public class FileTypeFragment extends Fragment {
             }
         });
 
+        binding.contactCheckBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (binding.contactCheckBox.isChecked()) {
+                    communicationInterfaceReference.invokeClearList("contact");
+                    for (Contact contact : contactList) {
+                        communicationInterfaceReference.invokeSingleSelection(contact, "contact", true);
+                        contact.setSelected(true);
+                    }
+                } else {
+                    for (Contact contact : contactList) {
+                        communicationInterfaceReference.invokeSingleSelection(contact, "contact", false);
+                        contact.setSelected(false);
+                    }
+                }
+            }
+        });
+
         binding.sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -189,6 +215,7 @@ public class FileTypeFragment extends Fragment {
         communicationInterfaceReference.invokeCheckSelection(binding.imageCheckBox, "image");
         communicationInterfaceReference.invokeCheckSelection(binding.videoCheckBox, "video");
         communicationInterfaceReference.invokeCheckSelection(binding.audioCheckBox, "audio");
+        communicationInterfaceReference.invokeCheckSelection(binding.contactCheckBox, "contact");
     }
 
     @Override
