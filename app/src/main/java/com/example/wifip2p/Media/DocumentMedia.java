@@ -21,12 +21,7 @@ public class DocumentMedia {
 
     private static final String TAG = "hmDoc";
     Context context;
-    List<Document> documentList = new ArrayList<>();
-
-//    String[] contentUriPrefixesToTry = new String[]{
-//            "content://downloads/public_downloads",
-//            "content://downloads/my_downloads"
-//    };
+    List<Document> documentList = new ArrayList<Document>();
 
     public DocumentMedia(Context context) {
         this.context = context;
@@ -38,60 +33,37 @@ public class DocumentMedia {
 
         Uri collection;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            collection = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL );
+            collection = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL);
         } else {
             collection = MediaStore.Downloads.EXTERNAL_CONTENT_URI;
         }
 
-        Log.d(TAG, "generateDocuments: " + collection);
-
-// every column, although that is huge waste, you probably need
-// BaseColumns.DATA (the path) only.
         String[] projection = new String[] {
                 MediaStore.MediaColumns._ID,
-                MediaStore.MediaColumns.MIME_TYPE,
                 MediaStore.MediaColumns.DISPLAY_NAME,
+                MediaStore.MediaColumns.MIME_TYPE,
+                MediaStore.MediaColumns.SIZE,
         };
-
-// exclude media files, they would be here also.
-
-//        String selection = MediaStore.Downloads. + " = 'application/pdf'";
 
         String sortOrder = null; // unordered
 
-
-        try (Cursor cursorAllDocumentFiles = cr.query(collection, null, null, null, sortOrder)) {
+        try (Cursor cursorAllDocumentFiles = cr.query(collection, projection, null, null, sortOrder)) {
 
             int idDocumentColumn = cursorAllDocumentFiles.getColumnIndexOrThrow(MediaStore.MediaColumns._ID);
-            int documentTypeMimeColumn = cursorAllDocumentFiles.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE);
             int documentNameColumn = cursorAllDocumentFiles.getColumnIndexOrThrow(MediaStore.Downloads.DISPLAY_NAME);
-//            int documentTypeColumn = cursorAllDocumentFiles.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MEDIA_TYPE);
-//            int documentSizeColumn = cursorAllDocumentFiles.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE);
+            int documentTypeMimeColumn = cursorAllDocumentFiles.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE);
+            int documentSizeColumn = cursorAllDocumentFiles.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE);
 
             while (cursorAllDocumentFiles.moveToNext()) {
 
-//                Log.d(TAG, "generateDocuments: ");
-
                 long id = cursorAllDocumentFiles.getLong(idDocumentColumn);
                 String name = cursorAllDocumentFiles.getString(documentNameColumn);
-//                String type = cursorAllDocumentFiles.getString(documentTypeColumn);
                 String mimeType = cursorAllDocumentFiles.getString(documentTypeMimeColumn);
-//                int size = cursorAllDocumentFiles.getInt(documentSizeColumn);
-//                Uri contentUri = ContentUris.withAppendedId(uri, (id));
+                int size = cursorAllDocumentFiles.getInt(documentSizeColumn);
+                Uri contentUri = ContentUris.withAppendedId(collection, (id));
 
-//                Log.d(TAG, "mimeType: " + mimeType + " mediaType: " + type);
-                Log.d(TAG, "generateDocuments: " + mimeType);
+                documentList.add(new Document(id, contentUri, name, mimeType, size));
 
-//                documentList.add(new Document(id, contentUri, name, type, size));
-
-//                for (String contentUriPrefix : contentUriPrefixesToTry) {
-//                    try {
-//                         /*   final Uri contentUri = ContentUris.withAppendedId(
-//                                    Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));*/
-//
-//                    } catch (NumberFormatException e) {
-//                    }
-//                }
             }
         }
         return documentList;

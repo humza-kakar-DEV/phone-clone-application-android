@@ -20,7 +20,6 @@ public class ImageMedia {
     private static final String TAG = "hmImageClass";
     private Context context;
     private List<Image> imageList = new ArrayList<Image>();
-    CommunicationInterfaceReference communicationInterfaceReference;
 
     public ImageMedia (Context context) {
         this.context = context;
