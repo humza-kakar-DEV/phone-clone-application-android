@@ -19,13 +19,13 @@ public class ImageMedia {
 
     private static final String TAG = "hmImageClass";
     private Context context;
-    private List<Image> imageList = new ArrayList<Image>();
-
     public ImageMedia (Context context) {
         this.context = context;
     }
 
     public List<Image> generateImages () {
+
+        List<Image> imageList = new ArrayList<Image>();
 
         Uri collection;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {

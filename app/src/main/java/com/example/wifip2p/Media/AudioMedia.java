@@ -16,13 +16,14 @@ public class AudioMedia {
 
     private static final String TAG = "hmAudio";
     private Context context;
-    private List<Audio> audioList = new ArrayList<Audio>();
 
     public AudioMedia (Context context) {
         this.context = context;
     }
 
     public List<Audio> generateAudios () {
+
+        List<Audio> audioList = new ArrayList<Audio>();
 
         Uri collection;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {

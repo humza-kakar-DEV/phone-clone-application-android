@@ -11,6 +11,8 @@ import android.widget.Toast;
 
 import com.example.wifip2p.Fragment.FileShowFragment;
 import com.example.wifip2p.Fragment.FileTypeFragment;
+import com.example.wifip2p.Media.Apk;
+import com.example.wifip2p.Media.ApkMedia;
 import com.example.wifip2p.Media.Audio;
 import com.example.wifip2p.Media.AudioMedia;
 import com.example.wifip2p.Media.Contact;
@@ -35,13 +37,13 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
     private List<Audio> audioMegaList = new ArrayList<>();
     private List<Contact> contactMegaList = new ArrayList<>();
     private List<Document> documentMegaList = new ArrayList<>();
-    int size;
 
     ImageMedia imageMedia;
     VideoMedia videoMedia;
     AudioMedia audioMedia;
     ContactMedia contactMedia;
     DocumentMedia documentMedia;
+    ApkMedia apkMedia;
 
     private FrameLayout frameLayout;
     private FileTypeFragment fileTypeFragment;
@@ -59,10 +61,7 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
          audioMedia = new AudioMedia(this);
          contactMedia = new ContactMedia(this);
          documentMedia = new DocumentMedia(this);
-
-         for (Document document : documentMedia.generateDocuments()) {
-//             Log.d(TAG, "onCreate: " + document.getName());
-         }
+         apkMedia = new ApkMedia(this);
 
         fileTypeFragment = FileTypeFragment.newInstance(imageMedia.generateImages(), videoMedia.generateVideos(), audioMedia.generateAudios(), contactMedia.getContactList());
         getSupportFragmentManager()
@@ -154,15 +153,13 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
 
     @Override
     public void checkSelection(CheckBox checkBox, String type) {
-        size = imageMedia.getElementSize();
-        Log.d(TAG, "onCreate: " + size);
-        if (imageMegaList.size() == 51 && type.equals("image")) {
+        if (imageMegaList.size() == imageMedia.generateImages().size() && type.equals("image")) {
             checkBox.setChecked(true);
-        } else if (videoMegaList.size() == 3 && type.equals("video")) {
+        } else if (videoMegaList.size() == videoMedia.generateVideos().size() && type.equals("video")) {
             checkBox.setChecked(true);
-        } else if (audioMegaList.size() == 51 && type.equals("audio")) {
+        } else if (audioMegaList.size() == audioMedia.generateAudios().size() && type.equals("audio")) {
             checkBox.setChecked(true);
-        } else if (contactMegaList.size() == 14 && type.equals("contact")) {
+        } else if (contactMegaList.size() == contactMedia.getContactList().size() && type.equals("contact")) {
             checkBox.setChecked(true);
         } else {
             checkBox.setChecked(false);

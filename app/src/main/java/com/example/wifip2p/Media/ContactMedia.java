@@ -11,14 +11,15 @@ import java.util.Queue;
 
 public class ContactMedia {
 
-    List<Contact> contactList = new ArrayList<Contact>();
     Context context;
-
     public ContactMedia (Context context) {
         this.context = context;
     }
 
     public List<Contact> getContactList() {
+
+        List<Contact> contactList = new ArrayList<Contact>();
+
         ContentResolver cr = context.getContentResolver();
         Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
                 null, null, null, null);

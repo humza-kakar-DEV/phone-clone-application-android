@@ -21,13 +21,14 @@ public class DocumentMedia {
 
     private static final String TAG = "hmDoc";
     Context context;
-    List<Document> documentList = new ArrayList<Document>();
 
     public DocumentMedia(Context context) {
         this.context = context;
     }
 
     public List<Document> generateDocuments() {
+
+        List<Document> documentList = new ArrayList<Document>();
 
         ContentResolver cr = context.getContentResolver();
 

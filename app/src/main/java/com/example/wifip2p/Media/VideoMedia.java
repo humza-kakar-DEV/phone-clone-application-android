@@ -21,14 +21,15 @@ public class VideoMedia {
 
     private static final String TAG = "hmVideoClass";
     private Context context;
-    private List<Video> videoList = new ArrayList<Video>();
-    private List<Bitmap> thumbnails = new ArrayList<Bitmap>();
 
     public VideoMedia (Context context) {
         this.context = context;
     }
 
     public List<Video> generateVideos () {
+
+    List<Video> videoList = new ArrayList<Video>();
+
     Uri collection;
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         collection = MediaStore.Video.Media.getContentUri(MediaStore.VOLUME_EXTERNAL);
