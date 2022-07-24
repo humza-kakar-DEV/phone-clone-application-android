@@ -15,6 +15,8 @@ import com.example.wifip2p.Media.Audio;
 import com.example.wifip2p.Media.AudioMedia;
 import com.example.wifip2p.Media.Contact;
 import com.example.wifip2p.Media.ContactMedia;
+import com.example.wifip2p.Media.Document;
+import com.example.wifip2p.Media.DocumentMedia;
 import com.example.wifip2p.Media.Image;
 import com.example.wifip2p.Media.ImageMedia;
 import com.example.wifip2p.Media.Video;
@@ -32,10 +34,13 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
     private List<Video> videoMegaList = new ArrayList<>();
     private List<Audio> audioMegaList = new ArrayList<>();
     private List<Contact> contactMegaList = new ArrayList<>();
+    private List<Document> documentMegaList = new ArrayList<>();
+
     ImageMedia imageMedia;
     VideoMedia videoMedia;
     AudioMedia audioMedia;
     ContactMedia contactMedia;
+    DocumentMedia documentMedia;
 
     private FrameLayout frameLayout;
     private FileTypeFragment fileTypeFragment;
@@ -52,6 +57,11 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
          videoMedia = new VideoMedia(this);
          audioMedia = new AudioMedia(this);
          contactMedia = new ContactMedia(this);
+         documentMedia = new DocumentMedia(this);
+
+         for (Document document : documentMedia.generateDocuments()) {
+             Log.d(TAG, "onCreate: " + document.getName());
+         }
 
         fileTypeFragment = FileTypeFragment.newInstance(imageMedia.generateImages(), videoMedia.generateVideos(), audioMedia.generateAudios(), contactMedia.getContactList());
         getSupportFragmentManager()
