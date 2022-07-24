@@ -35,6 +35,7 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
     private List<Audio> audioMegaList = new ArrayList<>();
     private List<Contact> contactMegaList = new ArrayList<>();
     private List<Document> documentMegaList = new ArrayList<>();
+    int size;
 
     ImageMedia imageMedia;
     VideoMedia videoMedia;
@@ -60,7 +61,7 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
          documentMedia = new DocumentMedia(this);
 
          for (Document document : documentMedia.generateDocuments()) {
-             Log.d(TAG, "onCreate: " + document.getName());
+//             Log.d(TAG, "onCreate: " + document.getName());
          }
 
         fileTypeFragment = FileTypeFragment.newInstance(imageMedia.generateImages(), videoMedia.generateVideos(), audioMedia.generateAudios(), contactMedia.getContactList());
@@ -153,6 +154,8 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
 
     @Override
     public void checkSelection(CheckBox checkBox, String type) {
+        size = imageMedia.getElementSize();
+        Log.d(TAG, "onCreate: " + size);
         if (imageMegaList.size() == 51 && type.equals("image")) {
             checkBox.setChecked(true);
         } else if (videoMegaList.size() == 3 && type.equals("video")) {
