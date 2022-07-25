@@ -23,8 +23,10 @@ import android.widget.Toast;
 
 import com.example.wifip2p.Adapter.FileRecyclerViewAdapter;
 import com.example.wifip2p.MainActivity2;
+import com.example.wifip2p.Media.Apk;
 import com.example.wifip2p.Media.Audio;
 import com.example.wifip2p.Media.Contact;
+import com.example.wifip2p.Media.Document;
 import com.example.wifip2p.Media.Image;
 import com.example.wifip2p.Media.Video;
 import com.example.wifip2p.Utils.CommunicationInterface;
@@ -35,6 +37,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.DoubleConsumer;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -53,6 +56,8 @@ public class FileShowFragment extends Fragment {
     private List<Video> videoList = new ArrayList<Video>();
     private List<Audio> audioList = new ArrayList<Audio>();
     private List<Contact> contactList = new ArrayList<Contact>();
+    private List<Document> documentList = new ArrayList<Document>();
+    private List<Apk> apkList = new ArrayList<Apk>();
     private List<Bitmap> thumbnails = new ArrayList<Bitmap>();
     private String fileType;
 
@@ -145,6 +150,21 @@ public class FileShowFragment extends Fragment {
                 fileType = "contact";
                 fileRecyclerViewAdapter = new FileRecyclerViewAdapter (contactList, fileType, thumbnails, binding.allSelectCheckBox, context, getActivity());
                 break;
+            case "document":
+                binding.textViewHeading.setText("DOCUMENTS");
+                documentList.addAll((List<Document>) mParam2);
+                Log.d(TAG, "onCreateView: " + documentList.size());
+                communicationInterfaceReference.invokeCheckSelection(binding.allSelectCheckBox, mParam1);
+                fileType = "document";
+                fileRecyclerViewAdapter = new FileRecyclerViewAdapter (documentList, fileType, thumbnails, binding.allSelectCheckBox, context, getActivity());
+                break;
+            case "apk":
+                binding.textViewHeading.setText("APPLICATIONS");
+                apkList.addAll((List<Apk>) mParam2);
+                communicationInterfaceReference.invokeCheckSelection(binding.allSelectCheckBox, mParam1);
+                fileType = "apk";
+                fileRecyclerViewAdapter = new FileRecyclerViewAdapter (apkList, fileType, thumbnails, binding.allSelectCheckBox, context, getActivity());
+                break;
         }
 
 
@@ -193,6 +213,20 @@ public class FileShowFragment extends Fragment {
                                 }
                                 fileRecyclerViewAdapter.notifyDataSetChanged();
                                 break;
+                            case "document":
+                                for (Document document : documentList) {
+                                    communicationInterfaceReference.invokeSingleSelection(document, "document", true);
+                                    document.setSelected(true);
+                                }
+                                fileRecyclerViewAdapter.notifyDataSetChanged();
+                                break;
+                            case "apk":
+                                for (Apk apk : apkList) {
+                                    communicationInterfaceReference.invokeSingleSelection(apk, "apk", true);
+                                    apk.setSelected(true);
+                                }
+                                fileRecyclerViewAdapter.notifyDataSetChanged();
+                                break;
                         }
                     } else {
                         switch (fileType) {
@@ -221,6 +255,20 @@ public class FileShowFragment extends Fragment {
                                 for (Contact contact : contactList) {
                                     communicationInterfaceReference.invokeSingleSelection(contact, "contact", false);
                                     contact.setSelected(false);
+                                }
+                                fileRecyclerViewAdapter.notifyDataSetChanged();
+                                break;
+                            case "document":
+                                for (Document document : documentList) {
+                                    communicationInterfaceReference.invokeSingleSelection(document, "document", false);
+                                    document.setSelected(false);
+                                }
+                                fileRecyclerViewAdapter.notifyDataSetChanged();
+                                break;
+                            case "apk":
+                                for (Apk apk : apkList) {
+                                    communicationInterfaceReference.invokeSingleSelection(apk, "apk", false);
+                                    apk.setSelected(false);
                                 }
                                 fileRecyclerViewAdapter.notifyDataSetChanged();
                                 break;

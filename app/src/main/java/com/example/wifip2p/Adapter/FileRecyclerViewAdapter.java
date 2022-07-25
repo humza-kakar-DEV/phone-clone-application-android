@@ -3,19 +3,23 @@ package com.example.wifip2p.Adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Build;
 import android.util.Log;
+import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.wifip2p.Media.Apk;
 import com.example.wifip2p.Media.Audio;
 import com.example.wifip2p.Media.Contact;
+import com.example.wifip2p.Media.Document;
 import com.example.wifip2p.Media.Image;
 import com.example.wifip2p.Media.Video;
 import com.example.wifip2p.R;
@@ -23,6 +27,7 @@ import com.example.wifip2p.Utils.CommunicationInterface;
 import com.example.wifip2p.Utils.CommunicationInterfaceReference;
 import com.makeramen.roundedimageview.RoundedImageView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +38,8 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
     List<Video> videoList = new ArrayList<>();
     List<Audio> audioList = new ArrayList<>();
     List<Contact> contactList = new ArrayList<>();
+    List<Document> documentList = new ArrayList<>();
+    List<Apk> apkList = new ArrayList<>();
 
     private List<Bitmap> thumbnails;
     private List<?> dynamicList;
@@ -72,6 +79,12 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
             case "contact":
                 contactList.addAll((List<Contact>) dynamicList);
                 break;
+            case "document":
+                documentList.addAll((List<Document>) dynamicList);
+                break;
+            case "apk":
+                apkList.addAll((List<Apk>) dynamicList);
+                break;
         }
         return new MyRecyclerViewHolder(view);
     }
@@ -81,6 +94,7 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
         switch (fileType) {
             case "image":
                 Image image = imageList.get(position);
+                holder.roundedImageView.setImageBitmap(thumbnails.get(position));
                 holder.bind(image);
                 if (image.isSelected()) {
                     holder.checkBox.setChecked(true);
@@ -90,6 +104,7 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
                 break;
             case "video":
                 Video video = videoList.get(position);
+                holder.roundedImageView.setImageBitmap(thumbnails.get(position));
                 holder.bind(video);
                 if (video.isSelected()) {
                     holder.checkBox.setChecked(true);
@@ -99,6 +114,7 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
                 break;
             case "audio":
                 Audio audio = audioList.get(position);
+                holder.roundedImageView.setImageResource(R.drawable.ic_baseline_audiotrack_24);
                 holder.bind(audio);
                 if (audio.isSelected()) {
                     holder.checkBox.setChecked(true);
@@ -108,6 +124,7 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
                 break;
             case "contact":
                 Contact contact = contactList.get(position);
+                holder.roundedImageView.setImageResource(R.drawable.ic_baseline_person_24);
                 holder.bind(contact);
                 if (contact.isSelected()) {
                     holder.checkBox.setChecked(true);
@@ -115,33 +132,48 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
                     holder.checkBox.setChecked(false);
                 }
                 break;
+            case "document":
+                Document document = documentList.get(position);
+                Log.d(TAG, "onBindViewHolder: " + thumbnails.size());
+                holder.bind(document);
+                if (document.isSelected()) {
+                    holder.checkBox.setChecked(true);
+                } else {
+                    holder.checkBox.setChecked(false);
+                }
+                holder.roundedImageView.setImageResource(R.drawable.ic_baseline_article_24);
+                break;
+            case "apk":
+                Apk apk = apkList.get(position);
+                Log.d(TAG, "onBindViewHolder: " + thumbnails.size());
+                holder.bind(apk);
+                if (apk.isSelected()) {
+                    holder.checkBox.setChecked(true);
+                } else {
+                    holder.checkBox.setChecked(false);
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    try {
+                        holder.roundedImageView.setImageBitmap(context.getApplicationContext().getContentResolver().loadThumbnail(Uri.parse(apk.getPath()), new Size(640, 480), null));
+                    } catch (IOException e) {
+                    }
+                }
+                holder.roundedImageView.setImageBitmap(thumbnails.get(position));
+                break;
         }
 
 ////        setting drawable image for audio files
 ////        because they don't have bitmap thumbnails
         if (fileType.equals("audio")) {
-            holder.roundedImageView.setImageResource(R.drawable.ic_baseline_audiotrack_24);
+
         } else if (fileType.equals("contact")) {
             holder.roundedImageView.setImageResource(R.drawable.ic_baseline_person_24);
         } else {
-            Bitmap thumbnail = thumbnails.get(position);
-            holder.roundedImageView.setImageBitmap(thumbnail);
+//            Bitmap thumbnail = thumbnails.get(position);
+//            holder.roundedImageView.setImageBitmap(thumbnail);
         }
 
-////        android intent to open image on click
-//        holder.roundedImageView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Intent intent = new Intent();
-//                intent.setAction(Intent.ACTION_VIEW);
-//                if ("audio".equals(fileType)) {
-//                    intent.setDataAndType(image.getUri(), "audio/*");
-//                } else {
-//                    intent.setDataAndType(image.getUri(), "image/*");
-//                }
-//                context.startActivity(intent);
-//            }
-//        });
+//        android intent to open image on click
     }
 
     @Override
@@ -203,6 +235,18 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
                                 communicationInterfaceReference.invokeSingleSelection(contact, "contact", true);
                                 communicationInterfaceReference.invokeCheckSelection(typeCheckBox, fileType);
                                 break;
+                            case "document":
+                                Document document = (Document) object;
+                                document.setSelected(true);
+                                communicationInterfaceReference.invokeSingleSelection(document, "document", true);
+                                communicationInterfaceReference.invokeCheckSelection(typeCheckBox, fileType);
+                                break;
+                            case "apk":
+                                Apk apk = (Apk) object;
+                                apk.setSelected(true);
+                                communicationInterfaceReference.invokeSingleSelection(apk, "apk", true);
+                                communicationInterfaceReference.invokeCheckSelection(typeCheckBox, fileType);
+                                break;
                         }
                     } else {
                         switch (fileType) {
@@ -228,6 +272,18 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
                                 Contact contact = (Contact) object;
                                 contact.setSelected(false);
                                 communicationInterfaceReference.invokeSingleSelection(contact, "contact", false);
+                                communicationInterfaceReference.invokeCheckSelection(typeCheckBox, fileType);
+                                break;
+                            case "document":
+                                Document document = (Document) object;
+                                document.setSelected(false);
+                                communicationInterfaceReference.invokeSingleSelection(document, "document", false);
+                                communicationInterfaceReference.invokeCheckSelection(typeCheckBox, fileType);
+                                break;
+                            case "apk":
+                                Apk apk = (Apk) object;
+                                apk.setSelected(false);
+                                communicationInterfaceReference.invokeSingleSelection(apk, "apk", false);
                                 communicationInterfaceReference.invokeCheckSelection(typeCheckBox, fileType);
                                 break;
                         }

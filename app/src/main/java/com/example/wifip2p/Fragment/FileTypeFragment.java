@@ -1,6 +1,7 @@
 package com.example.wifip2p.Fragment;
 
 import android.content.Context;
+import android.hardware.lights.LightState;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -10,9 +11,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 
+import com.example.wifip2p.Media.Apk;
+import com.example.wifip2p.Media.ApkMedia;
 import com.example.wifip2p.Media.Audio;
 import com.example.wifip2p.Media.Contact;
+import com.example.wifip2p.Media.Document;
 import com.example.wifip2p.Media.Image;
 import com.example.wifip2p.Media.Video;
 import com.example.wifip2p.R;
@@ -29,12 +34,16 @@ public class FileTypeFragment extends Fragment {
     private static final String ARG_PARAM2 = "param2";
     private static final String ARG_PARAM3 = "param3";
     private static final String ARG_PARAM4 = "param4";
+    private static final String ARG_PARAM5 = "param5";
+    private static final String ARG_PARAM6 = "param6";
     private static final String TAG = "hmFileType";
 
     private List<Image> imageList;
     private List<Video> videoList;
     private List<Audio> audioList;
     private List<Contact> contactList;
+    private List<Document> documentList;
+    private List<Apk> apkList;
 
     private Context context;
     private CommunicationInterfaceReference communicationInterfaceReference;
@@ -62,13 +71,15 @@ public class FileTypeFragment extends Fragment {
 
     }
 
-    public static FileTypeFragment newInstance(List<Image> imageList, List<Video> videoList, List<Audio> audioList, List<Contact> contactList) {
+    public static FileTypeFragment newInstance(List<Image> imageList, List<Video> videoList, List<Audio> audioList, List<Contact> contactList, List<Document> documentList, List<Apk> apkList) {
         FileTypeFragment fragment = new FileTypeFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_PARAM1, (Serializable) imageList);
         args.putSerializable(ARG_PARAM2, (Serializable) videoList);
         args.putSerializable(ARG_PARAM3, (Serializable) audioList);
         args.putSerializable(ARG_PARAM4, (Serializable) contactList);
+        args.putSerializable(ARG_PARAM5, (Serializable) documentList);
+        args.putSerializable(ARG_PARAM6, (Serializable) apkList);
         fragment.setArguments(args);
         return fragment;
     }
@@ -81,6 +92,8 @@ public class FileTypeFragment extends Fragment {
             videoList = (List<Video>) getArguments().getSerializable(ARG_PARAM2);
             audioList = (List<Audio>) getArguments().getSerializable(ARG_PARAM3);
             contactList = (List<Contact>) getArguments().getSerializable(ARG_PARAM4);
+            documentList = (List<Document>) getArguments().getSerializable(ARG_PARAM5);
+            apkList = (List<Apk>) getArguments().getSerializable(ARG_PARAM6);
         }
     }
 
@@ -97,6 +110,8 @@ public class FileTypeFragment extends Fragment {
         binding.videoTextView.setText(videoList.size() + " items");
         binding.audioTextView.setText(audioList.size() + " items");
         binding.contactTextView.setText(contactList.size() + " items");
+        binding.documentTextView.setText(documentList.size() + " items");
+        binding.apkTextView.setText(apkList.size() + " items");
 
         binding.imageContainer.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -123,6 +138,20 @@ public class FileTypeFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 communicationInterfaceReference.invokeChangeFragment("contact", contactList);
+            }
+        });
+
+        binding.documentContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                communicationInterfaceReference.invokeChangeFragment("document", documentList);
+            }
+        });
+
+        binding.apkContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                communicationInterfaceReference.invokeChangeFragment("apk", apkList);
             }
         });
 
@@ -198,6 +227,42 @@ public class FileTypeFragment extends Fragment {
             }
         });
 
+        binding.documentCheckBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (binding.documentCheckBox.isChecked()) {
+                    communicationInterfaceReference.invokeClearList("document");
+                    for (Document document : documentList) {
+                        communicationInterfaceReference.invokeSingleSelection(document, "document", true);
+                        document.setSelected(true);
+                    }
+                } else {
+                    for (Document document : documentList) {
+                        communicationInterfaceReference.invokeSingleSelection(document, "document", false);
+                        document.setSelected(false);
+                    }
+                }
+            }
+        });
+
+        binding.apkCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (binding.apkCheckBox.isChecked()) {
+                    communicationInterfaceReference.invokeClearList("apk");
+                    for (Apk apk : apkList) {
+                        communicationInterfaceReference.invokeSingleSelection(apk, "apk", true);
+                        apk.setSelected(true);
+                    }
+                } else {
+                    for (Apk apk : apkList) {
+                        communicationInterfaceReference.invokeSingleSelection(apk, "apk", false);
+                        apk.setSelected(false);
+                    }
+                }
+            }
+        });
+
         binding.sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -216,6 +281,8 @@ public class FileTypeFragment extends Fragment {
         communicationInterfaceReference.invokeCheckSelection(binding.videoCheckBox, "video");
         communicationInterfaceReference.invokeCheckSelection(binding.audioCheckBox, "audio");
         communicationInterfaceReference.invokeCheckSelection(binding.contactCheckBox, "contact");
+        communicationInterfaceReference.invokeCheckSelection(binding.documentCheckBox, "document");
+        communicationInterfaceReference.invokeCheckSelection(binding.apkCheckBox, "apk");
     }
 
     @Override

@@ -34,36 +34,49 @@ public class DocumentMedia {
 
         Uri collection;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            collection = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL);
+//            collection = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL);
+            collection = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL);
         } else {
-            collection = MediaStore.Downloads.EXTERNAL_CONTENT_URI;
+            collection = MediaStore.Files.getContentUri("external");
+//            collection = MediaStore.Downloads.EXTERNAL_CONTENT_URI;
         }
 
         String[] projection = new String[] {
-                MediaStore.MediaColumns._ID,
-                MediaStore.MediaColumns.DISPLAY_NAME,
-                MediaStore.MediaColumns.MIME_TYPE,
-                MediaStore.MediaColumns.SIZE,
+                MediaStore.Files.FileColumns._ID,
+                MediaStore.Files.FileColumns.DISPLAY_NAME,
+                MediaStore.Files.FileColumns.MIME_TYPE,
+                MediaStore.Files.FileColumns.MEDIA_TYPE,
+                MediaStore.Files.FileColumns.SIZE,
+        };
+
+        String selection = MediaStore.Files.FileColumns.MEDIA_TYPE + " = " + MediaStore.Files.FileColumns.MEDIA_TYPE_DOCUMENT;
+
+        String[] selectionArg = new String[] {
+//                MimeTypeMap.getSingleton().getMimeTypeFromExtension("pdf"),
         };
 
         String sortOrder = null; // unordered
 
-        try (Cursor cursorAllDocumentFiles = cr.query(collection, projection, null, null, sortOrder)) {
+        try (Cursor cursorAllDocumentFiles = cr.query(collection, projection, selection, null, sortOrder)) {
 
-            int idDocumentColumn = cursorAllDocumentFiles.getColumnIndexOrThrow(MediaStore.MediaColumns._ID);
-            int documentNameColumn = cursorAllDocumentFiles.getColumnIndexOrThrow(MediaStore.Downloads.DISPLAY_NAME);
-            int documentTypeMimeColumn = cursorAllDocumentFiles.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE);
+            int idDocumentColumn = cursorAllDocumentFiles.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID);
+            int documentNameColumn = cursorAllDocumentFiles.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME);
+            int documentMimeTypeColumn = cursorAllDocumentFiles.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE);
+            int documentMediaTypeColumn = cursorAllDocumentFiles.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MEDIA_TYPE);
             int documentSizeColumn = cursorAllDocumentFiles.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE);
 
             while (cursorAllDocumentFiles.moveToNext()) {
 
                 long id = cursorAllDocumentFiles.getLong(idDocumentColumn);
                 String name = cursorAllDocumentFiles.getString(documentNameColumn);
-                String mimeType = cursorAllDocumentFiles.getString(documentTypeMimeColumn);
+                String mimeType = cursorAllDocumentFiles.getString(documentMimeTypeColumn);
+                String mediaType = cursorAllDocumentFiles.getString(documentMediaTypeColumn);
                 int size = cursorAllDocumentFiles.getInt(documentSizeColumn);
                 Uri contentUri = ContentUris.withAppendedId(collection, (id));
 
-                documentList.add(new Document(id, contentUri, name, mimeType, size));
+                Log.d(TAG, "generateDocuments: " + name);
+
+                documentList.add(new Document(id, contentUri, name, mimeType, mediaType, size, false));
 
             }
         }

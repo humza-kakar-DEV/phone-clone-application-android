@@ -37,6 +37,7 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
     private List<Audio> audioMegaList = new ArrayList<>();
     private List<Contact> contactMegaList = new ArrayList<>();
     private List<Document> documentMegaList = new ArrayList<>();
+    private List<Apk> apkMegaList = new ArrayList<>();
 
     ImageMedia imageMedia;
     VideoMedia videoMedia;
@@ -63,7 +64,7 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
          documentMedia = new DocumentMedia(this);
          apkMedia = new ApkMedia(this);
 
-        fileTypeFragment = FileTypeFragment.newInstance(imageMedia.generateImages(), videoMedia.generateVideos(), audioMedia.generateAudios(), contactMedia.getContactList());
+        fileTypeFragment = FileTypeFragment.newInstance(imageMedia.generateImages(), videoMedia.generateVideos(), audioMedia.generateAudios(), contactMedia.getContactList(), documentMedia.generateDocuments(), apkMedia.getInstalledapk());
         getSupportFragmentManager()
                 .beginTransaction()
                 .setCustomAnimations(
@@ -110,6 +111,12 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
             case "contact":
                 contactMegaList.clear();
                 break;
+            case "document":
+                documentMegaList.clear();
+                break;
+            case "apk":
+                apkMegaList.clear();
+                break;
         }
     }
 
@@ -148,6 +155,22 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
                     contactMegaList.remove(contact);
                 }
                 break;
+            case "document":
+                Document document = (Document) object;
+                if (state && !documentMegaList.contains(document)) {
+                    documentMegaList.add(document);
+                } else {
+                    documentMegaList.remove(document);
+                }
+                break;
+            case "apk":
+                Apk apk = (Apk) object;
+                if (state && !apkMegaList.contains(apk)) {
+                    apkMegaList.add(apk);
+                } else {
+                    apkMegaList.remove(apk);
+                }
+                break;
         }
     }
 
@@ -161,6 +184,10 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
             checkBox.setChecked(true);
         } else if (contactMegaList.size() == contactMedia.getContactList().size() && type.equals("contact")) {
             checkBox.setChecked(true);
+        } else if (documentMegaList.size() == documentMedia.generateDocuments().size() && type.equals("document")) {
+            checkBox.setChecked(true);
+        } else if (apkMegaList.size() == apkMedia.getInstalledapk().size() && type.equals("apk")) {
+            checkBox.setChecked(true);
         } else {
             checkBox.setChecked(false);
         }
@@ -168,9 +195,11 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
 
     @Override
     public void sendData() {
-        Toast.makeText(MainActivity2.this, "image size: " + imageMegaList.size(), Toast.LENGTH_SHORT).show();
-        Toast.makeText(MainActivity2.this, "video size: " + videoMegaList.size(), Toast.LENGTH_SHORT).show();
-        Toast.makeText(MainActivity2.this, "audio size: " + audioMegaList.size(), Toast.LENGTH_SHORT).show();
-        Toast.makeText(MainActivity2.this, "contact size: " + contactMegaList.size(), Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "image size: " + imageMegaList.size());
+        Log.d(TAG, "video size: " + videoMegaList.size());
+        Log.d(TAG, "audio size: " + audioMegaList.size());
+        Log.d(TAG, "contact size: " + contactMegaList.size());
+        Log.d(TAG, "document size: " + documentMegaList.size());
+        Log.d(TAG, "apk size: " + apkMegaList.size());
     }
 }

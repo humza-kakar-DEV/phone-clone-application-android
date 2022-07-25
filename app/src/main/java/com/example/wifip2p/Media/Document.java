@@ -7,15 +7,35 @@ public class Document {
     long id;
     Uri contentUri;
     String name;
-    String type;
+    String mimeType;
+    String mediaType;
     int size;
+    boolean isSelected;
 
-    public Document(long id, Uri contentUri, String name, String type, int size) {
+    public Document(long id, Uri contentUri, String name, String mimeType, String mediaType, int size, boolean isSelected) {
         this.id = id;
         this.contentUri = contentUri;
         this.name = name;
-        this.type = type;
+        this.mimeType = mimeType;
+        this.mediaType = mediaType;
         this.size = size;
+        this.isSelected = isSelected;
+    }
+
+    public String getMediaType() {
+        return mediaType;
+    }
+
+    public void setMediaType(String mediaType) {
+        this.mediaType = mediaType;
+    }
+
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
     }
 
     public long getId() {
@@ -42,12 +62,12 @@ public class Document {
         this.name = name;
     }
 
-    public String getType() {
-        return type;
+    public String getMimeType() {
+        return mimeType;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setMimeType(String mimeType) {
+        this.mimeType = mimeType;
     }
 
     public int getSize() {

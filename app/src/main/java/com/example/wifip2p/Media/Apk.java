@@ -8,10 +8,20 @@ public class Apk {
 
     String name;
     String path;
+    boolean isSelected;
 
-    public Apk(String name, String path) {
+    public Apk(String name, String path, boolean isSelected) {
         this.name = name;
         this.path = path;
+        this.isSelected = isSelected;
+    }
+
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
     }
 
     public String getName() {
