@@ -1,8 +1,11 @@
 package com.example.wifip2p.Media;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -17,18 +20,26 @@ public class ApkMedia {
         this.context = context;
     }
 
-    public List<Apk> getInstalledapk () {
+    public List<Apk> getInstalledPackages () {
 
-        List<Apk> apkList = new ArrayList<Apk>();
+        List<Apk> apkList = new ArrayList<>();
 
-        final PackageManager pm = context.getPackageManager();
-        List<ApplicationInfo> packages =  pm.getInstalledApplications(PackageManager.GET_META_DATA);
+        Intent intent = new Intent(Intent.ACTION_MAIN, null);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
 
-        for (ApplicationInfo packageInfo : packages) {
-            apkList.add(new Apk(packageInfo.packageName, packageInfo.sourceDir, false));
+        List<ResolveInfo> resolveInfos = context.getPackageManager().queryIntentActivities(intent, 0);
+
+        for (ResolveInfo resolveInfo : resolveInfos) {
+            String appName = resolveInfo.activityInfo.applicationInfo.name;
+            String appPackageName = resolveInfo.activityInfo.packageName;
+            String appPath = resolveInfo.activityInfo.applicationInfo.sourceDir;
+            Drawable appIcon = resolveInfo.activityInfo.loadIcon(context.getPackageManager());
+            
+            apkList.add(new Apk(appName, appPackageName, appPath, appIcon, false));
         }
 
         return apkList;
+
     }
 
 }

@@ -152,13 +152,7 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
                 } else {
                     holder.checkBox.setChecked(false);
                 }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    try {
-                        holder.roundedImageView.setImageBitmap(context.getApplicationContext().getContentResolver().loadThumbnail(Uri.parse(apk.getPath()), new Size(640, 480), null));
-                    } catch (IOException e) {
-                    }
-                }
-                holder.roundedImageView.setImageBitmap(thumbnails.get(position));
+                holder.roundedImageView.setImageDrawable(apk.getAppIcon());
                 break;
         }
 

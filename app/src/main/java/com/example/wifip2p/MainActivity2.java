@@ -64,7 +64,7 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
          documentMedia = new DocumentMedia(this);
          apkMedia = new ApkMedia(this);
 
-        fileTypeFragment = FileTypeFragment.newInstance(imageMedia.generateImages(), videoMedia.generateVideos(), audioMedia.generateAudios(), contactMedia.getContactList(), documentMedia.generateDocuments(), apkMedia.getInstalledapk());
+        fileTypeFragment = FileTypeFragment.newInstance(imageMedia.generateImages(), videoMedia.generateVideos(), audioMedia.generateAudios(), contactMedia.getContactList(), documentMedia.generateDocuments(), apkMedia.getInstalledPackages());
         getSupportFragmentManager()
                 .beginTransaction()
                 .setCustomAnimations(
@@ -186,7 +186,7 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
             checkBox.setChecked(true);
         } else if (documentMegaList.size() == documentMedia.generateDocuments().size() && type.equals("document")) {
             checkBox.setChecked(true);
-        } else if (apkMegaList.size() == apkMedia.getInstalledapk().size() && type.equals("apk")) {
+        } else if (apkMegaList.size() == apkMedia.getInstalledPackages().size() && type.equals("apk")) {
             checkBox.setChecked(true);
         } else {
             checkBox.setChecked(false);

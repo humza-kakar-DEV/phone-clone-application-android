@@ -25,6 +25,7 @@ public class PermissionActivity extends AppCompatActivity {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_CONTACTS,
+            Manifest.permission.QUERY_ALL_PACKAGES,
     };
 
     @Override
@@ -40,8 +41,9 @@ public class PermissionActivity extends AppCompatActivity {
         int result1 = checkSelfPermission(permissions[0]);
         int result2 = checkSelfPermission(permissions[1]);
         int result3 = checkSelfPermission(permissions[2]);
+        int result4 = checkSelfPermission(permissions[3]);
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-            if (Environment.isExternalStorageManager() && (result1 == PackageManager.PERMISSION_GRANTED) && (result2 == PackageManager.PERMISSION_GRANTED)) {
+            if (Environment.isExternalStorageManager() && (result1 == PackageManager.PERMISSION_GRANTED) && (result2 == PackageManager.PERMISSION_GRANTED) && (result3 == PackageManager.PERMISSION_GRANTED)) {
                 startActivity(intent);
             } else {
                 Toast.makeText(this, "All file access is required", Toast.LENGTH_SHORT).show();
