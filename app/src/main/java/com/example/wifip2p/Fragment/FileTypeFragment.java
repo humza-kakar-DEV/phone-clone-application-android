@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.Toast;
 
 import com.example.wifip2p.Media.Apk;
 import com.example.wifip2p.Media.ApkMedia;
@@ -113,6 +114,31 @@ public class FileTypeFragment extends Fragment {
         binding.documentTextView.setText(documentList.size() + " items");
         binding.apkTextView.setText(apkList.size() + " items");
 
+        if (binding.imageCheckBox.isChecked() && binding.videoCheckBox.isChecked() && binding.audioCheckBox.isChecked() && binding.documentCheckBox.isChecked() && binding.apkCheckBox.isChecked() && binding.contactCheckBox.isChecked()) {
+            binding.allSelectCheckBox.setChecked(true);
+        }
+
+        binding.allSelectCheckBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (binding.allSelectCheckBox.isChecked()) {
+                    binding.imageCheckBox.setChecked(true);
+                    binding.videoCheckBox.setChecked(true);
+                    binding.audioCheckBox.setChecked(true);
+                    binding.contactCheckBox.setChecked(true);
+                    binding.documentCheckBox.setChecked(true);
+                    binding.apkCheckBox.setChecked(true);
+                } else {
+                    binding.imageCheckBox.setChecked(false);
+                    binding.videoCheckBox.setChecked(false);
+                    binding.audioCheckBox.setChecked(false);
+                    binding.contactCheckBox.setChecked(false);
+                    binding.documentCheckBox.setChecked(false);
+                    binding.apkCheckBox.setChecked(false);
+                }
+            }
+        });
+
         binding.imageContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -165,6 +191,7 @@ public class FileTypeFragment extends Fragment {
                         image.setSelected(true);
                     }
                 } else {
+                    binding.allSelectCheckBox.setChecked(false);
                     for (Image image : imageList) {
                         communicationInterfaceReference.invokeSingleSelection(image, "image", false);
                         image.setSelected(false);
@@ -183,6 +210,7 @@ public class FileTypeFragment extends Fragment {
                         video.setSelected(true);
                     }
                 } else {
+                    binding.allSelectCheckBox.setChecked(false);
                     for (Video video : videoList) {
                         communicationInterfaceReference.invokeSingleSelection(video, "video", false);
                         video.setSelected(false);
@@ -201,6 +229,7 @@ public class FileTypeFragment extends Fragment {
                         audio.setSelected(true);
                     }
                 } else {
+                    binding.allSelectCheckBox.setChecked(false);
                     for (Audio audio : audioList) {
                         communicationInterfaceReference.invokeSingleSelection(audio, "audio", false);
                         audio.setSelected(false);
@@ -219,6 +248,7 @@ public class FileTypeFragment extends Fragment {
                         contact.setSelected(true);
                     }
                 } else {
+                    binding.allSelectCheckBox.setChecked(false);
                     for (Contact contact : contactList) {
                         communicationInterfaceReference.invokeSingleSelection(contact, "contact", false);
                         contact.setSelected(false);
@@ -237,6 +267,7 @@ public class FileTypeFragment extends Fragment {
                         document.setSelected(true);
                     }
                 } else {
+                    binding.allSelectCheckBox.setChecked(false);
                     for (Document document : documentList) {
                         communicationInterfaceReference.invokeSingleSelection(document, "document", false);
                         document.setSelected(false);
@@ -255,6 +286,7 @@ public class FileTypeFragment extends Fragment {
                         apk.setSelected(true);
                     }
                 } else {
+                    binding.allSelectCheckBox.setChecked(false);
                     for (Apk apk : apkList) {
                         communicationInterfaceReference.invokeSingleSelection(apk, "apk", false);
                         apk.setSelected(false);
