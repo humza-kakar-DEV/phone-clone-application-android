@@ -74,8 +74,6 @@ public class DocumentMedia {
                 int size = cursorAllDocumentFiles.getInt(documentSizeColumn);
                 Uri contentUri = ContentUris.withAppendedId(collection, (id));
 
-                Log.d(TAG, "generateDocuments: " + contentUri);
-
                 documentList.add(new Document(id, contentUri, name, mimeType, mediaType, size, false));
 
             }
