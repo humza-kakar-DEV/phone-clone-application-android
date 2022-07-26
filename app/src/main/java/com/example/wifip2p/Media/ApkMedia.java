@@ -23,18 +23,19 @@ public class ApkMedia {
     public List<Apk> getInstalledPackages () {
 
         List<Apk> apkList = new ArrayList<>();
+        List<ResolveInfo> resolveInfos = new ArrayList<>();
 
         Intent intent = new Intent(Intent.ACTION_MAIN, null);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
 
-        List<ResolveInfo> resolveInfos = context.getPackageManager().queryIntentActivities(intent, 0);
+        resolveInfos = context.getPackageManager().queryIntentActivities(intent, 0);
 
         for (ResolveInfo resolveInfo : resolveInfos) {
             String appName = resolveInfo.activityInfo.applicationInfo.name;
             String appPackageName = resolveInfo.activityInfo.packageName;
             String appPath = resolveInfo.activityInfo.applicationInfo.sourceDir;
             Drawable appIcon = resolveInfo.activityInfo.loadIcon(context.getPackageManager());
-            
+
             apkList.add(new Apk(appName, appPackageName, appPath, appIcon, false));
         }
 

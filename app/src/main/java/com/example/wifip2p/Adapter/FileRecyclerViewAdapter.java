@@ -133,41 +133,26 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
                 }
                 break;
             case "document":
+                holder.roundedImageView.setImageResource(R.drawable.ic_baseline_article_24);
                 Document document = documentList.get(position);
-                Log.d(TAG, "onBindViewHolder: " + thumbnails.size());
                 holder.bind(document);
                 if (document.isSelected()) {
                     holder.checkBox.setChecked(true);
                 } else {
                     holder.checkBox.setChecked(false);
                 }
-                holder.roundedImageView.setImageResource(R.drawable.ic_baseline_article_24);
                 break;
             case "apk":
                 Apk apk = apkList.get(position);
-                Log.d(TAG, "onBindViewHolder: " + thumbnails.size());
+                holder.roundedImageView.setImageDrawable(apk.getAppIcon());
                 holder.bind(apk);
                 if (apk.isSelected()) {
                     holder.checkBox.setChecked(true);
                 } else {
                     holder.checkBox.setChecked(false);
                 }
-                holder.roundedImageView.setImageDrawable(apk.getAppIcon());
                 break;
         }
-
-////        setting drawable image for audio files
-////        because they don't have bitmap thumbnails
-        if (fileType.equals("audio")) {
-
-        } else if (fileType.equals("contact")) {
-            holder.roundedImageView.setImageResource(R.drawable.ic_baseline_person_24);
-        } else {
-//            Bitmap thumbnail = thumbnails.get(position);
-//            holder.roundedImageView.setImageBitmap(thumbnail);
-        }
-
-//        android intent to open image on click
     }
 
     @Override

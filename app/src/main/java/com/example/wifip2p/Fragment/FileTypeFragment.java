@@ -114,10 +114,6 @@ public class FileTypeFragment extends Fragment {
         binding.documentTextView.setText(documentList.size() + " items");
         binding.apkTextView.setText(apkList.size() + " items");
 
-        if (binding.imageCheckBox.isChecked() && binding.videoCheckBox.isChecked() && binding.audioCheckBox.isChecked() && binding.documentCheckBox.isChecked() && binding.apkCheckBox.isChecked() && binding.contactCheckBox.isChecked()) {
-            binding.allSelectCheckBox.setChecked(true);
-        }
-
         binding.allSelectCheckBox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -138,6 +134,11 @@ public class FileTypeFragment extends Fragment {
                 }
             }
         });
+
+        if (binding.imageCheckBox.isSelected() && binding.videoCheckBox.isChecked() && binding.audioCheckBox.isChecked() && binding.documentCheckBox.isChecked() && binding.apkCheckBox.isChecked() && binding.contactCheckBox.isChecked()) {
+            Toast.makeText(context, "", Toast.LENGTH_SHORT).show();
+            binding.allSelectCheckBox.setChecked(true);
+        }
 
         binding.imageContainer.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -276,9 +277,9 @@ public class FileTypeFragment extends Fragment {
             }
         });
 
-        binding.apkCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        binding.apkCheckBox.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+            public void onClick(View view) {
                 if (binding.apkCheckBox.isChecked()) {
                     communicationInterfaceReference.invokeClearList("apk");
                     for (Apk apk : apkList) {
