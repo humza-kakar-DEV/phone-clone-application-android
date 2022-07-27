@@ -34,6 +34,7 @@ public class AudioMedia {
         //    songId, songTitle, songArtist, path, genre, duration
         String[] projection = new String[] {
                 MediaStore.Audio.Media._ID,
+                MediaStore.Audio.Media.MIME_TYPE,
                 MediaStore.Audio.Media.DISPLAY_NAME,
                 MediaStore.Audio.Media.ARTIST,
                 MediaStore.Audio.Media.DURATION,
@@ -57,6 +58,7 @@ public class AudioMedia {
         )) {
             // Cache column indices.
             int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID);
+            int mimeTypeColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.MIME_TYPE);
             int songNameColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME);
             int songArtistColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST);
             int songDuration = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION);
@@ -64,6 +66,7 @@ public class AudioMedia {
             while (cursor.moveToNext()) {
                 // Get values of columns for a given video.
                 long id = cursor.getLong(idColumn);
+                String mimeType = cursor.getString(mimeTypeColumn);
                 String songName = cursor.getString(songNameColumn);
                 String songArtist = cursor.getString(songArtistColumn);
                 long duration = cursor.getInt(songDuration);
@@ -73,8 +76,7 @@ public class AudioMedia {
 
                 // Stores column values and the contentUri in a local object
                 // that represents the media file.
-                audioList.add(new Audio(contentUri, songName, songArtist, duration, false));
-                Log.d(TAG, "getAudios: " + contentUri);
+                audioList.add(new Audio(contentUri.toString(), mimeType, songName, songArtist, duration, false));
             }
 
             return audioList;

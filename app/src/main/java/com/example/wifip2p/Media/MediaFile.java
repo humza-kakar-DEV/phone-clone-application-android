@@ -22,7 +22,7 @@ public class MediaFile {
         List<Uri> uriList = new ArrayList<>();
         AudioMedia audioMedia = new AudioMedia(context);
         for (Audio audio : audioMedia.generateAudios()) {
-            uriList.add(audio.getUri());
+            uriList.add(Uri.parse(audio.getUri()));
         }
         return uriList;
     }

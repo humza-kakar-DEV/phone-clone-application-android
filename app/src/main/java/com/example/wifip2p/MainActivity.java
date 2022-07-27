@@ -25,6 +25,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.wifip2p.Media.Audio;
+import com.example.wifip2p.Media.AudioMedia;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     WifiP2pDevice[] deviceArray;
     ServerThread serverThread;
     ClientThread clientThread;
+    List<Audio> audioList = new ArrayList<>();
 
     private final IntentFilter intentFilter = new IntentFilter();
     private WifiP2pManager manager;
@@ -57,14 +62,16 @@ public class MainActivity extends AppCompatActivity {
 //      starting thread, always call start method which will
 //      run thread in background, run method executes thread
 //      on ui/main thread
+
         serverThread = new ServerThread(MainActivity.this);
         serverThread.setName("server thread");
         serverThread.start();
-// ------------------ END -----------------
 
         clientThread = new ClientThread(MainActivity.this);
         clientThread.setName("client thread");
         clientThread.start();
+
+// ------------------ END -----------------
 
         // Indicates a change in the Wi-Fi P2P status.
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
@@ -175,20 +182,24 @@ public class MainActivity extends AppCompatActivity {
             String groupOwnerAddress = wifiP2pInfo.groupOwnerAddress.getHostAddress();
             if (wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner) {
 //                server block which will receive files from client
+
                 Toast.makeText(MainActivity.this, "connection owner", Toast.LENGTH_SHORT).show();
                 textView.setText("CONNECTION OWNER");
                 Message message = Message.obtain();
                 message.arg1 = 1;
                 serverThread.serverThreadHandler.sendMessage(message);
+
             } else if (wifiP2pInfo.groupFormed) {
 //                client block which will send files to the server
                 Toast.makeText(MainActivity.this, "connection client", Toast.LENGTH_SHORT).show();
                 textView.setText("CONNECTION CLIENT");
+
                 Bundle bundle = new Bundle();
                 bundle.putString("hmHostAddress", groupOwnerAddress);
                 Message message = Message.obtain();
                 message.setData(bundle);
                 clientThread.clientThreadHandler.sendMessage(message);
+
             }
         }
     };

@@ -135,7 +135,7 @@ public class FileShowFragment extends Fragment {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     try {
                         for (Audio audio : audioList) {
-                            thumbnails.add(context.getApplicationContext().getContentResolver().loadThumbnail(audio.getUri(), new Size(640, 480), null));
+                            thumbnails.add(context.getApplicationContext().getContentResolver().loadThumbnail(Uri.parse(audio.getUri()), new Size(640, 480), null));
                         }
                     } catch (IOException e) {
                     }

@@ -10,6 +10,7 @@ import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.example.wifip2p.Fragment.FileShareFragment;
 import com.example.wifip2p.Fragment.FileShowFragment;
 import com.example.wifip2p.Fragment.FileTypeFragment;
 import com.example.wifip2p.Media.Apk;
@@ -202,5 +203,17 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
         Log.d(TAG, "contact size: " + contactMegaList.size());
         Log.d(TAG, "document size: " + documentMegaList.size());
         Log.d(TAG, "apk size: " + apkMegaList.size());
+
+        getSupportFragmentManager()
+                .beginTransaction()
+                .setCustomAnimations(
+                        R.anim.fragment_slide_in,  // enter
+                        R.anim.fragment_fade_out,  // exit
+                        R.anim.fragment_fade_in,   // popEnter
+                        R.anim.fragment_slide_out  // popExit
+                )
+                .replace(frameLayout.getId(), FileShareFragment.newInstance(null, audioMegaList))
+                .addToBackStack(null)
+                .commit();
     }
 }
