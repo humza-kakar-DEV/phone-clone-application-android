@@ -28,7 +28,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClientThread extends Thread implements Serializable {
+public class ClientThread extends Thread {
 
     ClientThreadHandler clientThreadHandler;
     MainActivity mainActivity;
@@ -47,15 +47,20 @@ public class ClientThread extends Thread implements Serializable {
         Looper.loop();
     }
 
-    public class ClientThreadHandler extends Handler implements Serializable {
+    public ClientThreadHandler getClientThreadHandler() {
+        return clientThreadHandler;
+    }
+
+    public class ClientThreadHandler extends Handler {
+
+        private static final String AUDIO_TAG = "hmAudioKey";
 
         MainActivity mainActivity;
         Context context;
         Socket socket = new Socket();
         byte buf[]  = new byte[1024];
         int len;
-        List<Audio> audioList = new ArrayList<>();
-        List<Audio> audioListNew = new ArrayList<>();
+        Audio audio;
 
         public ClientThreadHandler (MainActivity mainActivity) {
             this.mainActivity = mainActivity;
@@ -66,103 +71,86 @@ public class ClientThread extends Thread implements Serializable {
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
 
-//            InputStream inputStreamObject = null;
-//            InputStream inputStream = null;
-
-            AudioMedia audioMedia = new AudioMedia(mainActivity);
-            audioList.addAll(audioMedia.generateAudios());
-            for (int i = 0; i <= 3; i++) {
-                audioListNew.add(audioList.get(i));
+            if (msg.getData() != null) {
+                audio = (Audio) msg.getData().getSerializable(AUDIO_TAG);
+                Log.d(TAG_FILE, "audio from CLIENT thread HANDLER: " + audio.getSongName());
             }
 
-            Audio audio = audioListNew.get(0);
-
-            try {
-
-//                *******************   SENDING OBJECT TO SERVER SOCKET   *******************
-
-                String host = msg.getData().getString("hmHostAddress");
-                socket.bind(null);
-                socket.connect(new InetSocketAddress(host, 8888), 5000);
-                Log.d(TAG, "client thread: connected to server thread WELCOME!");
-
-                ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-
-                objectOutputStream.writeObject(audioListNew);
-
-//                --------------------------------------
-
-//                **********    SENDING AUDIO FILES THROUGH SOCKETS *********
-
-//                Log.d(TAG, "client thread: started before connection");
+//            try {
+//
+////     *******************   SENDING OBJECT & INPUT STREAMS TO SERVER SOCKET   *******************
 //
 //                String host = msg.getData().getString("hmHostAddress");
 //                socket.bind(null);
 //                socket.connect(new InetSocketAddress(host, 8888), 5000);
-//
 //                Log.d(TAG, "client thread: connected to server thread WELCOME!");
-
-                OutputStream os = socket.getOutputStream();
-                PrintWriter pw = new PrintWriter(os);
-
-                InputStream is = socket.getInputStream();
-                InputStreamReader isr = new InputStreamReader(is);
-                BufferedReader br = new BufferedReader(isr);
-
-                ContentResolver contentResolver = context.getApplicationContext().getContentResolver();
-                FileInputStream fis = (FileInputStream) contentResolver.openInputStream(Uri.parse(audio.getUri()));
-
-                byte[] buffer = new byte[fis.available()];
-
-                BufferedInputStream bis = new BufferedInputStream(fis);
-
-                while(true)
-                {
-
-                    int bytesRead = bis.read(buffer, 0, buffer.length);
-
-                    if(bytesRead == -1)
-                    {
-                        break;
-                    }
-
-                    //BytesToSend = BytesToSend - bytesRead;
-                    os.write(buffer,0, bytesRead);
-                    os.flush();
-                }
-
-//                --------------------------------------------------------
-
-//                OutputStream outputStream = socket.getOutputStream();
-//                ContentResolver cr = context.getContentResolver();
-//                File file = new File("/sdcard/DCIM/Camera/download.jpg");
-//                FileInputStream fileInputStream = new FileInputStream(file);
 //
-//                Log.d(TAG_FILE, "client thread - file size: " + fileInputStream.available());
+//                ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
 //
-//                while ((len = fileInputStream.read(buf)) != -1) {
-//                    outputStream.write(buf, 0, len);
+////                objectOutputStream.writeObject(audioListNew);
+//
+//                OutputStream os = socket.getOutputStream();
+//                PrintWriter pw = new PrintWriter(os);
+//
+//                InputStream is = socket.getInputStream();
+//                InputStreamReader isr = new InputStreamReader(is);
+//                BufferedReader br = new BufferedReader(isr);
+//
+//                ContentResolver contentResolver = context.getApplicationContext().getContentResolver();
+//                FileInputStream fis = (FileInputStream) contentResolver.openInputStream(Uri.parse(audio.getUri()));
+//
+//                byte[] buffer = new byte[fis.available()];
+//
+//                BufferedInputStream bis = new BufferedInputStream(fis);
+//
+//                while(true)
+//                {
+//
+//                    int bytesRead = bis.read(buffer, 0, buffer.length);
+//
+//                    if(bytesRead == -1)
+//                    {
+//                        break;
+//                    }
+//
+//                    //BytesToSend = BytesToSend - bytesRead;
+//                    os.write(buffer,0, bytesRead);
+//                    os.flush();
 //                }
 //
-//                outputStream.close();
-//                fileInputStream.close();
-            } catch (Exception e) {
-
-                Log.d(TAG, "client error: " + e.getMessage());
-                Log.d(TAG, "client localized: " + e.getLocalizedMessage());
-                Log.d(TAG, "client stack trace: " + e.getStackTrace());
-
-            } finally {
-                if (socket != null) {
-                    if (socket.isConnected()) {
-                        try {
-                            socket.close();
-                        } catch (IOException e) {
-                            //catch logic
-                        }
-                    }
-                }
-            }
+////                --------------------------------------------------------
+//
+////                OutputStream outputStream = socket.getOutputStream();
+////                ContentResolver cr = context.getContentResolver();
+////                File file = new File("/sdcard/DCIM/Camera/download.jpg");
+////                FileInputStream fileInputStream = new FileInputStream(file);
+////
+////                Log.d(TAG_FILE, "client thread - file size: " + fileInputStream.available());
+////
+////                while ((len = fileInputStream.read(buf)) != -1) {
+////                    outputStream.write(buf, 0, len);
+////                }
+////
+////                outputStream.close();
+////                fileInputStream.close();
+//
+//            } catch (Exception e) {
+//
+//                Log.d(TAG, "client error: " + e.getMessage());
+//                Log.d(TAG, "client localized: " + e.getLocalizedMessage());
+//                Log.d(TAG, "client stack trace: " + e.getStackTrace());
+//
+//            } finally {
+//                if (socket != null) {
+//                    if (socket.isConnected()) {
+//                        try {
+//                            socket.close();
+//                        } catch (IOException e) {
+//                            //catch logic
+//                        }
+//                    }
+//                }
+//            }
         }
     }
 }

@@ -16,6 +16,7 @@ import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
@@ -35,6 +36,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "hmConnection";
+    private static final String AUDIO_TAG = "hmAudioKey";
 
     private ListView listView;
     private TextView textView;
@@ -59,6 +61,12 @@ public class MainActivity extends AppCompatActivity {
         listView = (ListView) findViewById(R.id.listView);
         textView = (TextView) findViewById(R.id.textView);
 
+        AudioMedia audioMedia = new AudioMedia(this);
+
+        for (int i = 0; i <= 3; i++) {
+            audioList.add(audioMedia.generateAudios().get(i));
+        }
+
 //      starting thread, always call start method which will
 //      run thread in background, run method executes thread
 //      on ui/main thread
@@ -71,7 +79,17 @@ public class MainActivity extends AppCompatActivity {
         clientThread.setName("client thread");
         clientThread.start();
 
-// ------------------ END -----------------
+// ------------------**************---------------------
+
+        if (clientThread.getClientThreadHandler() != null) {
+            for (Audio audio : audioList) {
+                Bundle bundle = new Bundle();
+                Message message = Message.obtain();
+                bundle.putSerializable(AUDIO_TAG, audio);
+                message.setData(bundle);
+                clientThread.getClientThreadHandler().sendMessage(message);
+            }
+        }
 
         // Indicates a change in the Wi-Fi P2P status.
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
@@ -90,11 +108,11 @@ public class MainActivity extends AppCompatActivity {
 
         manager.removeGroup(channel , actionListener);
 
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            Thread.sleep(3000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
@@ -193,12 +211,15 @@ public class MainActivity extends AppCompatActivity {
 //                client block which will send files to the server
                 Toast.makeText(MainActivity.this, "connection client", Toast.LENGTH_SHORT).show();
                 textView.setText("CONNECTION CLIENT");
-
+                Message message = Message.obtain();
                 Bundle bundle = new Bundle();
                 bundle.putString("hmHostAddress", groupOwnerAddress);
-                Message message = Message.obtain();
-                message.setData(bundle);
-                clientThread.clientThreadHandler.sendMessage(message);
+
+                for (Audio audio : audioList) {
+                    bundle.putSerializable(AUDIO_TAG, audio);
+                    message.setData(bundle);
+                    clientThread.clientThreadHandler.sendMessage(message);
+                }
 
             }
         }
