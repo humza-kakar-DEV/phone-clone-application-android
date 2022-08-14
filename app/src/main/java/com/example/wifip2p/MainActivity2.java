@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Fragment;
 import android.os.Bundle;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
@@ -34,6 +35,7 @@ import java.util.List;
 public class MainActivity2 extends AppCompatActivity implements CommunicationInterface {
 
     private static final String TAG = "hmMainActivity2";
+    public static final String TAG_FILE_THREAD = "humLoad";
     private List<Image> imageMegaList = new ArrayList<Image>();
     private List<Video> videoMegaList = new ArrayList<>();
     private List<Audio> audioMegaList = new ArrayList<>();
@@ -41,15 +43,14 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
     private List<Document> documentMegaList = new ArrayList<>();
     private List<Apk> apkMegaList = new ArrayList<>();
 
-    ImageMedia imageMedia;
-    VideoMedia videoMedia;
-    AudioMedia audioMedia;
-    ContactMedia contactMedia;
-    DocumentMedia documentMedia;
-    ApkMedia apkMedia;
+    int imageSize;
+    int audioSize;
+    int videoSize;
+    int documentSize;
+    int contactSize;
+    int apkSize;
 
     private FrameLayout frameLayout;
-    private FileTypeFragment fileTypeFragment;
     private FileShowFragment fileShowFragment;
 
     @Override
@@ -59,14 +60,15 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
 
         frameLayout = findViewById(R.id.frameLayout);
 
-         imageMedia = new ImageMedia(this);
-         videoMedia = new VideoMedia(this);
-         audioMedia = new AudioMedia(this);
-         contactMedia = new ContactMedia(this);
-         documentMedia = new DocumentMedia(this);
-         apkMedia = new ApkMedia(this);
+        if (getIntent() != null) {
+            imageSize = getIntent().getIntExtra("per1", 0);
+            audioSize = getIntent().getIntExtra("per2", 0);
+            videoSize = getIntent().getIntExtra("per3", 0);
+            documentSize = getIntent().getIntExtra("per4", 0);
+            contactSize = getIntent().getIntExtra("per5", 0);
+            apkSize = getIntent().getIntExtra("per6", 0);
+        }
 
-        fileTypeFragment = FileTypeFragment.newInstance(imageMedia.generateImages(), videoMedia.generateVideos(), audioMedia.generateAudios(), contactMedia.getContactList(), documentMedia.generateDocuments(), apkMedia.getInstalledPackages());
         getSupportFragmentManager()
                 .beginTransaction()
                 .setCustomAnimations(
@@ -75,7 +77,7 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
                         R.anim.fragment_fade_in,   // popEnter
                         R.anim.fragment_slide_out  // popExit
                 )
-                .replace(frameLayout.getId(), fileTypeFragment)
+                .replace(frameLayout.getId(), new FileTypeFragment())
                 .addToBackStack(null)
                 .commit();
     }
@@ -178,19 +180,24 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
 
     @Override
     public void checkSelection(CheckBox checkBox, String type) {
-        if (imageMegaList.size() == imageMedia.generateImages().size() && type.equals("image")) {
+        if (imageMegaList.size() == imageSize && type.equals("image")) {
             checkBox.setChecked(true);
-        } else if (videoMegaList.size() == videoMedia.generateVideos().size() && type.equals("video")) {
+        }
+        else if (videoMegaList.size() == videoSize && type.equals("video")) {
             checkBox.setChecked(true);
-        } else if (audioMegaList.size() == audioMedia.generateAudios().size() && type.equals("audio")) {
+        } else if (audioMegaList.size() == audioSize && type.equals("audio")) {
             checkBox.setChecked(true);
-        } else if (contactMegaList.size() == contactMedia.getContactList().size() && type.equals("contact")) {
+        }
+        else if (contactMegaList.size() == contactSize && type.equals("contact")) {
             checkBox.setChecked(true);
-        } else if (documentMegaList.size() == documentMedia.generateDocuments().size() && type.equals("document")) {
+        }
+        else if (documentMegaList.size() == documentSize && type.equals("document")) {
             checkBox.setChecked(true);
-        } else if (apkMegaList.size() == apkMedia.getInstalledPackages().size() && type.equals("apk")) {
-            checkBox.setChecked(true);
-        } else {
+        }
+//        else if (apkMegaList.size() == apkMedia.getApkSize() && type.equals("apk")) {
+//            checkBox.setChecked(true);
+//        }
+        else {
             checkBox.setChecked(false);
         }
     }

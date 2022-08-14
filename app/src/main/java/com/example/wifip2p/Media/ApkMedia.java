@@ -2,11 +2,8 @@ package com.example.wifip2p.Media;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +15,16 @@ public class ApkMedia {
 
     public ApkMedia (Context context) {
         this.context = context;
+    }
+
+    public int getApkSize () {
+
+        Intent intent = new Intent(Intent.ACTION_MAIN, null);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+
+        List<ResolveInfo> totalSize = context.getPackageManager().queryIntentActivities(intent, 0);
+
+        return totalSize.size();
     }
 
     public List<Apk> getInstalledPackages () {

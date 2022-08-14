@@ -1,21 +1,18 @@
 package com.example.wifip2p.Adapter;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
-import android.net.Uri;
-import android.os.Build;
-import android.util.Log;
-import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.wifip2p.Media.Apk;
 import com.example.wifip2p.Media.Audio;
 import com.example.wifip2p.Media.Contact;
@@ -25,9 +22,7 @@ import com.example.wifip2p.Media.Video;
 import com.example.wifip2p.R;
 import com.example.wifip2p.Utils.CommunicationInterface;
 import com.example.wifip2p.Utils.CommunicationInterfaceReference;
-import com.makeramen.roundedimageview.RoundedImageView;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -94,7 +89,9 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
         switch (fileType) {
             case "image":
                 Image image = imageList.get(position);
-                holder.roundedImageView.setImageBitmap(thumbnails.get(position));
+                Glide.with(context)
+                        .load(thumbnails.get(position))
+                        .into(holder.imageView);
                 holder.bind(image);
                 if (image.isSelected()) {
                     holder.checkBox.setChecked(true);
@@ -104,7 +101,7 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
                 break;
             case "video":
                 Video video = videoList.get(position);
-                holder.roundedImageView.setImageBitmap(thumbnails.get(position));
+                holder.imageView.setImageBitmap(thumbnails.get(position));
                 holder.bind(video);
                 if (video.isSelected()) {
                     holder.checkBox.setChecked(true);
@@ -114,7 +111,7 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
                 break;
             case "audio":
                 Audio audio = audioList.get(position);
-                holder.roundedImageView.setImageResource(R.drawable.ic_baseline_audiotrack_24);
+                holder.imageView.setImageResource(R.drawable.ic_baseline_audiotrack_24);
                 holder.bind(audio);
                 if (audio.isSelected()) {
                     holder.checkBox.setChecked(true);
@@ -124,7 +121,7 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
                 break;
             case "contact":
                 Contact contact = contactList.get(position);
-                holder.roundedImageView.setImageResource(R.drawable.ic_baseline_person_24);
+                holder.imageView.setImageResource(R.drawable.ic_baseline_person_24);
                 holder.bind(contact);
                 if (contact.isSelected()) {
                     holder.checkBox.setChecked(true);
@@ -133,7 +130,7 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
                 }
                 break;
             case "document":
-                holder.roundedImageView.setImageResource(R.drawable.ic_baseline_article_24);
+                holder.imageView.setImageResource(R.drawable.ic_baseline_article_24);
                 Document document = documentList.get(position);
                 holder.bind(document);
                 if (document.isSelected()) {
@@ -144,7 +141,7 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
                 break;
             case "apk":
                 Apk apk = apkList.get(position);
-                holder.roundedImageView.setImageDrawable(apk.getAppIcon());
+                holder.imageView.setImageDrawable(apk.getAppIcon());
                 holder.bind(apk);
                 if (apk.isSelected()) {
                     holder.checkBox.setChecked(true);
@@ -172,14 +169,14 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
 
     public class MyRecyclerViewHolder extends RecyclerView.ViewHolder {
 
-        RoundedImageView roundedImageView;
+        ImageView imageView;
         CheckBox checkBox;
 
 
         public MyRecyclerViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            roundedImageView = itemView.findViewById(R.id.imageView);
+            imageView = itemView.findViewById(R.id.imageView);
             checkBox = itemView.findViewById(R.id.checkBox);
 
         }

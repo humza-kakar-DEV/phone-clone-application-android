@@ -26,6 +26,32 @@ public class VideoMedia {
         this.context = context;
     }
 
+    public int getVideoSize() {
+        Uri collection;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            collection = MediaStore.Video.Media.getContentUri(MediaStore.VOLUME_EXTERNAL);
+        } else {
+            collection = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+        }
+
+        String[] projection = new String[] {
+                MediaStore.Video.Media._ID,
+                MediaStore.Video.Media.DISPLAY_NAME,
+                MediaStore.Video.Media.DURATION,
+                MediaStore.Video.Media.SIZE
+        };
+
+        try (Cursor cursor = context.getApplicationContext().getContentResolver().query(
+                collection,
+                projection,
+                null,
+                null,
+                null
+        )) {
+            return cursor.getCount();
+        }
+    }
+
     public List<Video> generateVideos () {
 
     List<Video> videoList = new ArrayList<Video>();

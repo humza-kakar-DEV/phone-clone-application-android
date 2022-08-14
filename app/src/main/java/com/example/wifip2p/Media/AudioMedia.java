@@ -21,6 +21,33 @@ public class AudioMedia {
         this.context = context;
     }
 
+    public int getAudioSize () {
+        Uri collection;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            collection = MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL);
+        } else {
+            collection = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        }
+        //    songId, songTitle, songArtist, path, genre, duration
+        String[] projection = new String[] {
+                MediaStore.Audio.Media._ID,
+                MediaStore.Audio.Media.MIME_TYPE,
+                MediaStore.Audio.Media.DISPLAY_NAME,
+                MediaStore.Audio.Media.ARTIST,
+                MediaStore.Audio.Media.DURATION,
+        };
+
+        try (Cursor cursor = context.getApplicationContext().getContentResolver().query(
+                collection,
+                projection,
+                null,
+                null,
+                null
+        )) {
+            return cursor.getCount();
+        }
+    }
+
     public List<Audio> generateAudios () {
 
         List<Audio> audioList = new ArrayList<Audio>();

@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.wifip2p.Utils.CommunicationInterface;
 import com.example.wifip2p.Utils.CommunicationInterfaceReference;
@@ -21,6 +22,33 @@ public class ImageMedia {
     private Context context;
     public ImageMedia (Context context) {
         this.context = context;
+    }
+
+    public int getImageSize() {
+        Uri collection;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            collection = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL);
+        } else {
+            collection = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+        }
+
+        String[] projection = new String[] {
+                MediaStore.Images.Media._ID,
+                MediaStore.Images.Media.DISPLAY_NAME,
+                MediaStore.Images.Media.HEIGHT,
+                MediaStore.Images.Media.WIDTH,
+        };
+
+        try (Cursor cursor = context.getApplicationContext().getContentResolver().query(
+                collection,
+                projection,
+                null,
+                null,
+                null
+        )) {
+            // Cache column indices
+            return cursor.getCount();
+        }
     }
 
     public List<Image> generateImages () {

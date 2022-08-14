@@ -7,6 +7,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,16 +18,22 @@ import android.widget.Toast;
 import com.example.wifip2p.Media.Apk;
 import com.example.wifip2p.Media.ApkMedia;
 import com.example.wifip2p.Media.Audio;
+import com.example.wifip2p.Media.AudioMedia;
 import com.example.wifip2p.Media.Contact;
+import com.example.wifip2p.Media.ContactMedia;
 import com.example.wifip2p.Media.Document;
+import com.example.wifip2p.Media.DocumentMedia;
 import com.example.wifip2p.Media.Image;
+import com.example.wifip2p.Media.ImageMedia;
 import com.example.wifip2p.Media.Video;
+import com.example.wifip2p.Media.VideoMedia;
 import com.example.wifip2p.R;
 import com.example.wifip2p.Utils.CommunicationInterface;
 import com.example.wifip2p.Utils.CommunicationInterfaceReference;
 import com.example.wifip2p.databinding.FragmentFileTypeBinding;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class FileTypeFragment extends Fragment {
@@ -39,12 +46,19 @@ public class FileTypeFragment extends Fragment {
     private static final String ARG_PARAM6 = "param6";
     private static final String TAG = "hmFileType";
 
-    private List<Image> imageList;
-    private List<Video> videoList;
-    private List<Audio> audioList;
-    private List<Contact> contactList;
-    private List<Document> documentList;
-    private List<Apk> apkList;
+    private List<Image> imageList = new ArrayList<>();
+    private List<Video> videoList = new ArrayList<>();
+    private List<Audio> audioList = new ArrayList<>();
+    private List<Contact> contactList = new ArrayList<>();
+    private List<Document> documentList = new ArrayList<>();
+    private List<Apk> apkList = new ArrayList<>();
+
+    ImageMedia imageMedia;
+    VideoMedia videoMedia;
+    AudioMedia audioMedia;
+    ContactMedia contactMedia;
+    DocumentMedia documentMedia;
+    ApkMedia apkMedia;
 
     private Context context;
     private CommunicationInterfaceReference communicationInterfaceReference;
@@ -72,15 +86,9 @@ public class FileTypeFragment extends Fragment {
 
     }
 
-    public static FileTypeFragment newInstance(List<Image> imageList, List<Video> videoList, List<Audio> audioList, List<Contact> contactList, List<Document> documentList, List<Apk> apkList) {
+    public static FileTypeFragment newInstance(String value) {
         FileTypeFragment fragment = new FileTypeFragment();
         Bundle args = new Bundle();
-        args.putSerializable(ARG_PARAM1, (Serializable) imageList);
-        args.putSerializable(ARG_PARAM2, (Serializable) videoList);
-        args.putSerializable(ARG_PARAM3, (Serializable) audioList);
-        args.putSerializable(ARG_PARAM4, (Serializable) contactList);
-        args.putSerializable(ARG_PARAM5, (Serializable) documentList);
-        args.putSerializable(ARG_PARAM6, (Serializable) apkList);
         fragment.setArguments(args);
         return fragment;
     }
@@ -89,12 +97,7 @@ public class FileTypeFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            imageList = (List<Image>) getArguments().getSerializable(ARG_PARAM1);
-            videoList = (List<Video>) getArguments().getSerializable(ARG_PARAM2);
-            audioList = (List<Audio>) getArguments().getSerializable(ARG_PARAM3);
-            contactList = (List<Contact>) getArguments().getSerializable(ARG_PARAM4);
-            documentList = (List<Document>) getArguments().getSerializable(ARG_PARAM5);
-            apkList = (List<Apk>) getArguments().getSerializable(ARG_PARAM6);
+            return;
         }
     }
 
@@ -105,6 +108,26 @@ public class FileTypeFragment extends Fragment {
         binding = FragmentFileTypeBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         context = view.getContext();
+
+        Log.d(TAG, "onCreateView: runned!");
+
+        if (imageList.size() == 0) {
+//            Toast.makeText(context, "", Toast.LENGTH_SHORT).show();
+            imageMedia = new ImageMedia(context);
+            videoMedia = new VideoMedia(context);
+            audioMedia = new AudioMedia(context);
+            contactMedia = new ContactMedia(context);
+            documentMedia = new DocumentMedia(context);
+            apkMedia = new ApkMedia(context);
+
+            imageList.addAll(imageMedia.generateImages());
+            videoList.addAll(videoMedia.generateVideos());
+            audioList.addAll(audioMedia.generateAudios());
+            contactList.addAll(contactMedia.getContactList());
+            documentList.addAll(documentMedia.generateDocuments());
+            apkList.addAll(apkMedia.getInstalledPackages());
+        }
+
 
         //        text views
         binding.imageTextView.setText(imageList.size() + " items");
@@ -309,7 +332,7 @@ public class FileTypeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-
+        
         communicationInterfaceReference.invokeCheckSelection(binding.imageCheckBox, "image");
         communicationInterfaceReference.invokeCheckSelection(binding.videoCheckBox, "video");
         communicationInterfaceReference.invokeCheckSelection(binding.audioCheckBox, "audio");

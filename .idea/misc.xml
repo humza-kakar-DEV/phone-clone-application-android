@@ -20,10 +20,14 @@
         <entry key="..\:/Users/H.A.R/AndroidStudioProjects/Wifip2p/app/src/main/res/layout/layout.xml" value="0.2552083333333333" />
         <entry key="..\:/Users/H.A.R/AndroidStudioProjects/Wifip2p/app/src/main/res/layout/list_view_file_type.xml" value="0.25" />
         <entry key="..\:/Users/H.A.R/AndroidStudioProjects/Wifip2p/app/src/main/res/layout/recycler_view_file_layout.xml" value="0.2552083333333333" />
+        <entry key="..\:/Users/Mega Providers/AndroidStudioProjects/phone-clone-application-android/app/src/main/res/layout/activity_permission.xml" value="0.25" />
+        <entry key="..\:/Users/Mega Providers/AndroidStudioProjects/phone-clone-application-android/app/src/main/res/layout/fragment_file_show.xml" value="0.33" />
+        <entry key="..\:/Users/Mega Providers/AndroidStudioProjects/phone-clone-application-android/app/src/main/res/layout/recycler_view_file_layout.xml" value="0.20416666666666666" />
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

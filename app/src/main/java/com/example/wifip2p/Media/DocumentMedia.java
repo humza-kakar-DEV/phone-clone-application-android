@@ -26,6 +26,33 @@ public class DocumentMedia {
         this.context = context;
     }
 
+    public int getDocumentSize () {
+        ContentResolver cr = context.getContentResolver();
+
+        Uri collection;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+//            collection = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL);
+            collection = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL);
+        } else {
+            collection = MediaStore.Files.getContentUri("external");
+//            collection = MediaStore.Downloads.EXTERNAL_CONTENT_URI;
+        }
+
+        String[] projection = new String[] {
+                MediaStore.Files.FileColumns._ID,
+                MediaStore.Files.FileColumns.DISPLAY_NAME,
+                MediaStore.Files.FileColumns.MIME_TYPE,
+                MediaStore.Files.FileColumns.MEDIA_TYPE,
+                MediaStore.Files.FileColumns.SIZE,
+        };
+
+        String selection = MediaStore.Files.FileColumns.MEDIA_TYPE + " = " + MediaStore.Files.FileColumns.MEDIA_TYPE_DOCUMENT;
+
+        try (Cursor cursorAllDocumentFiles = cr.query(collection, projection, selection, null, null)) {
+            return cursorAllDocumentFiles.getCount();
+        }
+    }
+
     public List<Document> generateDocuments() {
 
         List<Document> documentList = new ArrayList<Document>();

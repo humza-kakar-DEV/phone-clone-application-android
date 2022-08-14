@@ -9,12 +9,17 @@
     app:riv_corner_radius="12dp"
     android:adjustViewBounds="true">
 
-    <com.makeramen.roundedimageview.RoundedImageView
+<!--    <com.makeramen.roundedimageview.RoundedImageView-->
+<!--        android:id="@+id/imageView"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        app:riv_corner_radius="12dp"-->
+<!--        android:adjustViewBounds="true"/>-->
+
+    <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:riv_corner_radius="12dp"
-        android:adjustViewBounds="true"/>
+        android:layout_height="wrap_content"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/checkBoxConstraintLayout"
