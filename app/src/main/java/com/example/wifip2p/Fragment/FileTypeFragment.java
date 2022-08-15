@@ -109,8 +109,6 @@ public class FileTypeFragment extends Fragment {
         View view = binding.getRoot();
         context = view.getContext();
 
-        Log.d(TAG, "onCreateView: runned!");
-
         if (imageList.size() == 0) {
 //            Toast.makeText(context, "", Toast.LENGTH_SHORT).show();
             imageMedia = new ImageMedia(context);
@@ -137,6 +135,8 @@ public class FileTypeFragment extends Fragment {
         binding.documentTextView.setText(documentList.size() + " items");
         binding.apkTextView.setText(apkList.size() + " items");
 
+//        ALL SELECTION CODE
+
         binding.allSelectCheckBox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -147,6 +147,8 @@ public class FileTypeFragment extends Fragment {
                     binding.contactCheckBox.setChecked(true);
                     binding.documentCheckBox.setChecked(true);
                     binding.apkCheckBox.setChecked(true);
+                    communicationInterfaceReference.invokeClearList("all");
+                    communicationInterfaceReference.invokeAllSelectionInterfaceMethod(imageList, audioList, videoList, contactList, documentList, apkList);
                 } else {
                     binding.imageCheckBox.setChecked(false);
                     binding.videoCheckBox.setChecked(false);
@@ -154,6 +156,7 @@ public class FileTypeFragment extends Fragment {
                     binding.contactCheckBox.setChecked(false);
                     binding.documentCheckBox.setChecked(false);
                     binding.apkCheckBox.setChecked(false);
+                    communicationInterfaceReference.invokeClearList("all");
                 }
             }
         });
@@ -162,6 +165,8 @@ public class FileTypeFragment extends Fragment {
             Toast.makeText(context, "", Toast.LENGTH_SHORT).show();
             binding.allSelectCheckBox.setChecked(true);
         }
+
+//        ------------------------------ END -------------------------------
 
         binding.imageContainer.setOnClickListener(new View.OnClickListener() {
             @Override

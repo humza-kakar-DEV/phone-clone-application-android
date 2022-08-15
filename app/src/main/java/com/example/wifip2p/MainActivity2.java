@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.Toast;
@@ -121,7 +122,26 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
             case "apk":
                 apkMegaList.clear();
                 break;
+            default:
+                imageMegaList.clear();
+                videoMegaList.clear();
+                audioMegaList.clear();
+                audioMegaList.clear();
+                contactMegaList.clear();
+                documentMegaList.clear();
+                apkMegaList.clear();
+                break;
         }
+    }
+
+    @Override
+    public void allSelectionInterfaceMethod(List<Image> imageList, List<Audio> audioList, List<Video> videoList, List<Contact> contactList, List<Document> documentList, List<Apk> apkList) {
+        imageMegaList.addAll(imageList);
+        audioMegaList.addAll(audioList);
+        videoMegaList.addAll(videoList);
+        contactMegaList.addAll(contactList);
+        documentMegaList.addAll(documentList);
+        apkMegaList.addAll(apkList);
     }
 
     @Override
@@ -194,9 +214,9 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
         else if (documentMegaList.size() == documentSize && type.equals("document")) {
             checkBox.setChecked(true);
         }
-//        else if (apkMegaList.size() == apkMedia.getApkSize() && type.equals("apk")) {
-//            checkBox.setChecked(true);
-//        }
+        else if (apkMegaList.size() == apkSize  && type.equals("apk")) {
+            checkBox.setChecked(true);
+        }
         else {
             checkBox.setChecked(false);
         }
@@ -210,6 +230,13 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
         Log.d(TAG, "contact size: " + contactMegaList.size());
         Log.d(TAG, "document size: " + documentMegaList.size());
         Log.d(TAG, "apk size: " + apkMegaList.size());
+
+        Toast.makeText(this, "image size: " + imageMegaList.size(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "video size: " + videoMegaList.size(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "audio size: " + audioMegaList.size(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "contact size: " + contactMegaList.size(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "document size: " + documentMegaList.size(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "apk size: " + apkMegaList.size(), Toast.LENGTH_SHORT).show();
 
         getSupportFragmentManager()
                 .beginTransaction()
