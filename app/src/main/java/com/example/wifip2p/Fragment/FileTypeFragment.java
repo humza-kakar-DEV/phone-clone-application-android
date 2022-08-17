@@ -157,7 +157,7 @@ public class FileTypeFragment extends Fragment {
                     binding.documentCheckBox.setChecked(false);
                     binding.apkCheckBox.setChecked(false);
                     communicationInterfaceReference.invokeClearList("all");
-                    objectTypeStates(false  );
+                    objectTypeStates(false);
                 }
             }
         });
