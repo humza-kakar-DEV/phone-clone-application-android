@@ -283,7 +283,7 @@ public class FileShowFragment extends Fragment {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         if (context instanceof CommunicationInterface) {
-            communicationInterfaceReference = new CommunicationInterfaceReference((CommunicationInterface) context);
+            communicationInterfaceReference = new CommunicationInterfaceReference (context);
         }
     }
 }

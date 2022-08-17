@@ -59,7 +59,7 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         View view = layoutInflater.inflate(R.layout.recycler_view_file_layout, parent, false);
         if (fragmentActivity instanceof CommunicationInterface) {
-            communicationInterfaceReference = new CommunicationInterfaceReference ((CommunicationInterface) fragmentActivity);
+            communicationInterfaceReference = new CommunicationInterfaceReference (fragmentActivity);
         }
         switch (fileType) {
             case "image":

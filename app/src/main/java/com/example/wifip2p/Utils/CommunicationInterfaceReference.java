@@ -1,5 +1,6 @@
 package com.example.wifip2p.Utils;
 
+import android.content.Context;
 import android.net.Uri;
 import android.widget.CheckBox;
 
@@ -16,8 +17,8 @@ public class CommunicationInterfaceReference {
 
     private CommunicationInterface communicationInterface;
 
-    public CommunicationInterfaceReference (CommunicationInterface communicationInterface) {
-        this.communicationInterface = communicationInterface;
+    public CommunicationInterfaceReference (Context context) {
+        this.communicationInterface = (CommunicationInterface) context;
     }
 
     public void invokeChangeFragment (String fileType, List<?> dynamicList) {
