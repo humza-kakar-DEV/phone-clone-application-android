@@ -162,10 +162,6 @@ public class FileTypeFragment extends Fragment {
             }
         });
 
-        if (binding.imageCheckBox.isSelected() && binding.videoCheckBox.isChecked() && binding.audioCheckBox.isChecked() && binding.documentCheckBox.isChecked() && binding.apkCheckBox.isChecked() && binding.contactCheckBox.isChecked()) {
-            binding.allSelectCheckBox.setChecked(true);
-        }
-
 //        ------------------------------ END -------------------------------
 
 
@@ -220,6 +216,7 @@ public class FileTypeFragment extends Fragment {
                         communicationInterfaceReference.invokeSingleSelection(image, "image", true);
                         image.setSelected(true);
                     }
+                    checkAllSelection ();
                 } else {
                     binding.allSelectCheckBox.setChecked(false);
                     for (Image image : imageList) {
@@ -239,6 +236,7 @@ public class FileTypeFragment extends Fragment {
                         communicationInterfaceReference.invokeSingleSelection(video, "video", true);
                         video.setSelected(true);
                     }
+                    checkAllSelection ();
                 } else {
                     binding.allSelectCheckBox.setChecked(false);
                     for (Video video : videoList) {
@@ -258,6 +256,7 @@ public class FileTypeFragment extends Fragment {
                         communicationInterfaceReference.invokeSingleSelection(audio, "audio", true);
                         audio.setSelected(true);
                     }
+                    checkAllSelection ();
                 } else {
                     binding.allSelectCheckBox.setChecked(false);
                     for (Audio audio : audioList) {
@@ -277,6 +276,7 @@ public class FileTypeFragment extends Fragment {
                         communicationInterfaceReference.invokeSingleSelection(contact, "contact", true);
                         contact.setSelected(true);
                     }
+                    checkAllSelection ();
                 } else {
                     binding.allSelectCheckBox.setChecked(false);
                     for (Contact contact : contactList) {
@@ -296,6 +296,7 @@ public class FileTypeFragment extends Fragment {
                         communicationInterfaceReference.invokeSingleSelection(document, "document", true);
                         document.setSelected(true);
                     }
+                    checkAllSelection ();
                 } else {
                     binding.allSelectCheckBox.setChecked(false);
                     for (Document document : documentList) {
@@ -315,6 +316,7 @@ public class FileTypeFragment extends Fragment {
                         communicationInterfaceReference.invokeSingleSelection(apk, "apk", true);
                         apk.setSelected(true);
                     }
+                    checkAllSelection ();
                 } else {
                     binding.allSelectCheckBox.setChecked(false);
                     for (Apk apk : apkList) {
@@ -366,6 +368,15 @@ public class FileTypeFragment extends Fragment {
         communicationInterfaceReference.invokeCheckSelection(binding.contactCheckBox, "contact");
         communicationInterfaceReference.invokeCheckSelection(binding.documentCheckBox, "document");
         communicationInterfaceReference.invokeCheckSelection(binding.apkCheckBox, "apk");
+        checkAllSelection();
+    }
+
+    public void checkAllSelection () {
+        if (binding.imageCheckBox.isChecked() && binding.videoCheckBox.isChecked() && binding.audioCheckBox.isChecked() && binding.documentCheckBox.isChecked() && binding.apkCheckBox.isChecked() && binding.contactCheckBox.isChecked()) {
+            binding.allSelectCheckBox.setChecked(true);
+        } else {
+            binding.allSelectCheckBox.setChecked(false);
+        }
     }
 
     @Override
