@@ -7,6 +7,7 @@ import java.util.List;
 
 public class Image {
 
+    String className;
     private final Uri uri;
     private final String name;
     private final int height;
@@ -19,6 +20,11 @@ public class Image {
         this.height = height;
         this.width = width;
         this.isSelected = isSelected;
+    }
+
+    public String getClassName() {
+        className = "image";
+        return className;
     }
 
     public boolean isSelected() {

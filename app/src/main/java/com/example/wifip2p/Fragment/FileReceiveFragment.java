@@ -1,21 +1,25 @@
 package com.example.wifip2p.Fragment;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.view.ContentInfo;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.wifip2p.MainActivity;
 import com.example.wifip2p.R;
+import com.example.wifip2p.ServerThread;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link WifiDirectFragment#newInstance} factory method to
+ * Use the {@link FileReceiveFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class WifiDirectFragment extends Fragment {
+public class FileReceiveFragment extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -25,8 +29,9 @@ public class WifiDirectFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    private Context context;
 
-    public WifiDirectFragment() {
+    public FileReceiveFragment() {
         // Required empty public constructor
     }
 
@@ -36,11 +41,11 @@ public class WifiDirectFragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment WifiDirectFragment.
+     * @return A new instance of fragment FileReceiveFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static WifiDirectFragment newInstance(String param1, String param2) {
-        WifiDirectFragment fragment = new WifiDirectFragment();
+    public static FileReceiveFragment newInstance(String param1, String param2) {
+        FileReceiveFragment fragment = new FileReceiveFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -61,6 +66,11 @@ public class WifiDirectFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_wifi_direct, container, false);
+        View view = inflater.inflate(R.layout.fragment_file_receive, container, false);
+        context = view.getContext();
+
+
+
+        return view;
     }
 }

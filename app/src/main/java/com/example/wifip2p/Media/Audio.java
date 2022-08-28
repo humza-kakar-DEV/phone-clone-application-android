@@ -7,6 +7,7 @@ import java.io.Serializable;
 public class Audio implements Serializable {
 
 //    songId, songTitle, songArtist, path, genre, duration
+    String className;
     private final String uri;
     private final String mimeType;
     private final String songName;
@@ -21,6 +22,11 @@ public class Audio implements Serializable {
         this.songArtist = songArtist;
         this.duration = duration;
         this.isSelected = isSelected;
+    }
+
+    public String getClassName() {
+        className = "audio";
+        return className;
     }
 
     public String getUri() {

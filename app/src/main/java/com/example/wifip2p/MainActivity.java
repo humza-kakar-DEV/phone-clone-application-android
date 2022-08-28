@@ -66,7 +66,6 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i <= 3; i++) {
             audioList.add(audioMedia.generateAudios().get(i));
         }
-
 //      starting thread, always call start method which will
 //      run thread in background, run method executes thread
 //      on ui/main thread
@@ -108,11 +107,11 @@ public class MainActivity extends AppCompatActivity {
 
         manager.removeGroup(channel , actionListener);
 
-//        try {
-//            Thread.sleep(3000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
@@ -199,6 +198,7 @@ public class MainActivity extends AppCompatActivity {
         public void onConnectionInfoAvailable(WifiP2pInfo wifiP2pInfo) {
             String groupOwnerAddress = wifiP2pInfo.groupOwnerAddress.getHostAddress();
             if (wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner) {
+
 //                server block which will receive files from client
 
                 Toast.makeText(MainActivity.this, "connection owner", Toast.LENGTH_SHORT).show();
@@ -208,18 +208,20 @@ public class MainActivity extends AppCompatActivity {
                 serverThread.serverThreadHandler.sendMessage(message);
 
             } else if (wifiP2pInfo.groupFormed) {
+
 //                client block which will send files to the server
+
+                Audio audio = audioList.get(0);
+
                 Toast.makeText(MainActivity.this, "connection client", Toast.LENGTH_SHORT).show();
                 textView.setText("CONNECTION CLIENT");
                 Message message = Message.obtain();
                 Bundle bundle = new Bundle();
                 bundle.putString("hmHostAddress", groupOwnerAddress);
-
-                for (Audio audio : audioList) {
-                    bundle.putSerializable(AUDIO_TAG, audio);
-                    message.setData(bundle);
-                    clientThread.clientThreadHandler.sendMessage(message);
-                }
+                bundle.putString("fileTypeKey", audio.getClassName());
+                bundle.putSerializable(AUDIO_TAG, audio);
+                message.setData(bundle);
+                clientThread.clientThreadHandler.sendMessage(message);
 
             }
         }

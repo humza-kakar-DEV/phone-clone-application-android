@@ -2,6 +2,13 @@ package com.example.wifip2p.Media;
 
 public class Contact {
 
+    String className;
+
+    public String getClassName() {
+        className = "contact";
+        return className;
+    }
+
     public String getName() {
         return name;
     }

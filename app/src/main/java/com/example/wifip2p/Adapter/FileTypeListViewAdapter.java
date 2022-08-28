@@ -52,15 +52,16 @@ public class FileTypeListViewAdapter extends BaseAdapter {
 
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
-        View listView = layoutInflater.inflate(R.layout.list_view_file_type, null);
-        TextView textViewFileType = (TextView) listView.findViewById(R.id.textViewFileType);
-        ImageView imageView = (ImageView) listView.findViewById(R.id.imageView);
-        checkBox = (CheckBox) listView.findViewById(R.id.checkBox);
-
-        textViewFileType.setText(fileType[i]);
-        imageView.setImageResource(drawableId[i]);
-
-        return listView;
+//        View listView = layoutInflater.inflate(R.layout.list_view_file_type, null);
+//        TextView textViewFileType = (TextView) listView.findViewById(R.id.textViewFileType);
+//        ImageView imageView = (ImageView) listView.findViewById(R.id.imageView);
+//        checkBox = (CheckBox) listView.findViewById(R.id.checkBox);
+//
+//        textViewFileType.setText(fileType[i]);
+//        imageView.setImageResource(drawableId[i]);
+//
+//        return listView;
+        return null;
     }
 
     public void allSelect (boolean state) {

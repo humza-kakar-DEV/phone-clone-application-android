@@ -4,6 +4,7 @@ import android.net.Uri;
 
 public class Video {
 
+    String className;
     private final Uri uri;
     private final String name;
     private final int duration;
@@ -16,6 +17,11 @@ public class Video {
         this.duration = duration;
         this.size = size;
         this.isSelected = isSelected;
+    }
+
+    public String getClassName() {
+        className = "video";
+        return className;
     }
 
     public void setSelected(boolean selected) {
