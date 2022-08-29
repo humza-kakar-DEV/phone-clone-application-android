@@ -1,6 +1,24 @@
 package com.example.wifip2p.Media;
 
-public class Contact {
+import java.io.Serializable;
+
+public class Contact implements Serializable {
+
+    String className;
+    String name;
+    String phoneNo;
+    boolean isSelected;
+
+    public Contact(String name, String phoneNo, boolean isSelected) {
+        this.name = name;
+        this.phoneNo = phoneNo;
+        this.isSelected = isSelected;
+    }
+
+    public String getClassName() {
+        className = "contact";
+        return className;
+    }
 
     public String getName() {
         return name;
@@ -18,23 +36,12 @@ public class Contact {
         this.phoneNo = phoneNo;
     }
 
-    String name;
-    String phoneNo;
-
     public boolean isSelected() {
         return isSelected;
     }
 
     public void setSelected(boolean selected) {
         isSelected = selected;
-    }
-
-    boolean isSelected;
-
-    public Contact(String name, String phoneNo, boolean isSelected) {
-        this.name = name;
-        this.phoneNo = phoneNo;
-        this.isSelected = isSelected;
     }
 
 }

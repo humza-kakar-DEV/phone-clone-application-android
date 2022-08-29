@@ -49,7 +49,7 @@ public class PermissionActivity extends AppCompatActivity {
     }
 
     public void fileLoadedFromThread (int imageSize, int audioSize, int videoSize, int contactSize, int documentSize, int apkSize) {
-        Intent intent = new Intent(this, MainActivity2.class);
+        Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra("per1", imageSize);
         intent.putExtra("per2", audioSize);
         intent.putExtra("per3", videoSize);

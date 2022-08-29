@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 
 public class Apk {
 
+    String className;
     String appName;
     String appPackageName;
     String appPath;
@@ -19,6 +20,11 @@ public class Apk {
         this.appPath = appPath;
         this.appIcon = appIcon;
         this.isSelected = isSelected;
+    }
+
+    public String getClassName() {
+        className = "apk";
+        return className;
     }
 
     public boolean isSelected() {

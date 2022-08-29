@@ -4,6 +4,7 @@ import android.net.Uri;
 
 public class Document {
 
+    String className;
     long id;
     Uri contentUri;
     String name;
@@ -20,6 +21,11 @@ public class Document {
         this.mediaType = mediaType;
         this.size = size;
         this.isSelected = isSelected;
+    }
+
+    public String getClassName() {
+        className = "document";
+        return className;
     }
 
     public String getMediaType() {
