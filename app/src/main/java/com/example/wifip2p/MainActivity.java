@@ -2,6 +2,7 @@ package com.example.wifip2p;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.lifecycle.ViewModel;
 
 import android.Manifest;
 import android.content.Context;
@@ -22,6 +23,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,6 +36,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+
+    ViewModel viewModel;
 
     private static final String TAG = "hmConnection";
     private static final String AUDIO_TAG = "hmAudioKey";
@@ -52,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
     private WifiDirectBroadcastReceiver wifiDirectBroadcast;
     private List<WifiP2pDevice> peers = new ArrayList<WifiP2pDevice>();
     private WifiP2pManager.Channel channel;
+
+    private Button button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,9 +81,9 @@ public class MainActivity extends AppCompatActivity {
         serverThread.setName("server thread");
         serverThread.start();
 
-        clientThread = new ClientThread(MainActivity.this);
-        clientThread.setName("client thread");
-        clientThread.start();
+//        clientThread = new ClientThread(MainActivity.this);
+//        clientThread.setName("client thread");
+//        clientThread.start();
 
 // ------------------**************---------------------
 
@@ -203,6 +209,8 @@ public class MainActivity extends AppCompatActivity {
 
                 Toast.makeText(MainActivity.this, "connection owner", Toast.LENGTH_SHORT).show();
                 textView.setText("CONNECTION OWNER");
+
+//              thread coding
                 Message message = Message.obtain();
                 message.arg1 = 1;
                 serverThread.serverThreadHandler.sendMessage(message);
@@ -211,15 +219,11 @@ public class MainActivity extends AppCompatActivity {
 //                client block which will send files to the server
                 Toast.makeText(MainActivity.this, "connection client", Toast.LENGTH_SHORT).show();
                 textView.setText("CONNECTION CLIENT");
+
+//                thread coding
                 Message message = Message.obtain();
                 Bundle bundle = new Bundle();
                 bundle.putString("hmHostAddress", groupOwnerAddress);
-
-                for (Audio audio : audioList) {
-                    bundle.putSerializable(AUDIO_TAG, audio);
-                    message.setData(bundle);
-                    clientThread.clientThreadHandler.sendMessage(message);
-                }
 
             }
         }
