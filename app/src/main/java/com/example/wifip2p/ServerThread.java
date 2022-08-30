@@ -274,11 +274,11 @@ public class ServerThread extends Thread {
 
                 DynamicObject dynamicObject = (DynamicObject) objectInputStream.readObject();
 
-                Log.d(TAG, "handleMessage: object type: " + dynamicObject.getObjectType());
+//                Log.d(TAG, "sever thread - object type: " + dynamicObject.getObjectType());
 
                 if (dynamicObject.getObjectType().equals("contact")) {
                     Contact contact = (Contact) dynamicObject.getObject();
-                    Log.d(TAG, "handleMessage: file type: " + contact.getClassName());
+                    Log.d(TAG, "server thread - file type: " + contact.getClassName());
                     Log.d(TAG, "server thread - user name: " + contact.getName());
                     Log.d(TAG, "server thread - phone number: " + contact.getPhoneNo());
                 }
