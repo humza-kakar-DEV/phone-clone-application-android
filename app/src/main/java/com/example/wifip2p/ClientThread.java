@@ -33,25 +33,27 @@ import java.util.List;
 
 public class ClientThread extends Thread {
 
-    ClientThreadHandler clientThreadHandler;
+    public ClientThreadHandler clientThreadHandler;
     MainActivity mainActivity;
     public static final String TAG = "hmThread";
     public static final String TAG_FILE = "hmFile";
 
-    public ClientThread (MainActivity mainActivity) {
+    public ClientThreadHandler getClientThreadHandler() {
+        return clientThreadHandler;
+    }
+
+    public ClientThread (MainActivity mainActivity)
+    {
         this.mainActivity = mainActivity;
     }
 
     @Override
     public void run() {
         super.run();
+
         Looper.prepare();
         clientThreadHandler = new ClientThreadHandler(mainActivity);
         Looper.loop();
-    }
-
-    public ClientThreadHandler getClientThreadHandler() {
-        return clientThreadHandler;
     }
 
     public class ClientThreadHandler extends Handler {
@@ -81,7 +83,7 @@ public class ClientThread extends Thread {
                 fileType = msg.getData().getString("fileTypeKey");
                 contact = (Contact) msg.getData().getSerializable(AUDIO_TAG);
                 hostAddress = msg.getData().getString("hmHostAddress");
-                Log.d(TAG_FILE, "audio from CLIENT thread HANDLER: " + audio.getSongName());
+//                Log.d(TAG_FILE, "audio from CLIENT thread HANDLER: " + audio.getSongName());
             }
 
             try {

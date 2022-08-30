@@ -279,7 +279,8 @@ public class ServerThread extends Thread {
                 if (dynamicObject.getObjectType().equals("contact")) {
                     Contact contact = (Contact) dynamicObject.getObject();
                     Log.d(TAG, "handleMessage: file type: " + contact.getClassName());
-                    Toast.makeText(mainActivity, "file type: " + contact.getClassName(), Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "server thread - user name: " + contact.getName());
+                    Log.d(TAG, "server thread - phone number: " + contact.getPhoneNo());
                 }
 
 //                ----------------------------------------

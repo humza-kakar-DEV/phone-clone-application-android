@@ -28,7 +28,7 @@ public class ContactMedia {
                 null, null, null, null);
 
         if ((cur != null ? cur.getCount() : 0) > 0) {
-            while (cur != null && cur.moveToNext()) {
+            while (cur != null && cur.move(2)) {
                 String id = cur.getString(
                         cur.getColumnIndex(ContactsContract.Contacts._ID));
                 String name = cur.getString(cur.getColumnIndex (ContactsContract.Contacts.DISPLAY_NAME));

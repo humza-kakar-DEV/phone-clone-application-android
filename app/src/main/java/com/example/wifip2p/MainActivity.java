@@ -1,5 +1,6 @@
 package com.example.wifip2p;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.ViewModel;
@@ -74,12 +75,21 @@ public class MainActivity extends AppCompatActivity {
         AudioMedia audioMedia = new AudioMedia(this);
         ContactMedia contactMedia = new ContactMedia(this);
 
+        contactList.addAll(contactMedia.getContactList());
+
+//        for (Contact contact : contactList) {
+//            Log.d(TAG, "user name: " + contact.getName());
+//            Log.d(TAG, "phone number: " + contact.getPhoneNo());
+//        }
+
+//        ContactMedia contactMedia = new ContactMedia(this);
+
         for (int i = 0; i <= 3; i++) {
             audioList.add(audioMedia.generateAudios().get(i));
         }
 
-        for (int i = 0; i <= 3; i++) {
-            contactList.add(contactMedia.getContactList().get(i));
+        for (int i = 1; i <= 3; i++) {
+//            contactList.add(contactMedia.getContactList().get(i));
         }
 
 //      starting thread, always call start method which will
@@ -90,9 +100,9 @@ public class MainActivity extends AppCompatActivity {
         serverThread.setName("server thread");
         serverThread.start();
 
-//        clientThread = new ClientThread(MainActivity.this);
-//        clientThread.setName("client thread");
-//        clientThread.start();
+        clientThread = new ClientThread(MainActivity.this);
+        clientThread.setName("client thread");
+        clientThread.start();
 
 // ------------------**************---------------------
 
@@ -217,8 +227,9 @@ public class MainActivity extends AppCompatActivity {
 
 //                server block which will receive files from client
 
+//                UI coding
                 Toast.makeText(MainActivity.this, "connection owner", Toast.LENGTH_SHORT).show();
-                textView.setText("CONNECTION OWNER");
+                textView.setText("CONNECTION SERVER");
 
 //              thread coding
                 Message message = Message.obtain();
@@ -229,21 +240,24 @@ public class MainActivity extends AppCompatActivity {
 
 //                client block which will send files to the server
 
-                Audio audio = audioList.get(0);
-                Contact contact = contactList.get(1);
-
+//                UI coding
                 Toast.makeText(MainActivity.this, "connection client", Toast.LENGTH_SHORT).show();
                 textView.setText("CONNECTION CLIENT");
 
 //                thread coding
+//                Audio audio = audioList.get(1);
+                Contact contact = contactList.get(0);
+
                 Message message = Message.obtain();
+
                 Bundle bundle = new Bundle();
                 bundle.putString("hmHostAddress", groupOwnerAddress);
-
                 bundle.putString("fileTypeKey", contact.getClassName());
                 bundle.putSerializable(AUDIO_TAG, contact);
+
                 message.setData(bundle);
-                clientThread.clientThreadHandler.sendMessage(message);
+
+                clientThread.getClientThreadHandler().sendMessage(message);
 
             }
         }
