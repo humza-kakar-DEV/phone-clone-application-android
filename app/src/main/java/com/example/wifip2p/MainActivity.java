@@ -29,21 +29,28 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.wifip2p.Media.Apk;
+import com.example.wifip2p.Media.ApkMedia;
 import com.example.wifip2p.Media.Audio;
 import com.example.wifip2p.Media.AudioMedia;
 import com.example.wifip2p.Media.Contact;
 import com.example.wifip2p.Media.ContactMedia;
+import com.example.wifip2p.Media.Document;
+import com.example.wifip2p.Media.DocumentMedia;
+import com.example.wifip2p.Media.Image;
+import com.example.wifip2p.Media.ImageMedia;
+import com.example.wifip2p.Media.Video;
+import com.example.wifip2p.Media.VideoMedia;
+import com.example.wifip2p.Utils.ClientFileTransfer;
+import com.example.wifip2p.Utils.Constant;
+import com.example.wifip2p.Utils.ServerFileTransfer;
 
 import java.io.Serializable;
+import java.lang.invoke.ConstantCallSite;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-
-    ViewModel viewModel;
-
-    private static final String TAG = "hmConnection";
-    private static final String AUDIO_TAG = "hmAudioKey";
 
     private ListView listView;
     private TextView textView;
@@ -53,16 +60,34 @@ public class MainActivity extends AppCompatActivity {
     ServerThread serverThread;
     ClientThread clientThread;
 
-    List<Audio> audioList = new ArrayList<>();
-    List<Contact> contactList = new ArrayList<>();
-
     private final IntentFilter intentFilter = new IntentFilter();
     private WifiP2pManager manager;
     private WifiDirectBroadcastReceiver wifiDirectBroadcast;
     private List<WifiP2pDevice> peers = new ArrayList<WifiP2pDevice>();
     private WifiP2pManager.Channel channel;
+    private int amount;
 
     private Button button;
+
+//    List<Audio> audioList = new ArrayList<>();
+//    List<Contact> contactList = new ArrayList<>();
+//    List<Image> imageList = new ArrayList<>();
+//    List<Video> videoList = new ArrayList<>();
+//    List<Document> documentList = new ArrayList<>();
+//    List<Apk> apkList = new ArrayList<>();
+
+    ImageMedia imageMedia;
+    VideoMedia videoMedia;
+    AudioMedia audioMedia;
+    DocumentMedia documentMedia;
+    ApkMedia apkMedia;
+    ContactMedia contactMedia;
+
+    Audio audio;
+    Image image;
+    Document document;
+    Apk apk;
+    Contact contact;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,37 +97,22 @@ public class MainActivity extends AppCompatActivity {
         listView = (ListView) findViewById(R.id.listView);
         textView = (TextView) findViewById(R.id.textView);
 
-        AudioMedia audioMedia = new AudioMedia(this);
-        ContactMedia contactMedia = new ContactMedia(this);
+        imageMedia = new ImageMedia(this);
+        audioMedia = new AudioMedia(this);
+        contactMedia = new ContactMedia(this);
+        videoMedia = new VideoMedia(this);
+        documentMedia = new DocumentMedia(this);
+        apkMedia = new ApkMedia(this);
 
-        contactList.addAll(contactMedia.getContactList());
-
-//        for (Contact contact : contactList) {
-//            Log.d(TAG, "user name: " + contact.getName());
-//            Log.d(TAG, "phone number: " + contact.getPhoneNo());
-//        }
-
-//        ContactMedia contactMedia = new ContactMedia(this);
-
-        for (int i = 0; i <= 3; i++) {
-            audioList.add(audioMedia.generateAudios().get(i));
-        }
-
-        for (int i = 1; i <= 3; i++) {
-//            contactList.add(contactMedia.getContactList().get(i));
-        }
+//        image = imageMedia.generateImages().get(1);
+//        apk = apkMedia.getInstalledPackages().get(2);
+//        document = documentMedia.generateDocuments().get(1);
+//        contact = contactMedia.getContactList().get(2);
+//        audio = audioMedia.generateAudios().get(1);
 
 //      starting thread, always call start method which will
 //      run thread in background, run method executes thread
 //      on ui/main thread
-
-        serverThread = new ServerThread(MainActivity.this);
-        serverThread.setName("server thread");
-        serverThread.start();
-
-        clientThread = new ClientThread(MainActivity.this);
-        clientThread.setName("client thread");
-        clientThread.start();
 
 // ------------------**************---------------------
 
@@ -131,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
         manager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
         channel = manager.initialize(this, getMainLooper(), null);
 
-        manager.removeGroup(channel , actionListener);
+        manager.removeGroup(channel, actionListener);
 
         try {
             Thread.sleep(3000);
@@ -208,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 ArrayAdapter<String> adapter =
-                        new ArrayAdapter<String>(MainActivity.this , android.R.layout.simple_list_item_1 , deviceNameArray);
+                        new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, deviceNameArray);
                 listView.setAdapter(adapter);
 
                 if (peers.size() == 0) {
@@ -232,9 +242,13 @@ public class MainActivity extends AppCompatActivity {
                 textView.setText("CONNECTION SERVER");
 
 //              thread coding
-                Message message = Message.obtain();
-                message.arg1 = 1;
-                serverThread.serverThreadHandler.sendMessage(message);
+              serverThread = new ServerThread(MainActivity.this);
+              serverThread.setName("server thread");
+              serverThread.start();
+
+//                ServerFileTransfer serverFileTransfer = new ServerFileTransfer(MainActivity.this);
+//                serverFileTransfer.setName("file receive");
+//                serverFileTransfer.start();
 
             } else if (wifiP2pInfo.groupFormed) {
 
@@ -245,36 +259,124 @@ public class MainActivity extends AppCompatActivity {
                 textView.setText("CONNECTION CLIENT");
 
 //                thread coding
-//                Audio audio = audioList.get(1);
-                Contact contact = contactList.get(0);
+                clientThread = new ClientThread(MainActivity.this, groupOwnerAddress);
+                clientThread.setName("client thread");
+                clientThread.start();
 
-                Message message = Message.obtain();
-
-                Bundle bundle = new Bundle();
-                bundle.putString("hmHostAddress", groupOwnerAddress);
-                bundle.putString("fileTypeKey", contact.getClassName());
-                bundle.putSerializable(AUDIO_TAG, contact);
-
-                message.setData(bundle);
-
-                clientThread.getClientThreadHandler().sendMessage(message);
+//                ClientFileTransfer clientFileTransfer = new ClientFileTransfer(groupOwnerAddress);
+//                clientFileTransfer.setName("file transfer");
+//                clientFileTransfer.start();
 
             }
         }
     };
 
-    public void setIsWifiP2pEnabled (boolean value) {
+    public void clientData () {
+        amount++;
+        Log.d(Constant.MAIN_ACTIVITY_TAG, "clientData: " + amount);
+    }
+
+//    public void dataToSend(String groupOwnerAddress) {
+//
+//        for (int i = 0; i <= 3; i++) {
+//
+//            Message message = new Message();
+//            Bundle bundle = new Bundle();
+//
+//            Image image = imageMedia.generateImages().get(i);
+//
+//            bundle.putString(Constant.GROUP_OWNER_TAG, groupOwnerAddress);
+//            bundle.putString(Constant.CLASS_TAG, image.getClassName());
+//            bundle.putSerializable(Constant.FILE_OBJECT_TAG, image);
+//
+//            message.setData(bundle);
+//
+//            clientThread.clientThreadHandler.sendMessage(message);
+//        }
+
+//        for (int i = 0; i <= 2; i++) {
+//            Message message = new Message();
+//            Bundle bundle = new Bundle();
+//            Audio audio = audioMedia.generateAudios().get(i);
+//
+//            bundle.putString(Constant.GROUP_OWNER_TAG, groupOwnerAddress);
+//            bundle.putString(Constant.CLASS_TAG, audio.getClassName());
+//            bundle.putSerializable(Constant.FILE_OBJECT_TAG, audio);
+//            message.setData(bundle);
+//
+//            clientThread.getClientThreadHandler().sendMessage(message);
+//
+//        }
+//
+//        for (int i = 0; i <= 2; i++) {
+//            Message message = new Message();
+//            Bundle bundle = new Bundle();
+//            Video video = videoMedia.generateVideos().get(i);
+//
+//            bundle.putString(Constant.GROUP_OWNER_TAG, groupOwnerAddress);
+//            bundle.putString(Constant.CLASS_TAG, video.getClassName());
+//            bundle.putSerializable(Constant.FILE_OBJECT_TAG, video);
+//            message.setData(bundle);
+//
+//            clientThread.getClientThreadHandler().sendMessage(message);
+//
+//        }
+//
+//        for (int i = 0; i <= 2; i++) {
+//            Message message = new Message();
+//            Bundle bundle = new Bundle();
+//            Document document = documentMedia.generateDocuments().get(i);
+//
+//            bundle.putString(Constant.GROUP_OWNER_TAG, groupOwnerAddress);
+//            bundle.putString(Constant.CLASS_TAG, document.getClassName());
+//            bundle.putSerializable(Constant.FILE_OBJECT_TAG, document);
+//            message.setData(bundle);
+//
+//            clientThread.getClientThreadHandler().sendMessage(message);
+//
+//        }
+//
+//        for (int i = 0; i <= 2; i++) {
+//            Message message = new Message();
+//            Bundle bundle = new Bundle();
+//            Contact contact = contactMedia.getContactList().get(i);
+//
+//            bundle.putString(Constant.GROUP_OWNER_TAG, groupOwnerAddress);
+//            bundle.putString(Constant.CLASS_TAG, contact.getClassName());
+//            bundle.putSerializable(Constant.FILE_OBJECT_TAG, contact);
+//            message.setData(bundle);
+//
+//            clientThread.getClientThreadHandler().sendMessage(message);
+//
+//        }
+
+//        for (int i = 0; i <= 2; i++) {
+//            Message message = new Message();
+//            Bundle bundle = new Bundle();
+//            Apk apk = apkMedia.getInstalledPackages().get(i);
+//
+//            bundle.putString(Constant.GROUP_OWNER_TAG, groupOwnerAddress);
+//            bundle.putString(Constant.CLASS_TAG, apk.getClassName());
+//            bundle.putSerializable(Constant.FILE_OBJECT_TAG, apk);
+//            message.setData(bundle);
+//
+//            clientThread.getClientThreadHandler().sendMessage(message);
+//
+//        }
+//    }
+
+    public void setIsWifiP2pEnabled(boolean value) {
         if (value) {
-            Log.d(TAG, "setIsWifiP2pEnabled: enabled");
+            Log.d(Constant.CONNECTION_TAG, "setIsWifiP2pEnabled: enabled");
 //            Toast.makeText(this, "wifi enabled", Toast.LENGTH_SHORT).show();
         } else {
-            Log.d(TAG, "setIsWifiP2pEnabled: disabled");
+            Log.d(Constant.CONNECTION_TAG, "setIsWifiP2pEnabled: disabled");
 //            Toast.makeText(this, "wifi disabled", Toast.LENGTH_SHORT).show();
         }
     }
 
-//  this method is called from server thread
-    public void showFile (String filePath) {
+    //  this method is called from server thread
+    public void showFile(String filePath) {
         if (filePath != null) {
             Intent intent = new Intent();
             intent.setAction(android.content.Intent.ACTION_VIEW);
@@ -287,7 +389,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         wifiDirectBroadcast = new WifiDirectBroadcastReceiver(this, peerListListener, connectionInfoListener, manager, channel);
-        registerReceiver(wifiDirectBroadcast , intentFilter);
+        registerReceiver(wifiDirectBroadcast, intentFilter);
     }
 
     @Override

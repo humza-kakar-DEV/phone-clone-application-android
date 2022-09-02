@@ -101,7 +101,7 @@ public class DocumentMedia {
                 int size = cursorAllDocumentFiles.getInt(documentSizeColumn);
                 Uri contentUri = ContentUris.withAppendedId(collection, (id));
 
-                documentList.add(new Document(id, contentUri, name, mimeType, mediaType, size, false));
+                documentList.add(new Document(id, contentUri.toString(), name, mimeType, mediaType, size, false));
 
             }
         }

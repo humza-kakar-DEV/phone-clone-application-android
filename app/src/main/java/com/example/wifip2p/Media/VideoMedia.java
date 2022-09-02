@@ -104,7 +104,7 @@ public class VideoMedia {
 
             // Stores column values and the contentUri in a local object
             // that represents the media file.
-            videoList.add(new Video(contentUri, name, duration, size, false));
+            videoList.add(new Video(contentUri.toString(), name, duration, size, false));
 
         }
         return videoList;

@@ -6,6 +6,7 @@ public class DynamicObject implements Serializable {
 
     Object object;
     String objectType;
+    String inputStreamState;
 
     public DynamicObject () {
     }
@@ -13,6 +14,14 @@ public class DynamicObject implements Serializable {
     public DynamicObject(Object object, String objectType) {
         this.object = object;
         this.objectType = objectType;
+    }
+
+    public String getInputStreamState() {
+        return inputStreamState;
+    }
+
+    public void setInputStreamState(String inputStreamState) {
+        this.inputStreamState = inputStreamState;
     }
 
     public Object getObject() {

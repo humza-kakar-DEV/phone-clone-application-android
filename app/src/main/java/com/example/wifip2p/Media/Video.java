@@ -2,16 +2,18 @@ package com.example.wifip2p.Media;
 
 import android.net.Uri;
 
-public class Video {
+import java.io.Serializable;
+
+public class Video implements Serializable {
 
     String className;
-    private final Uri uri;
+    private final String uri;
     private final String name;
     private final int duration;
     private final int size;
     private boolean isSelected;
 
-    public Video(Uri uri, String name, int duration, int size, boolean isSelected) {
+    public Video(String uri, String name, int duration, int size, boolean isSelected) {
         this.uri = uri;
         this.name = name;
         this.duration = duration;
@@ -27,11 +29,12 @@ public class Video {
     public void setSelected(boolean selected) {
         isSelected = selected;
     }
+
     public boolean isSelected() {
         return isSelected;
     }
 
-    public Uri getUri() {
+    public String getUri() {
         return uri;
     }
 

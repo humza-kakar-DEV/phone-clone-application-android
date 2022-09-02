@@ -2,18 +2,20 @@ package com.example.wifip2p.Media;
 
 import android.net.Uri;
 
-public class Document {
+import java.io.Serializable;
+
+public class Document implements Serializable {
 
     String className;
     long id;
-    Uri contentUri;
+    String contentUri;
     String name;
     String mimeType;
     String mediaType;
     int size;
     boolean isSelected;
 
-    public Document(long id, Uri contentUri, String name, String mimeType, String mediaType, int size, boolean isSelected) {
+    public Document(long id, String contentUri, String name, String mimeType, String mediaType, int size, boolean isSelected) {
         this.id = id;
         this.contentUri = contentUri;
         this.name = name;
@@ -52,11 +54,11 @@ public class Document {
         this.id = id;
     }
 
-    public Uri getContentUri() {
+    public String getContentUri() {
         return contentUri;
     }
 
-    public void setContentUri(Uri contentUri) {
+    public void setContentUri(String contentUri) {
         this.contentUri = contentUri;
     }
 

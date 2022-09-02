@@ -103,7 +103,7 @@ public class ImageMedia {
 
                 // Stores column values and the contentUri in a local object
                 // that represents the media file.
-                imageList.add(new Image(contentUri, name, height, width, false));
+                imageList.add(new Image(contentUri.toString(), name, height, width, false));
                 Log.d(TAG, "getImages: " + contentUri);
             }
 

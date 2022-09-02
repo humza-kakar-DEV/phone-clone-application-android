@@ -57,10 +57,6 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver {
             // Connection state changed! We should probably do something about
             // that.
 
-            if (wifiP2pManager == null) {
-                return;
-            }
-
             NetworkInfo networkInfo = (NetworkInfo) intent.getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
             if (networkInfo.isConnected()) {
                 wifiP2pManager.requestConnectionInfo(channel, connectionInfoListener);

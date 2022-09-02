@@ -31,7 +31,7 @@ public class MediaFile {
         List<Uri> uriList = new ArrayList<>();
         VideoMedia videoMedia = new VideoMedia(context);
         for (Video video : videoMedia.generateVideos()) {
-            uriList.add(video.getUri());
+//            uriList.add(video.getUri());
         }
         return uriList;
     }
@@ -40,7 +40,7 @@ public class MediaFile {
         List<Uri> uriList = new ArrayList<>();
         ImageMedia imageMedia = new ImageMedia(context);
         for (Image image : imageMedia.generateImages()) {
-            uriList.add(image.getUri());
+//            uriList.add(image.getUri());
         }
         return uriList;
     }

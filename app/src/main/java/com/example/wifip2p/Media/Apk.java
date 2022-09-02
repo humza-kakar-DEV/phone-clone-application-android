@@ -5,7 +5,9 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 
-public class Apk {
+import java.io.Serializable;
+
+public class Apk implements Serializable {
 
     String className;
     String appName;

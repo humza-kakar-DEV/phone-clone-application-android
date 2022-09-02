@@ -7,17 +7,25 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.view.autofill.AutofillId;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.example.wifip2p.Media.Apk;
 import com.example.wifip2p.Media.Audio;
 import com.example.wifip2p.Media.AudioMedia;
 import com.example.wifip2p.Media.Contact;
+import com.example.wifip2p.Media.Document;
 import com.example.wifip2p.Media.DynamicObject;
+import com.example.wifip2p.Media.Image;
+import com.example.wifip2p.Media.ImageMedia;
+import com.example.wifip2p.Media.Video;
+import com.example.wifip2p.Utils.Constant;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,114 +33,215 @@ import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
+
+import javax.net.ssl.HandshakeCompletedListener;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
 
 public class ClientThread extends Thread {
 
-    public ClientThreadHandler clientThreadHandler;
     MainActivity mainActivity;
-    public static final String TAG = "hmThread";
-    public static final String TAG_FILE = "hmFile";
+    Context context;
 
-    public ClientThreadHandler getClientThreadHandler() {
-        return clientThreadHandler;
-    }
+    int len;
+    String hostAddress;
+    String classType;
+    Socket socket = new Socket();
+    FileInputStream fileInputStream;
 
-    public ClientThread (MainActivity mainActivity)
-    {
+    Object object;
+    Image image;
+    Audio audio;
+    Video video;
+    Document document;
+    Apk apk;
+
+    ImageMedia imageMedia;
+    AudioMedia audioMedia;
+
+    public ClientThread(MainActivity mainActivity, String hostAddress) {
         this.mainActivity = mainActivity;
+        this.context = mainActivity.getApplicationContext();
+        this.hostAddress = hostAddress;
     }
 
     @Override
     public void run() {
         super.run();
 
-        Looper.prepare();
-        clientThreadHandler = new ClientThreadHandler(mainActivity);
-        Looper.loop();
-    }
+        imageMedia = new ImageMedia(mainActivity);
+        audioMedia = new AudioMedia(mainActivity);
 
-    public class ClientThreadHandler extends Handler {
+        image = imageMedia.generateImages().get(2);
+        audio = audioMedia.generateAudios().get(8);
 
-        private static final String AUDIO_TAG = "hmAudioKey";
+        Log.d(Constant.THREAD_TAG, "file name: " + audio.getSongName());
 
-        MainActivity mainActivity;
-        Context context;
-        Socket socket = new Socket();
-        byte buf[]  = new byte[1024];
-        int len;
-        String hostAddress;
-        Audio audio;
-        Contact contact;
-        String fileType;
-
-        public ClientThreadHandler (MainActivity mainActivity) {
-            this.mainActivity = mainActivity;
-            context = mainActivity.getApplicationContext();
+        while (true) {
+            if (audio == null) {
+                Log.d(Constant.THREAD_TAG, "client thread: cannot run connection image is  null! ");
+            } else {
+                break;
+            }
         }
 
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            super.handleMessage(msg);
-
-            if (msg.getData() != null) {
-                fileType = msg.getData().getString("fileTypeKey");
-                contact = (Contact) msg.getData().getSerializable(AUDIO_TAG);
-                hostAddress = msg.getData().getString("hmHostAddress");
-//                Log.d(TAG_FILE, "audio from CLIENT thread HANDLER: " + audio.getSongName());
-            }
-
-            try {
+        try {
 
 //     *******************   SENDING OBJECT & INPUT STREAMS TO SERVER SOCKET   *******************
 
+            Log.d(Constant.THREAD_TAG, "client thread: socket status - false");
 
-                socket.bind(null);
-                socket.connect(new InetSocketAddress(hostAddress, 8888), 5000);
+            socket.bind(null);
+            socket.connect(new InetSocketAddress(hostAddress, 8888), 5000);
 
-                Log.d(TAG, "client thread: connected to server thread WELCOME!");
+            Log.d(Constant.THREAD_TAG, "client thread: socket status - true");
 
-                ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-//                ObjectOutputStream objectOutputStreamFileName = new ObjectOutputStream(socket.getOutputStream());
+            OutputStream os = socket.getOutputStream();
+            PrintWriter pw = new PrintWriter(os);
 
-                DynamicObject dynamicObject = new DynamicObject(contact, fileType);
+            InputStream is = socket.getInputStream();
+            InputStreamReader isr = new InputStreamReader(is);
 
-                objectOutputStream.writeObject (dynamicObject);
+            BufferedReader br = new BufferedReader(isr);
 
-                OutputStream os = socket.getOutputStream();
-                PrintWriter pw = new PrintWriter(os);
+            DataOutputStream dataOutputStream = new DataOutputStream(os);
+            dataOutputStream.writeUTF(audio.getSongName());
 
-                InputStream is = socket.getInputStream();
-                InputStreamReader isr = new InputStreamReader(is);
-                BufferedReader br = new BufferedReader(isr);
+            ContentResolver contentResolver = context.getApplicationContext().getContentResolver();
+            fileInputStream = (FileInputStream) contentResolver.openInputStream(Uri.parse(audio.getUri()));
 
-                ContentResolver contentResolver = context.getApplicationContext().getContentResolver();
-                FileInputStream fis = (FileInputStream) contentResolver.openInputStream(Uri.parse(audio.getUri()));
+            byte[] buffer = new byte[fileInputStream.available()];
 
-                byte[] buffer = new byte[fis.available()];
+             BufferedInputStream bis = new BufferedInputStream(fileInputStream);
 
-                BufferedInputStream bis = new BufferedInputStream(fis);
+            while (true) {
 
-                while(true)
-                {
+                int bytesRead = bis.read(buffer, 0, buffer.length);
 
-                    int bytesRead = bis.read(buffer, 0, buffer.length);
-
-                    if(bytesRead == -1)
-                    {
-                        break;
-                    }
-
-                    //BytesToSend = BytesToSend - bytesRead;
-                    os.write(buffer,0, bytesRead);
-                    os.flush();
+                if (bytesRead == -1) {
+                    break;
                 }
 
-////                --------------------------------------------------------
+                Log.d(Constant.THREAD_TAG, "client thread: file bytes - " + bytesRead);;
+
+                //BytesToSend = BytesToSend - bytesRead;
+                os.write(buffer, 0, bytesRead);
+                os.flush();
+                
+            }
+
+////!                --------------------------------------------------------
+
+        } catch (Exception e) {
+
+            Log.d(Constant.THREAD_TAG, "client stack trace: " + e.getStackTrace());
+            Log.d(Constant.THREAD_TAG, "client error: " + e.getMessage());
+            Log.d(Constant.THREAD_TAG, "client localized: " + e.getLocalizedMessage());
+
+        } finally {
+            if (socket != null) {
+                if (socket.isConnected()) {
+//                        try {
+////                            socket.close();
+//                        }
+//                        catch (IOException e) {
+//                            //catch logic
+//                        }
+                }
+            }
+        }
+    }
+}
+
+    class ClientThreadHandler extends Handler {
+
+    private static final String AUDIO_TAG = "hmAudioKey";
+
+    MainActivity mainActivity;
+    Context context;
+    Socket socket = new Socket();
+    int len;
+    String hostAddress;
+    String classType;
+    FileInputStream fileInputStream;
+
+    Object object;
+    Image image;
+    Audio audio;
+    Video video;
+    Document document;
+    Apk apk;
+
+    public ClientThreadHandler(MainActivity mainActivity) {
+        this.mainActivity = mainActivity;
+        context = mainActivity.getApplicationContext();
+    }
+
+    @Override
+    public void handleMessage(@NonNull Message msg) {
+        super.handleMessage(msg);
+
+        try {
+
+//     *******************   SENDING OBJECT & INPUT STREAMS TO SERVER SOCKET   *******************
+
+            Log.d(Constant.THREAD_TAG, "client thread: before connection");
+
+            socket.bind(null);
+            socket.connect(new InetSocketAddress(hostAddress, 8888), 5000);
+
+            Log.d(Constant.THREAD_TAG, "client thread: connected to server thread WELCOME!");
+
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+            DynamicObject dynamicObject = new DynamicObject();
+
+            if (msg.getData() != null) {
+                hostAddress = msg.getData().getString(Constant.GROUP_OWNER_TAG);
+                classType = msg.getData().getString(Constant.CLASS_TAG);
+                object = (Object) msg.getData().getSerializable(Constant.FILE_OBJECT_TAG);
+            }
+
+            if (msg.getData().getSerializable(Constant.FILE_OBJECT_TAG).equals("contact")) {
+                dynamicObject.setObject(object);
+                dynamicObject.setObjectType(classType);
+                objectOutputStream.writeObject(dynamicObject);
+                return;
+            }
+
+            OutputStream os = socket.getOutputStream();
+            PrintWriter pw = new PrintWriter(os);
+
+            InputStream is = socket.getInputStream();
+            InputStreamReader isr = new InputStreamReader(is);
+
+            BufferedReader br = new BufferedReader(isr);
+
+            ContentResolver contentResolver = context.getApplicationContext().getContentResolver();
+            image = (Image) object;
+            dynamicObject.setObjectType(classType);
+            objectOutputStream.writeObject(dynamicObject);
+            fileInputStream = (FileInputStream) contentResolver.openInputStream(Uri.parse(image.getUri()));
+
+            byte[] buffer = new byte[fileInputStream.available()];
+
+            BufferedInputStream bis = new BufferedInputStream(fileInputStream);
+
+            while (true) {
+
+                int bytesRead = bis.read(buffer, 0, buffer.length);
+
+                if (bytesRead == -1) {
+                    break;
+                }
+
+                //BytesToSend = BytesToSend - bytesRead;
+                os.write(buffer, 0, bytesRead);
+                os.flush();
+            }
+
+////!                --------------------------------------------------------
 //
 ////                OutputStream outputStream = socket.getOutputStream();
 ////                ContentResolver cr = context.getContentResolver();
@@ -147,22 +256,24 @@ public class ClientThread extends Thread {
 ////
 ////                outputStream.close();
 ////                fileInputStream.close();
+//
+////!                --------------------------------------------------------
 
-            } catch (Exception e) {
+        } catch (Exception e) {
 
-                Log.d(TAG, "client error: " + e.getMessage());
-                Log.d(TAG, "client localized: " + e.getLocalizedMessage());
-                Log.d(TAG, "client stack trace: " + e.getStackTrace());
+            Log.d(Constant.THREAD_TAG, "client stack trace: " + e.getStackTrace());
+            Log.d(Constant.THREAD_TAG, "client error: " + e.getMessage());
+            Log.d(Constant.THREAD_TAG, "client localized: " + e.getLocalizedMessage());
 
-            } finally {
-                if (socket != null) {
-                    if (socket.isConnected()) {
-                        try {
-                            socket.close();
-                        } catch (IOException e) {
-                            //catch logic
-                        }
-                    }
+        } finally {
+            if (socket != null) {
+                if (socket.isConnected()) {
+//                        try {
+////                            socket.close();
+//                        }
+//                        catch (IOException e) {
+//                            //catch logic
+//                        }
                 }
             }
         }
