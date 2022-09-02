@@ -89,7 +89,7 @@ public class ClientThread extends Thread {
 
         try {
 
-//     *******************   SENDING OBJECT & INPUT STREAMS TO SERVER SOCKET   *******************
+//     *******************   SENDING STREAMS OF DATA TO SERVER THREAD OVER SOCKET   *******************
 
             Log.d(Constant.THREAD_TAG, "client thread: socket status - false");
 

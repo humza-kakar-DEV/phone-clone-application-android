@@ -81,8 +81,6 @@ public class ServerThread extends Thread {
             OutputStream os = client.getOutputStream();
             PrintWriter pw = new PrintWriter(os);
 
-            DataInputStream dataInputStream = new DataInputStream(is);
-            String name = dataInputStream.readUTF();
 
             String inputData = "";
 
@@ -133,6 +131,9 @@ public class ServerThread extends Thread {
 
 //! *************** STORING AUDIO FILES ********************
 
+            DataInputStream dataInputStream = new DataInputStream(is);
+            String name = dataInputStream.readUTF();
+
             ContentValues values = new ContentValues();
 
             values.put(MediaStore.MediaColumns.DISPLAY_NAME, name);       //file name
@@ -142,7 +143,6 @@ public class ServerThread extends Thread {
             Uri uri = context.getContentResolver().insert(MediaStore.Files.getContentUri("external"), values);
 
             fos = (FileOutputStream) context.getContentResolver().openOutputStream(uri);
-
 
             BufferedOutputStream bos = new BufferedOutputStream(fos);
 
