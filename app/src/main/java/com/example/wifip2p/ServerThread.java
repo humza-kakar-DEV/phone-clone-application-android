@@ -48,6 +48,7 @@ public class ServerThread extends Thread {
     int len;
     boolean clientConnected;
     String name;
+    int fileCount;
 
     List<Audio> audioList = new ArrayList<>();
     List<Image> imageList = new ArrayList<>();
@@ -127,6 +128,15 @@ public class ServerThread extends Thread {
                 bos.close();
                 socket.close();
 
+                fileCount++;
+
+                mainActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mainActivity.serverResult(fileCount);
+                    }
+                });
+
             }
 
 
@@ -137,9 +147,6 @@ public class ServerThread extends Thread {
         {
             Log.d(Constant.THREAD_TAG, "server thread: " + e.getMessage());
         }
-
-        //Signal that operation is complete
-//        serverResult.send(port, null);
 
     }
 }

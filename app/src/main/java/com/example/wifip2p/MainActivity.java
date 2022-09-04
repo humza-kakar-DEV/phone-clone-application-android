@@ -45,6 +45,8 @@ import com.example.wifip2p.Utils.ClientFileTransfer;
 import com.example.wifip2p.Utils.Constant;
 import com.example.wifip2p.Utils.ServerFileTransfer;
 
+import org.w3c.dom.Text;
+
 import java.io.Serializable;
 import java.lang.invoke.ConstantCallSite;
 import java.util.ArrayList;
@@ -52,8 +54,6 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ListView listView;
-    private TextView textView;
     private List<WifiP2pDevice> refreshedPeers = new ArrayList<WifiP2pDevice>();
     String[] deviceNameArray;
     WifiP2pDevice[] deviceArray;
@@ -65,16 +65,12 @@ public class MainActivity extends AppCompatActivity {
     private WifiDirectBroadcastReceiver wifiDirectBroadcast;
     private List<WifiP2pDevice> peers = new ArrayList<WifiP2pDevice>();
     private WifiP2pManager.Channel channel;
-    private int amount;
+
+    private int fileCount;
 
     private Button button;
-
-//    List<Audio> audioList = new ArrayList<>();
-//    List<Contact> contactList = new ArrayList<>();
-//    List<Image> imageList = new ArrayList<>();
-//    List<Video> videoList = new ArrayList<>();
-//    List<Document> documentList = new ArrayList<>();
-//    List<Apk> apkList = new ArrayList<>();
+    private ListView listView;
+    private TextView textView, serverTextView;
 
     ImageMedia imageMedia;
     VideoMedia videoMedia;
@@ -96,6 +92,9 @@ public class MainActivity extends AppCompatActivity {
 
         listView = (ListView) findViewById(R.id.listView);
         textView = (TextView) findViewById(R.id.textView);
+        serverTextView = (TextView) findViewById(R.id.serverTextView);
+
+        serverTextView.setVisibility(View.GONE);
 
         imageMedia = new ImageMedia(this);
         audioMedia = new AudioMedia(this);
@@ -237,18 +236,18 @@ public class MainActivity extends AppCompatActivity {
 
 //                server block which will receive files from client
 
-//                UI coding
+//              UI coding
                 Toast.makeText(MainActivity.this, "connection owner", Toast.LENGTH_SHORT).show();
                 textView.setText("CONNECTION SERVER");
 
 //              thread coding
-              serverThread = new ServerThread(MainActivity.this);
-              serverThread.setName("server thread");
-              serverThread.start();
+                serverThread = new ServerThread(MainActivity.this);
+                serverThread.setName("server thread");
+                serverThread.start();
 
-//                ServerFileTransfer serverFileTransfer = new ServerFileTransfer(MainActivity.this);
-//                serverFileTransfer.setName("file receive");
-//                serverFileTransfer.start();
+                serverTextView.setVisibility(View.VISIBLE);
+
+                serverTextView.setText("file received: " + fileCount);
 
             } else if (wifiP2pInfo.groupFormed) {
 
@@ -263,17 +262,13 @@ public class MainActivity extends AppCompatActivity {
                 clientThread.setName("client thread");
                 clientThread.start();
 
-//                ClientFileTransfer clientFileTransfer = new ClientFileTransfer(groupOwnerAddress);
-//                clientFileTransfer.setName("file transfer");
-//                clientFileTransfer.start();
-
             }
         }
     };
 
-    public void clientData () {
-        amount++;
-        Log.d(Constant.MAIN_ACTIVITY_TAG, "clientData: " + amount);
+    public void serverResult (int fileCount) {
+        this.fileCount = fileCount;
+        Toast.makeText(this, "file send: " + fileCount, Toast.LENGTH_SHORT).show();
     }
 
 //    public void dataToSend(String groupOwnerAddress) {

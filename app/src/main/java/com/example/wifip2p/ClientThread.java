@@ -139,9 +139,6 @@ public class ClientThread extends Thread {
 
             }
 
-//            signalActivity("File Transfer Complete, sent file: " + fileToSend.getName());
-
-
         } catch (IOException e) {
             Log.d(Constant.THREAD_TAG, "client thread: " + e.getMessage());
         }
