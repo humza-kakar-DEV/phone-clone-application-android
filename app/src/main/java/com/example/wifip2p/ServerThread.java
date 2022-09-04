@@ -24,6 +24,7 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.DataInput;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,9 +45,9 @@ public class ServerThread extends Thread {
     ServerSocket serverSocket;
     Socket client;
     FileOutputStream fos;
-    byte buf[] = new byte[1024];
     int len;
     boolean clientConnected;
+    String name;
 
     List<Audio> audioList = new ArrayList<>();
     List<Image> imageList = new ArrayList<>();
@@ -63,132 +64,83 @@ public class ServerThread extends Thread {
     public void run() {
         super.run();
 
+        ServerSocket welcomeSocket = null;
+        Socket socket = null;
+
         try {
 
-//              ************** RECEIVING OBJECT THROUGH CLIENT SOCKET **********
-
-            Log.d(Constant.THREAD_TAG, "server thread: socket status - false");
-
-            serverSocket = new ServerSocket(8888);
-            client = serverSocket.accept();
-
-            Log.d(Constant.THREAD_TAG, "server thread: socket status - true");
-
-            InputStream is = client.getInputStream();
-            InputStreamReader isr = new InputStreamReader(is);
-            BufferedReader br = new BufferedReader(isr);
-
-            OutputStream os = client.getOutputStream();
-            PrintWriter pw = new PrintWriter(os);
 
 
-            String inputData = "";
-
-            //Client-Server handshake
-
-				/*
-				String test = "Y";x
-				test = test + br.readLine() + test;
-
-
-				signalActivity(test);
-				 */
-
-				/*
-				inputData = br.readLine();
-
-				if(!inputData.equals("wdft_client_hello"))
-				{
-					throw new IOException("Invalid WDFT protocol message");
-
-				}
-
-				pw.println("wdft_server_hello");
-
-
-				inputData = br.readLine();
-
-
-				if(inputData == null)
-				{
-					throw new IOException("File name was null");
-
-				}
-
-
-				fileName = inputData;
-
-				pw.println("wdft_server_ready");
-
-				*/
-
-            //signalActivity("Handshake complete, getting file: " + fileName);
-
-            byte[] buffer = new byte[4096];
-            int bytesRead;
-
-//            FileOutputStream fos = new FileOutputStream(file);
-
-//! *************** STORING AUDIO FILES ********************
-
-            DataInputStream dataInputStream = new DataInputStream(is);
-            String name = dataInputStream.readUTF();
-
-            ContentValues values = new ContentValues();
-
-            values.put(MediaStore.MediaColumns.DISPLAY_NAME, name);       //file name
-            values.put(MediaStore.MediaColumns.MIME_TYPE, "audio/mpeg");        //file extension, will automatically add to file
-            values.put(MediaStore.MediaColumns.RELATIVE_PATH, MediaStore.Audio.Media.RELATIVE_PATH);     //end "/" is not mandatory
-
-            Uri uri = context.getContentResolver().insert(MediaStore.Files.getContentUri("external"), values);
-
-            fos = (FileOutputStream) context.getContentResolver().openOutputStream(uri);
-
-            BufferedOutputStream bos = new BufferedOutputStream(fos);
+            welcomeSocket = new ServerSocket(8888);
 
             while(true)
             {
-                bytesRead = is.read(buffer, 0, buffer.length);
-                if(bytesRead == -1)
+
+                //Listen for incoming connections on specified port
+                //Block thread until someone connects
+                socket = welcomeSocket.accept();
+
+                //signalActivity("TCP Connection Established: " + socket.toString() + " Starting file transfer");
+
+                InputStream is = socket.getInputStream();
+                InputStreamReader isr = new InputStreamReader(is);
+                BufferedReader br = new BufferedReader(isr);
+
+                OutputStream os = socket.getOutputStream();
+                PrintWriter pw = new PrintWriter(os);
+
+                DataInputStream dataInputStream = new DataInputStream(is);
+                String name = dataInputStream.readUTF();
+
+                String inputData = "";
+
+                String savedAs = "WDFL_File_" + System.currentTimeMillis();
+
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+
+                ContentValues values = new ContentValues();
+
+                values.put(MediaStore.MediaColumns.DISPLAY_NAME, "wifi-direct_" + name);       //file name
+                values.put(MediaStore.MediaColumns.MIME_TYPE, "audio/mpeg");        //file extension, will automatically add to file
+                values.put(MediaStore.MediaColumns.RELATIVE_PATH, MediaStore.Audio.Media.RELATIVE_PATH);     //end "/" is not mandatory
+
+                Uri uri = context.getContentResolver().insert(MediaStore.Files.getContentUri("external"), values);
+
+
+                fos = (FileOutputStream) context.getContentResolver().openOutputStream(uri);
+
+                BufferedOutputStream bos = new BufferedOutputStream(fos);
+
+                while(true)
                 {
-                    break;
+                    bytesRead = is.read(buffer, 0, buffer.length);
+                    if(bytesRead == -1)
+                    {
+                        break;
+                    }
+                    bos.write(buffer, 0, bytesRead);
+                    bos.flush();
+
                 }
-                bos.write(buffer, 0, bytesRead);
-                bos.flush();
+
+                bos.close();
+                socket.close();
 
             }
 
 
-			    /*
-			    fos.close();
-			    bos.close();
-
-			    br.close();
-			    isr.close();
-			    is.close();
-
-			    pw.close();
-			    os.close();
-
-			    socket.close();
-			    */
-
-//            bos.close();
-//            client.close();
-
-        } catch (Exception e) {
-
-            System.err.println("Client Error: " + e.getMessage());
-            System.err.println("Localized: " + e.getLocalizedMessage());
-            System.err.println("Stack Trace: " + e.getStackTrace());
-
-            Log.d(Constant.THREAD_TAG, "server error: " + e.getMessage());
-            Log.d(Constant.THREAD_TAG, "server localized: " + e.getLocalizedMessage());
-            Log.d(Constant.THREAD_TAG, "server stack trace: " + e.getStackTrace());
-
-        } finally {
-
+        } catch (IOException e) {
+            Log.d(Constant.THREAD_TAG, "server thread: " + e.getMessage());
         }
+        catch(Exception e)
+        {
+            Log.d(Constant.THREAD_TAG, "server thread: " + e.getMessage());
+        }
+
+        //Signal that operation is complete
+//        serverResult.send(port, null);
+
     }
 }
 
