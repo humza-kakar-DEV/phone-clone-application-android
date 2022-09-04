@@ -81,8 +81,6 @@ public class ServerThread extends Thread {
                 //Block thread until someone connects
                 socket = welcomeSocket.accept();
 
-                //signalActivity("TCP Connection Established: " + socket.toString() + " Starting file transfer");
-
                 InputStream is = socket.getInputStream();
                 InputStreamReader isr = new InputStreamReader(is);
                 BufferedReader br = new BufferedReader(isr);
@@ -124,6 +122,8 @@ public class ServerThread extends Thread {
                     bos.flush();
 
                 }
+
+//!             Whole socket while loop code finishes here :
 
                 bos.close();
                 socket.close();

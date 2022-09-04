@@ -124,6 +124,7 @@ public class ClientThread extends Thread {
                     os.flush();
                 }
 
+//!             Whole socket while loop code finishes here :
 
                 fis.close();
                 bis.close();

@@ -19,7 +19,7 @@
         android:id="@+id/serverTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="fsfsf"
+        android:text=""
         android:textColor="#FF0000"
         android:textSize="35dp"
         android:textStyle="italic"
