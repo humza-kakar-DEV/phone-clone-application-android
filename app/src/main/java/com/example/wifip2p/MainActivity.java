@@ -26,6 +26,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,18 +60,17 @@ public class MainActivity extends AppCompatActivity {
     WifiP2pDevice[] deviceArray;
     ServerThread serverThread;
     ClientThread clientThread;
-    private int mainActivityFileCount;
-    private boolean serverFound;
+
+    private Button button;
+    private ListView listView;
+    private TextView textView, serverTextView, clientTextView;
+    private ProgressBar progressBar;
 
     private final IntentFilter intentFilter = new IntentFilter();
     private WifiP2pManager manager;
     private WifiDirectBroadcastReceiver wifiDirectBroadcast;
     private List<WifiP2pDevice> peers = new ArrayList<WifiP2pDevice>();
     private WifiP2pManager.Channel channel;
-
-    private Button button;
-    private ListView listView;
-    private TextView textView, serverTextView;
 
     ImageMedia imageMedia;
     VideoMedia videoMedia;
@@ -93,9 +93,12 @@ public class MainActivity extends AppCompatActivity {
         listView = (ListView) findViewById(R.id.listView);
         textView = (TextView) findViewById(R.id.textView);
         serverTextView = (TextView) findViewById(R.id.serverTextView);
+        clientTextView = (TextView) findViewById(R.id.clientTextView);
+        progressBar = (ProgressBar) findViewById(R.id.clientProgressBar);
 
         serverTextView.setVisibility(View.GONE);
-
+        clientTextView.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
 
         imageMedia = new ImageMedia(this);
         audioMedia = new AudioMedia(this);
@@ -104,27 +107,7 @@ public class MainActivity extends AppCompatActivity {
         documentMedia = new DocumentMedia(this);
         apkMedia = new ApkMedia(this);
 
-//        image = imageMedia.generateImages().get(1);
-//        apk = apkMedia.getInstalledPackages().get(2);
-//        document = documentMedia.generateDocuments().get(1);
-//        contact = contactMedia.getContactList().get(2);
-//        audio = audioMedia.generateAudios().get(1);
-
-//      starting thread, always call start method which will
-//      run thread in background, run method executes thread
-//      on ui/main thread
-
-// ------------------**************---------------------
-
-//        if (clientThread.getClientThreadHandler() != null) {
-//            for (Audio audio : audioList) {
-//                Bundle bundle = new Bundle();
-//                Message message = Message.obtain();
-//                bundle.putSerializable(AUDIO_TAG, audio);
-//                message.setData(bundle);
-//                clientThread.getClientThreadHandler().sendMessage(message);
-//            }
-//        }
+// ------------------**************---------------------}
 
         // Indicates a change in the Wi-Fi P2P status.
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
@@ -246,10 +229,6 @@ public class MainActivity extends AppCompatActivity {
                 serverThread.setName("server thread");
                 serverThread.start();
 
-
-//                serverTextView.setVisibility(View.VISIBLE);
-//                serverTextView.setText("file received: " + mainActivityFileCount);
-
             } else if (wifiP2pInfo.groupFormed) {
 
 //                client block which will send files to the server
@@ -263,112 +242,22 @@ public class MainActivity extends AppCompatActivity {
                 clientThread.setName("client thread");
                 clientThread.start();
 
+                clientTextView.setVisibility(View.VISIBLE);
+                progressBar.setVisibility(View.VISIBLE);
+
             }
         }
     };
 
-    public void serverResult(int fileCount) {
+    public void serverResult(int fileCount, String fileName) {
         serverTextView.setVisibility(View.VISIBLE);
         serverTextView.setText("file received: " + fileCount);
     }
 
-//    public void dataToSend(String groupOwnerAddress) {
-//
-//        for (int i = 0; i <= 3; i++) {
-//
-//            Message message = new Message();
-//            Bundle bundle = new Bundle();
-//
-//            Image image = imageMedia.generateImages().get(i);
-//
-//            bundle.putString(Constant.GROUP_OWNER_TAG, groupOwnerAddress);
-//            bundle.putString(Constant.CLASS_TAG, image.getClassName());
-//            bundle.putSerializable(Constant.FILE_OBJECT_TAG, image);
-//
-//            message.setData(bundle);
-//
-//            clientThread.clientThreadHandler.sendMessage(message);
-//        }
-
-//        for (int i = 0; i <= 2; i++) {
-//            Message message = new Message();
-//            Bundle bundle = new Bundle();
-//            Audio audio = audioMedia.generateAudios().get(i);
-//
-//            bundle.putString(Constant.GROUP_OWNER_TAG, groupOwnerAddress);
-//            bundle.putString(Constant.CLASS_TAG, audio.getClassName());
-//            bundle.putSerializable(Constant.FILE_OBJECT_TAG, audio);
-//            message.setData(bundle);
-//
-//            clientThread.getClientThreadHandler().sendMessage(message);
-//
-//        }
-//
-//        for (int i = 0; i <= 2; i++) {
-//            Message message = new Message();
-//            Bundle bundle = new Bundle();
-//            Video video = videoMedia.generateVideos().get(i);
-//
-//            bundle.putString(Constant.GROUP_OWNER_TAG, groupOwnerAddress);
-//            bundle.putString(Constant.CLASS_TAG, video.getClassName());
-//            bundle.putSerializable(Constant.FILE_OBJECT_TAG, video);
-//            message.setData(bundle);
-//
-//            clientThread.getClientThreadHandler().sendMessage(message);
-//
-//        }
-//
-//        for (int i = 0; i <= 2; i++) {
-//            Message message = new Message();
-//            Bundle bundle = new Bundle();
-//            Document document = documentMedia.generateDocuments().get(i);
-//
-//            bundle.putString(Constant.GROUP_OWNER_TAG, groupOwnerAddress);
-//            bundle.putString(Constant.CLASS_TAG, document.getClassName());
-//            bundle.putSerializable(Constant.FILE_OBJECT_TAG, document);
-//            message.setData(bundle);
-//
-//            clientThread.getClientThreadHandler().sendMessage(message);
-//
-//        }
-//
-//        for (int i = 0; i <= 2; i++) {
-//            Message message = new Message();
-//            Bundle bundle = new Bundle();
-//            Contact contact = contactMedia.getContactList().get(i);
-//
-//            bundle.putString(Constant.GROUP_OWNER_TAG, groupOwnerAddress);
-//            bundle.putString(Constant.CLASS_TAG, contact.getClassName());
-//            bundle.putSerializable(Constant.FILE_OBJECT_TAG, contact);
-//            message.setData(bundle);
-//
-//            clientThread.getClientThreadHandler().sendMessage(message);
-//
-//        }
-
-//        for (int i = 0; i <= 2; i++) {
-//            Message message = new Message();
-//            Bundle bundle = new Bundle();
-//            Apk apk = apkMedia.getInstalledPackages().get(i);
-//
-//            bundle.putString(Constant.GROUP_OWNER_TAG, groupOwnerAddress);
-//            bundle.putString(Constant.CLASS_TAG, apk.getClassName());
-//            bundle.putSerializable(Constant.FILE_OBJECT_TAG, apk);
-//            message.setData(bundle);
-//
-//            clientThread.getClientThreadHandler().sendMessage(message);
-//
-//        }
-//    }
-
-    public void setIsWifiP2pEnabled(boolean value) {
-        if (value) {
-            Log.d(Constant.CONNECTION_TAG, "setIsWifiP2pEnabled: enabled");
-//            Toast.makeText(this, "wifi enabled", Toast.LENGTH_SHORT).show();
-        } else {
-            Log.d(Constant.CONNECTION_TAG, "setIsWifiP2pEnabled: disabled");
-//            Toast.makeText(this, "wifi disabled", Toast.LENGTH_SHORT).show();
-        }
+    public void clientResult(int totalFileSize, int currentFileSize, String fileName, int fileCount) {
+        clientTextView.setText(fileName + " --- " + fileCount);
+        progressBar.setMax(totalFileSize);
+        progressBar.setProgress(currentFileSize);
     }
 
     //  this method is called from server thread

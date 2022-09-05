@@ -45,17 +45,11 @@ public class ClientThread extends Thread {
     Socket socket = new Socket();
     FileInputStream fis;
     boolean serverDataStatus = true;
-
-    Object object;
-    Image image;
-    Audio audio;
-    Video video;
-    Document document;
-    Apk apk;
+    private int amount;
+    int currentFileSize;
 
     ImageMedia imageMedia;
     AudioMedia audioMedia;
-    private int amount;
 
     public ClientThread(MainActivity mainActivity, String hostAddress) {
         this.mainActivity = mainActivity;
@@ -70,27 +64,14 @@ public class ClientThread extends Thread {
         imageMedia = new ImageMedia(mainActivity);
         audioMedia = new AudioMedia(mainActivity);
 
-        image = imageMedia.generateImages().get(2);
-        audio = audioMedia.generateAudios().get(8);
-
-        Log.d(Constant.THREAD_TAG, "file name: " + audio.getSongName());
-
-        while (true) {
-            if (audio == null) {
-                Log.d(Constant.THREAD_TAG, "client thread: cannot run connection image is  null! ");
-            } else {
-                break;
-            }
-        }
-
         Socket clientSocket = null;
         OutputStream os = null;
 
         try {
 
-            for (int i = 0; i <= 10; i++) {
+            for (int i = 0; i <= 15; i++) {
 
-                audio = audioMedia.generateAudios().get(i);
+                Audio audio = audioMedia.generateAudios().get(i);
 
                 clientSocket = new Socket(hostAddress, 8888);
                 os = clientSocket.getOutputStream();
@@ -108,7 +89,13 @@ public class ClientThread extends Thread {
                 BufferedInputStream bis = new BufferedInputStream(fis);
 
                 DataOutputStream dataOutputStream = new DataOutputStream(os);
-                dataOutputStream.writeUTF("content value: " + audio.getSongName());
+                dataOutputStream.writeUTF(audio.getSongName());
+
+                Log.d(Constant.THREAD_TAG, "song name: " + audio.getSongName());
+
+                int bytesToSend = fis.available();
+
+                int finalI = i;
 
                 while (true) {
 
@@ -118,13 +105,41 @@ public class ClientThread extends Thread {
                         break;
                     }
 
+                    currentFileSize += bytesRead;
+
                     //BytesToSend = BytesToSend - bytesRead;
+
+                    Log.d(Constant.THREAD_TAG, "bytes: " + currentFileSize);
+
+//                    currentFileSize++;
+
+
+                    mainActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                mainActivity.clientResult(fis.available() , currentFileSize, audio.getSongName(), finalI);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+
                     os.write(buffer, 0, bytesRead);
                     os.flush();
 
                 }
 
-//!             Whole socket while loop code finishes here :
+//!             for socket while loop code finishes here :
+
+                currentFileSize = 0;
+
+                mainActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mainActivity.clientResult(0, 0, audio.getSongName(), finalI);
+                    }
+                });
 
                 fis.close();
                 bis.close();
@@ -224,6 +239,8 @@ public class ClientThread extends Thread {
 
             BufferedInputStream bis = new BufferedInputStream(fileInputStream);
 
+            int bytesToSend = fileInputStream.read();
+
             while (true) {
 
                 int bytesRead = bis.read(buffer, 0, buffer.length);
@@ -232,7 +249,7 @@ public class ClientThread extends Thread {
                     break;
                 }
 
-                //BytesToSend = BytesToSend - bytesRead;
+                //bytesToSend = bytesToSend - bytesRead;
                 os.write(buffer, 0, bytesRead);
                 os.flush();
             }

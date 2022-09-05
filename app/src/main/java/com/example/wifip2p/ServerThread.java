@@ -48,7 +48,6 @@ public class ServerThread extends Thread {
     FileOutputStream fos;
     int len;
     boolean clientConnected;
-    String name;
     int fileCount;
 
     List<Audio> audioList = new ArrayList<>();
@@ -134,7 +133,7 @@ public class ServerThread extends Thread {
                 mainActivity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        mainActivity.serverResult(fileCount);
+                        mainActivity.serverResult(fileCount, name);
                     }
                 });
 
