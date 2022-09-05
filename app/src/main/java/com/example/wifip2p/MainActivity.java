@@ -59,14 +59,14 @@ public class MainActivity extends AppCompatActivity {
     WifiP2pDevice[] deviceArray;
     ServerThread serverThread;
     ClientThread clientThread;
+    private int mainActivityFileCount;
+    private boolean serverFound;
 
     private final IntentFilter intentFilter = new IntentFilter();
     private WifiP2pManager manager;
     private WifiDirectBroadcastReceiver wifiDirectBroadcast;
     private List<WifiP2pDevice> peers = new ArrayList<WifiP2pDevice>();
     private WifiP2pManager.Channel channel;
-
-    private int fileCount;
 
     private Button button;
     private ListView listView;
@@ -95,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
         serverTextView = (TextView) findViewById(R.id.serverTextView);
 
         serverTextView.setVisibility(View.GONE);
+
 
         imageMedia = new ImageMedia(this);
         audioMedia = new AudioMedia(this);
@@ -245,9 +246,9 @@ public class MainActivity extends AppCompatActivity {
                 serverThread.setName("server thread");
                 serverThread.start();
 
-                serverTextView.setVisibility(View.VISIBLE);
 
-                serverTextView.setText("file received: " + fileCount);
+//                serverTextView.setVisibility(View.VISIBLE);
+//                serverTextView.setText("file received: " + mainActivityFileCount);
 
             } else if (wifiP2pInfo.groupFormed) {
 
@@ -266,9 +267,9 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    public void serverResult (int fileCount) {
-        this.fileCount = fileCount;
-        Toast.makeText(this, "file send: " + fileCount, Toast.LENGTH_SHORT).show();
+    public void serverResult(int fileCount) {
+        serverTextView.setVisibility(View.VISIBLE);
+        serverTextView.setText("file received: " + fileCount);
     }
 
 //    public void dataToSend(String groupOwnerAddress) {

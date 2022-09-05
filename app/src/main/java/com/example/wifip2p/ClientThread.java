@@ -96,7 +96,6 @@ public class ClientThread extends Thread {
                 os = clientSocket.getOutputStream();
                 PrintWriter pw = new PrintWriter(os);
 
-
                 InputStream is = clientSocket.getInputStream();
                 InputStreamReader isr = new InputStreamReader(is);
                 BufferedReader br = new BufferedReader(isr);
@@ -122,6 +121,7 @@ public class ClientThread extends Thread {
                     //BytesToSend = BytesToSend - bytesRead;
                     os.write(buffer, 0, bytesRead);
                     os.flush();
+
                 }
 
 //!             Whole socket while loop code finishes here :
@@ -147,6 +147,7 @@ public class ClientThread extends Thread {
         {
             Log.d(Constant.THREAD_TAG, "client thread: " + e.getMessage());
         }
+
     }
 }
 
