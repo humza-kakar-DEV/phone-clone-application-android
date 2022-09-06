@@ -18,6 +18,7 @@ import com.example.wifip2p.Media.Image;
 import com.example.wifip2p.Media.ImageMedia;
 import com.example.wifip2p.Media.Video;
 import com.example.wifip2p.Utils.Constant;
+import com.example.wifip2p.Utils.FileSizeCalculator;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -39,14 +40,9 @@ public class ClientThread extends Thread {
     MainActivity mainActivity;
     Context context;
 
-    int len;
     String hostAddress;
-    String classType;
-    Socket socket = new Socket();
-    FileInputStream fis;
-    boolean serverDataStatus = true;
-    private int amount;
-    int currentFileSize;
+    int currentFileSize = 0;
+    long totalFileSize = 0;
 
     ImageMedia imageMedia;
     AudioMedia audioMedia;
@@ -84,18 +80,22 @@ public class ClientThread extends Thread {
                 byte[] buffer = new byte[4096];
 
                 ContentResolver contentResolver = context.getApplicationContext().getContentResolver();
-                fis = (FileInputStream) contentResolver.openInputStream(Uri.parse(audio.getUri()));
+                FileInputStream fis = (FileInputStream) contentResolver.openInputStream(Uri.parse(audio.getUri()));
 
                 BufferedInputStream bis = new BufferedInputStream(fis);
 
                 DataOutputStream dataOutputStream = new DataOutputStream(os);
                 dataOutputStream.writeUTF(audio.getSongName());
 
+                long bytesToSend = fis.available();
+
+                int forLoopCount = i;
+
+                totalFileSize += bytesToSend;
+
                 Log.d(Constant.THREAD_TAG, "song name: " + audio.getSongName());
 
-                int bytesToSend = fis.available();
-
-                int finalI = i;
+                Log.d(Constant.THREAD_TAG, "file size: " + FileSizeCalculator.getSize(bytesToSend));
 
                 while (true) {
 
@@ -107,18 +107,13 @@ public class ClientThread extends Thread {
 
                     currentFileSize += bytesRead;
 
-                    //BytesToSend = BytesToSend - bytesRead;
-
-                    Log.d(Constant.THREAD_TAG, "bytes: " + currentFileSize);
-
-//                    currentFileSize++;
-
+//                    Log.d(Constant.THREAD_TAG, "bytes: " + currentFileSize);
 
                     mainActivity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             try {
-                                mainActivity.clientResult(fis.available() , currentFileSize, audio.getSongName(), finalI);
+                                mainActivity.clientResult(fis.available() , currentFileSize, audio.getSongName(), forLoopCount);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -130,14 +125,14 @@ public class ClientThread extends Thread {
 
                 }
 
-//!             for socket while loop code finishes here :
+//!             Whole for loop socket code finishes here :
 
                 currentFileSize = 0;
 
                 mainActivity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        mainActivity.clientResult(0, 0, audio.getSongName(), finalI);
+                        mainActivity.clientResult(0, 0, audio.getSongName(), forLoopCount);
                     }
                 });
 
@@ -154,6 +149,8 @@ public class ClientThread extends Thread {
                 clientSocket.close();
 
             }
+
+            Log.d(Constant.THREAD_TAG, "total file size sent: " + FileSizeCalculator.getSize(totalFileSize));
 
         } catch (IOException e) {
             Log.d(Constant.THREAD_TAG, "client thread: " + e.getMessage());

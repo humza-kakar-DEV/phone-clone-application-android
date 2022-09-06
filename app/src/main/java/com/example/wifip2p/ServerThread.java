@@ -123,7 +123,7 @@ public class ServerThread extends Thread {
 
                 }
 
-//!             Whole socket while loop code finishes here :
+//!             Whole while loop socket code finishes here :
 
                 bos.close();
                 socket.close();
