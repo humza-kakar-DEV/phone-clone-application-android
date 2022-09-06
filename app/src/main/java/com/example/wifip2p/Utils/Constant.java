@@ -10,4 +10,11 @@ public class Constant {
     public static final String TAG_FILE = "hmFile";
     public static final String FILE_OBJECT_TAG = "hmFileTag";
     public static final String CLASS_TAG = "classTypeKey";
+    public static final String BUNDLE_TAG = "hmBundle";
+    public static final String IMAGE_TAG = "hmImage";
+    public static final String AUDIO_TAG = "hmAudio";
+    public static final String VIDEO_TAG = "hmVideo";
+    public static final String DOCUMENT_TAG = "hmDocument";
+    public static final String CONTACT_TAG = "hmContact";
+    public static final String APK_TAG = "hmApk";
 }

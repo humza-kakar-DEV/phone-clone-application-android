@@ -85,6 +85,13 @@ public class MainActivity extends AppCompatActivity {
     Apk apk;
     Contact contact;
 
+    int imageSize;
+    int audioSize;
+    int videoSize;
+    int documentSize;
+    int contactSize;
+    int apkSize;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,6 +113,13 @@ public class MainActivity extends AppCompatActivity {
         videoMedia = new VideoMedia(this);
         documentMedia = new DocumentMedia(this);
         apkMedia = new ApkMedia(this);
+
+        imageSize = getIntent().getIntExtra("per1", 0);
+        audioSize = getIntent().getIntExtra("per2", 0);
+        videoSize = getIntent().getIntExtra("per3", 0);
+        documentSize = getIntent().getIntExtra("per4", 0);
+        contactSize = getIntent().getIntExtra("per5", 0);
+        apkSize = getIntent().getIntExtra("per6", 0);
 
 // ------------------**************---------------------}
 
@@ -223,11 +237,13 @@ public class MainActivity extends AppCompatActivity {
 //              UI coding
                 Toast.makeText(MainActivity.this, "connection owner", Toast.LENGTH_SHORT).show();
                 textView.setText("CONNECTION SERVER");
+                serverTextView.setVisibility(View.VISIBLE);
 
 //              thread coding
                 serverThread = new ServerThread(MainActivity.this);
                 serverThread.setName("server thread");
                 serverThread.start();
+
 
             } else if (wifiP2pInfo.groupFormed) {
 
@@ -238,12 +254,33 @@ public class MainActivity extends AppCompatActivity {
                 textView.setText("CONNECTION CLIENT");
 
 //                thread coding
-                clientThread = new ClientThread(MainActivity.this, groupOwnerAddress);
-                clientThread.setName("client thread");
-                clientThread.start();
 
-                clientTextView.setVisibility(View.VISIBLE);
-                progressBar.setVisibility(View.VISIBLE);
+                Intent intent = new Intent(MainActivity.this, MainActivity2.class);
+                intent.putExtra(Constant.GROUP_OWNER_TAG, groupOwnerAddress);
+                intent.putExtra("per1", imageSize);
+                intent.putExtra("per2", audioSize);
+                intent.putExtra("per3", videoSize);
+                intent.putExtra("per4", documentSize);
+                intent.putExtra("per5", contactSize);
+                intent.putExtra("per6", apkSize);
+                startActivity(intent);
+
+//                AudioMedia audioMedia = new AudioMedia(MainActivity.this);
+//
+//                for (int i = 2; i <= 10; i++) {
+//
+//                    Audio audio = audioMedia.generateAudios().get(i);
+//
+//                    Bundle bundle = new Bundle();
+//                    bundle.putString(Constant.GROUP_OWNER_TAG, groupOwnerAddress);
+//                    bundle.putSerializable(Constant.AUDIO_TAG, audio);
+//
+//                    Message message = Message.obtain();
+//                    message.setData(bundle);
+//
+//                    clientThread.clientThreadHandler.sendMessage(message);
+//
+//                }
 
             }
         }
@@ -251,10 +288,12 @@ public class MainActivity extends AppCompatActivity {
 
     public void serverResult(int fileCount, String fileName) {
         serverTextView.setVisibility(View.VISIBLE);
-        serverTextView.setText("file received: " + fileCount);
+        serverTextView.setText(fileName + ": " + fileCount);
     }
 
     public void clientResult(int totalFileSize, int currentFileSize, String fileName, int fileCount) {
+        clientTextView.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
         clientTextView.setText(fileName + " --- " + fileCount);
         progressBar.setMax(totalFileSize);
         progressBar.setProgress(currentFileSize);

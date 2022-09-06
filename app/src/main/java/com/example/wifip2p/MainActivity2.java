@@ -29,6 +29,7 @@ import com.example.wifip2p.Media.Video;
 import com.example.wifip2p.Media.VideoMedia;
 import com.example.wifip2p.Utils.CommunicationInterface;
 import com.example.wifip2p.Utils.CommunicationInterfaceReference;
+import com.example.wifip2p.Utils.Constant;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,13 +44,14 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
     private List<Contact> contactMegaList = new ArrayList<>();
     private List<Document> documentMegaList = new ArrayList<>();
     private List<Apk> apkMegaList = new ArrayList<>();
-
     int imageSize;
     int audioSize;
     int videoSize;
     int documentSize;
     int contactSize;
     int apkSize;
+    String groupOwnerAddress;
+    ClientThread clientThread;
 
     private FrameLayout frameLayout;
     private FileShowFragment fileShowFragment;
@@ -62,6 +64,7 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
         frameLayout = findViewById(R.id.frameLayout);
 
         if (getIntent() != null) {
+            groupOwnerAddress = getIntent().getStringExtra(Constant.GROUP_OWNER_TAG);
             imageSize = getIntent().getIntExtra("per1", 0);
             audioSize = getIntent().getIntExtra("per2", 0);
             videoSize = getIntent().getIntExtra("per3", 0);
@@ -69,6 +72,12 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
             contactSize = getIntent().getIntExtra("per5", 0);
             apkSize = getIntent().getIntExtra("per6", 0);
         }
+
+        clientThread = new ClientThread(MainActivity2.this);
+        clientThread.setName("client thread");
+        clientThread.start();
+
+        Toast.makeText(this, "oncreate called", Toast.LENGTH_SHORT).show();
 
         getSupportFragmentManager()
                 .beginTransaction()
@@ -86,18 +95,18 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
     @Override
     public void changeFragment(String fileType, List<?> dynamicList) {
 
-                fileShowFragment = FileShowFragment.newInstance(fileType, dynamicList);
-                getSupportFragmentManager()
-                    .beginTransaction()
-                    .setCustomAnimations(
+        fileShowFragment = FileShowFragment.newInstance(fileType, dynamicList);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .setCustomAnimations(
                         R.anim.fragment_slide_in,  // enter
                         R.anim.fragment_fade_out,  // exit
                         R.anim.fragment_fade_in,   // popEnter
                         R.anim.fragment_slide_out  // popExit
-                    )
-                    .replace(frameLayout.getId(), fileShowFragment)
-                    .addToBackStack(null)
-                    .commit();
+                )
+                .replace(frameLayout.getId(), fileShowFragment)
+                .addToBackStack(null)
+                .commit();
 
     }
 
@@ -202,22 +211,17 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
     public void checkSelection(CheckBox checkBox, String type) {
         if (imageMegaList.size() == imageSize && type.equals("image")) {
             checkBox.setChecked(true);
-        }
-        else if (videoMegaList.size() == videoSize && type.equals("video")) {
+        } else if (videoMegaList.size() == videoSize && type.equals("video")) {
             checkBox.setChecked(true);
         } else if (audioMegaList.size() == audioSize && type.equals("audio")) {
             checkBox.setChecked(true);
-        }
-        else if (contactMegaList.size() == contactSize && type.equals("contact")) {
+        } else if (contactMegaList.size() == contactSize && type.equals("contact")) {
             checkBox.setChecked(true);
-        }
-        else if (documentMegaList.size() == documentSize && type.equals("document")) {
+        } else if (documentMegaList.size() == documentSize && type.equals("document")) {
             checkBox.setChecked(true);
-        }
-        else if (apkMegaList.size() == apkSize  && type.equals("apk")) {
+        } else if (apkMegaList.size() == apkSize && type.equals("apk")) {
             checkBox.setChecked(true);
-        }
-        else {
+        } else {
             checkBox.setChecked(false);
         }
     }
@@ -242,6 +246,8 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
             return;
         }
 
+        FileShareFragment fileShareFragment = FileShareFragment.newInstance(null, audioMegaList);
+
         getSupportFragmentManager()
                 .beginTransaction()
                 .setCustomAnimations(
@@ -250,8 +256,17 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
                         R.anim.fragment_fade_in,   // popEnter
                         R.anim.fragment_slide_out  // popExit
                 )
-                .replace(frameLayout.getId(), new FileShareFragment())
+                .replace(frameLayout.getId(), fileShareFragment)
                 .addToBackStack(null)
                 .commit();
+
+        fileShareFragment.setClientThread(clientThread);
+        fileShareFragment.setGroupOwnerAddress(groupOwnerAddress);
+        fileShareFragment.setTotalImageSize(imageSize);
+        fileShareFragment.setTotalAudioSize(audioSize);
+        fileShareFragment.setTotalVideoSize(videoSize);
+        fileShareFragment.setTotalDocumentSize(documentSize);
+        fileShareFragment.setTotalContactSize(contactSize);
+        fileShareFragment.setTotalApkSize(apkSize);
     }
 }
