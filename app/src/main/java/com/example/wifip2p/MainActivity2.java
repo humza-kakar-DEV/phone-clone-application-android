@@ -231,12 +231,16 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
         Log.d(TAG, "document size: " + documentMegaList.size());
         Log.d(TAG, "apk size: " + apkMegaList.size());
 
-        Toast.makeText(this, "image size: " + imageMegaList.size(), Toast.LENGTH_SHORT).show();
-        Toast.makeText(this, "video size: " + videoMegaList.size(), Toast.LENGTH_SHORT).show();
-        Toast.makeText(this, "audio size: " + audioMegaList.size(), Toast.LENGTH_SHORT).show();
-        Toast.makeText(this, "contact size: " + contactMegaList.size(), Toast.LENGTH_SHORT).show();
-        Toast.makeText(this, "document size: " + documentMegaList.size(), Toast.LENGTH_SHORT).show();
-        Toast.makeText(this, "apk size: " + apkMegaList.size(), Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "image size: " + imageMegaList.size(), Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "video size: " + videoMegaList.size(), Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "audio size: " + audioMegaList.size(), Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "contact size: " + contactMegaList.size(), Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "document size: " + documentMegaList.size(), Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "apk size: " + apkMegaList.size(), Toast.LENGTH_SHORT).show();
+
+        if (imageMegaList.size() == 0 && videoMegaList.size() == 0 && audioMegaList.size() == 0 && contactMegaList.size() == 0 && documentMegaList.size() == 0 && apkMegaList.size() == 0) {
+            return;
+        }
 
         getSupportFragmentManager()
                 .beginTransaction()
@@ -246,7 +250,7 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
                         R.anim.fragment_fade_in,   // popEnter
                         R.anim.fragment_slide_out  // popExit
                 )
-                .replace(frameLayout.getId(), FileShareFragment.newInstance(null, audioMegaList))
+                .replace(frameLayout.getId(), new FileShareFragment())
                 .addToBackStack(null)
                 .commit();
     }

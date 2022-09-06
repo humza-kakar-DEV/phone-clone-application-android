@@ -74,90 +74,23 @@ public class FileShareFragment extends Fragment {
         View view = binding.getRoot();
         context = view.getContext();
 
-//        Audio audio = audioList.get(0);
-//        ContentValues values = new ContentValues();
-//
-//        InputStream inputStream = null;
-//        OutputStream outputStream = null;
-//
-//        try {
-//
-//            ContentResolver resolver = context.getApplicationContext().getContentResolver();
-//
-////            reading file with file input stream bytes
-//            inputStream = context.getContentResolver().openInputStream(audio.getUri());
-//            int size = inputStream.available();
-//            byte[] bytes = new byte[size];
-//            int c;
-//            while ((c = inputStream.read(bytes)) != -1) {
-//                Log.d(TAG, "onCreateView: " + c);
-//            }
-//
-//            // URI of the image to remove.
-//            Uri audioUri = audio.getUri();
-//
-//// WHERE clause.
-////            String selection = "...";
-////            String[] selectionArgs = "...";
-//
-//// Perform the actual removal.
-//            int numAudioRemoved = resolver.delete(
-//                    audioUri,
-//                    null,
-//                    null);
-//
-//            Log.d(TAG, "audio file deleted: " + numAudioRemoved);
-//
-////            writing file on external audio directory with output stream bytes
-//            Uri collection;
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-//                collection = MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL);
-//            } else {
-//                collection = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-//            }
-//
-//            outputStream = context.getContentResolver().openOutputStream(collection);
-//
-//        } catch (IOException e) {
-//            Log.d(TAG, "onCreateView: " + e.getMessage());
-////            Toast.makeText(context, "couldn't read file with file input stream", Toast.LENGTH_SHORT).show();
-//        } finally {
-////            if (inputStream != null) {
-////                inputStream.close();
-////            }
-////            if (outputStream != null) {
-////                outputStream.close();
-////            }
-//        }
-//
+//?        display loading screen when data
+//?        is transferred to file share fragment
+//?        from mainActivity2.java
 
 
         return view;
     }
 
-    public void storeAudio () {
-        // Add a specific media item.
-        ContentResolver resolver = context.getApplicationContext()
-                .getContentResolver();
-
-// Find all audio files on the primary external storage device.
-        Uri audioCollection;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            audioCollection = MediaStore.Audio.Media
-                    .getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
+    public void displayLoadingScreen (boolean state) {
+        if (state) {
+//?            loading screen view visible
         } else {
-            audioCollection = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+//?           loading screen view gone
         }
+    }
 
-// Publish a new song.
-        ContentValues
-                newSongDetails = new ContentValues();
-        newSongDetails.put(MediaStore.Audio.Media.DISPLAY_NAME,
-                "My Song.mp3");
+    public void setupProgressBar () {
 
-// Keeps a handle to the new song's URI in case we need to modify it
-// later.
-        Uri myFavoriteSongUri = resolver
-                .insert(audioCollection, newSongDetails);
     }
 }
