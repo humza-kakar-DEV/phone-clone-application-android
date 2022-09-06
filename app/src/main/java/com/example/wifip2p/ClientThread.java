@@ -10,40 +10,33 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.example.wifip2p.Media.Apk;
 import com.example.wifip2p.Media.Audio;
 import com.example.wifip2p.Media.AudioMedia;
-import com.example.wifip2p.Media.Document;
-import com.example.wifip2p.Media.DynamicObject;
-import com.example.wifip2p.Media.Image;
 import com.example.wifip2p.Media.ImageMedia;
-import com.example.wifip2p.Media.Video;
 import com.example.wifip2p.Media.VideoMedia;
 import com.example.wifip2p.Utils.Constant;
 import com.example.wifip2p.Utils.FileSizeCalculator;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.DataInput;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 
 public class ClientThread extends Thread {
 
     MainActivity2 mainActivity2;
     public ClientThreadHandler clientThreadHandler;
+    int totalAudioSize;
 
-    public ClientThread(MainActivity2 mainActivity2) {
+    public ClientThread(MainActivity2 mainActivity2, int totalAudioSize) {
         this.mainActivity2 = mainActivity2;
+        this.totalAudioSize = totalAudioSize;
     }
 
     @Override
@@ -51,7 +44,7 @@ public class ClientThread extends Thread {
         super.run();
 
         Looper.prepare();
-        clientThreadHandler = new ClientThreadHandler(mainActivity2);
+        clientThreadHandler = new ClientThreadHandler(mainActivity2, totalAudioSize);
         Looper.loop();
 
     }
@@ -64,7 +57,8 @@ public class ClientThread extends Thread {
         String hostAddress;
         int currentFileSize = 0;
         long totalFileSize = 0;
-        int fileCount = 0;
+        int totalAudioSize;
+        String fileType = "Audio";
 
         ImageMedia imageMedia;
         AudioMedia audioMedia;
@@ -72,9 +66,10 @@ public class ClientThread extends Thread {
 
         Audio audio;
 
-        public ClientThreadHandler(MainActivity2 mainActivity2) {
+        public ClientThreadHandler(MainActivity2 mainActivity2, int totalAudioSize) {
            this.mainActivity2 = mainActivity2;
            this.context = mainActivity2.getApplicationContext();
+           this.totalAudioSize = totalAudioSize;
         }
 
         @Override
@@ -85,6 +80,7 @@ public class ClientThread extends Thread {
             if (msg.getData().getString(Constant.GROUP_OWNER_TAG) != null) {
                 hostAddress = msg.getData().getString(Constant.GROUP_OWNER_TAG);
                 audio = (Audio) msg.getData().getSerializable(Constant.AUDIO_TAG);
+//                fileCount = msg.getData().getInt("hmAudioInt");
             } else {
                 return;
             }
@@ -114,7 +110,7 @@ public class ClientThread extends Thread {
 
                 long bytesToSend = fis.available();
 
-                fileCount++;
+                totalAudioSize--;
 
                 totalFileSize += bytesToSend;
 
@@ -137,11 +133,11 @@ public class ClientThread extends Thread {
                     mainActivity2.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-//                            try {
-////                                mainActivity2.clientResult(fis.available(), currentFileSize, audio.getSongName(), fileCount);
-//                            } catch (IOException e) {
-//                                e.printStackTrace();
-//                            }
+                            try {
+                                mainActivity2.clientThreadResult(fis.available(), currentFileSize, audio.getSongName(), totalAudioSize, fileType);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                         }
                     });
 
@@ -158,7 +154,7 @@ public class ClientThread extends Thread {
                 mainActivity2.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-//                        mainActivity.clientResult(100, 100, audio.getSongName(), fileCount);
+                        mainActivity2.clientThreadResult(100, 100, audio.getSongName(), totalAudioSize, fileType);
                     }
                 });
 

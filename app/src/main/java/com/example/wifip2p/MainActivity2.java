@@ -55,6 +55,7 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
 
     private FrameLayout frameLayout;
     private FileShowFragment fileShowFragment;
+    private FileShareFragment fileShareFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,11 +74,9 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
             apkSize = getIntent().getIntExtra("per6", 0);
         }
 
-        clientThread = new ClientThread(MainActivity2.this);
+        clientThread = new ClientThread(MainActivity2.this, audioSize);
         clientThread.setName("client thread");
         clientThread.start();
-
-        Toast.makeText(this, "oncreate called", Toast.LENGTH_SHORT).show();
 
         getSupportFragmentManager()
                 .beginTransaction()
@@ -236,8 +235,8 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
         Log.d(TAG, "apk size: " + apkMegaList.size());
 
 //        Toast.makeText(this, "image size: " + imageMegaList.size(), Toast.LENGTH_SHORT).show();
-//        Toast.makeText(this, "video size: " + videoMegaList.size(), Toast.LENGTH_SHORT).show();
 //        Toast.makeText(this, "audio size: " + audioMegaList.size(), Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "video size: " + videoMegaList.size(), Toast.LENGTH_SHORT).show();
 //        Toast.makeText(this, "contact size: " + contactMegaList.size(), Toast.LENGTH_SHORT).show();
 //        Toast.makeText(this, "document size: " + documentMegaList.size(), Toast.LENGTH_SHORT).show();
 //        Toast.makeText(this, "apk size: " + apkMegaList.size(), Toast.LENGTH_SHORT).show();
@@ -246,7 +245,7 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
             return;
         }
 
-        FileShareFragment fileShareFragment = FileShareFragment.newInstance(null, audioMegaList);
+        fileShareFragment = FileShareFragment.newInstance(null, audioMegaList);
 
         getSupportFragmentManager()
                 .beginTransaction()
@@ -260,13 +259,40 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
                 .addToBackStack(null)
                 .commit();
 
+        fileShareFragment.displayLoadingScreen(true);
+
         fileShareFragment.setClientThread(clientThread);
         fileShareFragment.setGroupOwnerAddress(groupOwnerAddress);
+
         fileShareFragment.setTotalImageSize(imageSize);
         fileShareFragment.setTotalAudioSize(audioSize);
         fileShareFragment.setTotalVideoSize(videoSize);
         fileShareFragment.setTotalDocumentSize(documentSize);
         fileShareFragment.setTotalContactSize(contactSize);
         fileShareFragment.setTotalApkSize(apkSize);
+
+        fileShareFragment.setImageList(imageMegaList);
+        fileShareFragment.setAudioList(audioMegaList);
+        fileShareFragment.setVideoList(videoMegaList);
+        fileShareFragment.setDocumentList(documentMegaList);
+        fileShareFragment.setContactList(contactMegaList);
+        fileShareFragment.setApkList(apkMegaList);
+
+        fileShareFragment.displayLoadingScreen(false);
+    }
+
+    public void clientThreadResult(int totalFileSize, int currentFileSize, String fileName, int fileCount, String fileType) {
+        if (fileShareFragment != null) {
+            fileShareFragment.clientThreadResult(totalFileSize, currentFileSize, fileName, fileCount, fileType);
+        }
+//        clientTextView.setVisibility(View.VISIBLE);
+//        progressBar.setVisibility(View.VISIBLE);
+//        clientTextView.setText(fileName + " --- " + fileCount);
+//        progressBar.setMax(totalFileSize);
+//        progressBar.setProgress(currentFileSize);
+    }
+
+    @Override
+    public void fileShareFragmentState(boolean state) {
     }
 }
