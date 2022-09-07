@@ -17,4 +17,5 @@ public class Constant {
     public static final String DOCUMENT_TAG = "hmDocument";
     public static final String CONTACT_TAG = "hmContact";
     public static final String APK_TAG = "hmApk";
+    public static final String DYNAMIC_OBJ_TAG = "hmDynamicObj";
 }

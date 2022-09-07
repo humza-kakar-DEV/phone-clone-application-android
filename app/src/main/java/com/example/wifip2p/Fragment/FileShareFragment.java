@@ -98,11 +98,34 @@ public class FileShareFragment extends Fragment {
 //?        is transferred to file share fragment
 //?        from mainActivity2.java
 
+        dataListLogic();
+
         setupTextViews();
 
         clientThreadSendMessage();
 
         return view;
+    }
+
+    public void setupTextViews() {
+        binding.imageTextView.setText(totalImageSize + "/ " + imageList.size() + " items ");
+        binding.audioTextView.setText(totalAudioSize + " / " + audioList.size() + " items ");
+        binding.videoTextView.setText(totalVideoSize + " / " + videoList.size() + " items ");
+        binding.documentTextView.setText(totalDocumentSize + " / " + documentList.size() + " items ");
+        binding.contactTextView.setText(totalContactSize + " / " + contactList.size() + " items ");
+        binding.apkTextView.setText(totalApkSize + " / " + apkList.size() + " items ");
+    }
+
+    public void setupMaterialCardLogic() {
+    }
+
+    public void dataListLogic() {
+        totalImageSize = imageList.size();
+        totalAudioSize = audioList.size();
+        totalVideoSize = videoList.size();
+        totalDocumentSize = documentList.size();
+        totalContactSize = contactList.size();
+        totalApkSize = apkList.size();
     }
 
     public void displayLoadingScreen(boolean state) {
@@ -117,16 +140,35 @@ public class FileShareFragment extends Fragment {
         }
     }
 
-    public void clientThreadResult(int totalFileSize, int currentFileSize, String fileName, int fileCount, String fileType) {
-        if (fileType.equals("Audio")) {
-            binding.audioTextView.setText(fileCount + " / " + audioList.size() + " items ");
-        } else if (fileType.equals("Image")) {
-            totalImageSize = totalImageSize - 1;
-        }
+    public void clientThreadResult(int totalFileSize, int currentFileSize, String fileName, String fileType) {
         binding.fileTypeHeadingTextView.setText(fileType);
         binding.fileNameTextView.setText(fileName);
         binding.progressBar.setMax(totalFileSize);
         binding.progressBar.setProgress(currentFileSize);
+    }
+
+    public void clientThreadResultFileSize(String fileType) {
+        switch (fileType) {
+            case "Image":
+                totalImageSize--;
+                break;
+            case "Audio":
+                totalAudioSize--;
+                break;
+            case "Video":
+                totalVideoSize--;
+                break;
+            case "Document":
+                totalDocumentSize--;
+                break;
+            case "Contact":
+                totalContactSize--;
+                break;
+            case "Apk":
+                totalApkSize--;
+                break;
+        }
+        setupTextViews();
     }
 
     public void clientThreadSendMessage() {
@@ -141,7 +183,6 @@ public class FileShareFragment extends Fragment {
         sendDocumentData();
         sendContactData();
         sendApkData();
-        
     }
 
     public void sendImageData() {
@@ -149,7 +190,7 @@ public class FileShareFragment extends Fragment {
             return;
         }
 
-        ImageMedia imageMedia = new ImageMedia(context);
+//        ImageMedia imageMedia = new ImageMedia(context);
 
         Toast.makeText(context, "image called", Toast.LENGTH_SHORT).show();
 
@@ -163,7 +204,6 @@ public class FileShareFragment extends Fragment {
             message.setData(bundle);
 
             clientThread.clientThreadHandler.sendMessage(message);
-
         }
     }
 
@@ -174,20 +214,19 @@ public class FileShareFragment extends Fragment {
 
         Toast.makeText(context, "audio called", Toast.LENGTH_SHORT).show();
 
-        AudioMedia audioMedia = new AudioMedia(context);
+//        AudioMedia audioMedia = new AudioMedia(context);
 
         for (Audio audio : audioList) {
 
             Bundle bundle = new Bundle();
             bundle.putString(Constant.GROUP_OWNER_TAG, groupOwnerAddress);
             bundle.putSerializable(Constant.AUDIO_TAG, audio);
-            bundle.putInt("hmAudioInt", totalAudioSize);
+            bundle.putInt(Constant.DYNAMIC_OBJ_TAG, 1);
 
             Message message = Message.obtain();
             message.setData(bundle);
 
             clientThread.clientThreadHandler.sendMessage(message);
-
         }
     }
 
@@ -198,9 +237,7 @@ public class FileShareFragment extends Fragment {
 
         Toast.makeText(context, "video called", Toast.LENGTH_SHORT).show();
 
-
         for (Video video : videoList) {
-
             Bundle bundle = new Bundle();
             bundle.putString(Constant.GROUP_OWNER_TAG, groupOwnerAddress);
             bundle.putSerializable(Constant.VIDEO_TAG, video);
@@ -209,7 +246,6 @@ public class FileShareFragment extends Fragment {
             message.setData(bundle);
 
             clientThread.clientThreadHandler.sendMessage(message);
-
         }
     }
 
@@ -230,7 +266,6 @@ public class FileShareFragment extends Fragment {
             message.setData(bundle);
 
             clientThread.clientThreadHandler.sendMessage(message);
-
         }
     }
 
@@ -241,7 +276,6 @@ public class FileShareFragment extends Fragment {
 
         Toast.makeText(context, "contact called", Toast.LENGTH_SHORT).show();
 
-
         for (Contact contact : contactList) {
             Bundle bundle = new Bundle();
             bundle.putString(Constant.GROUP_OWNER_TAG, groupOwnerAddress);
@@ -251,7 +285,6 @@ public class FileShareFragment extends Fragment {
             message.setData(bundle);
 
             clientThread.clientThreadHandler.sendMessage(message);
-
         }
     }
 
@@ -272,20 +305,7 @@ public class FileShareFragment extends Fragment {
             message.setData(bundle);
 
             clientThread.clientThreadHandler.sendMessage(message);
-
         }
-    }
-
-    public void setupTextViews() {
-        binding.imageTextView.setText(totalImageSize + "/ " + imageList.size() + " items ");
-        binding.audioTextView.setText(totalAudioSize + " / " + audioList.size() + " items ");
-        binding.videoTextView.setText(totalVideoSize + " / " + videoList.size() + " items ");
-        binding.documentTextView.setText(totalDocumentSize + " / " + documentList.size() + " items ");
-        binding.contactTextView.setText(totalContactSize + " / " + contactList.size() + " items ");
-        binding.apkTextView.setText(totalApkSize + " / " + apkList.size() + " items ");
-    }
-
-    public void setupMaterialCardLogic() {
     }
 
     @Override

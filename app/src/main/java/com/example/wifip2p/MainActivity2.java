@@ -30,6 +30,7 @@ import com.example.wifip2p.Media.VideoMedia;
 import com.example.wifip2p.Utils.CommunicationInterface;
 import com.example.wifip2p.Utils.CommunicationInterfaceReference;
 import com.example.wifip2p.Utils.Constant;
+import com.example.wifip2p.Utils.FileSizes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,7 +75,7 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
             apkSize = getIntent().getIntExtra("per6", 0);
         }
 
-        clientThread = new ClientThread(MainActivity2.this, audioSize);
+        clientThread = new ClientThread(MainActivity2.this);
         clientThread.setName("client thread");
         clientThread.start();
 
@@ -245,6 +246,16 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
             return;
         }
 
+//        FileSizes fileSizes = new FileSizes();
+//        fileSizes.setTotalImageSize(imageMegaList.size());
+//        fileSizes.setTotalAudioSize(audioMegaList.size());
+//        fileSizes.setTotalVideoSize(videoMegaList.size());
+//        fileSizes.setTotalDocumentSize(documentMegaList.size());
+//        fileSizes.setTotalContactSize(contactMegaList.size());
+//        fileSizes.setTotalApkSize(apkMegaList.size());
+//
+//        clientThread.clientThreadHandler.setFileSizes(fileSizes);
+
         fileShareFragment = FileShareFragment.newInstance(null, audioMegaList);
 
         getSupportFragmentManager()
@@ -281,15 +292,21 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
         fileShareFragment.displayLoadingScreen(false);
     }
 
-    public void clientThreadResult(int totalFileSize, int currentFileSize, String fileName, int fileCount, String fileType) {
+    public void clientThreadResult(int totalFileSize, int currentFileSize, String fileName, String fileType) {
         if (fileShareFragment != null) {
-            fileShareFragment.clientThreadResult(totalFileSize, currentFileSize, fileName, fileCount, fileType);
+            fileShareFragment.clientThreadResult(totalFileSize, currentFileSize, fileName, fileType);
         }
 //        clientTextView.setVisibility(View.VISIBLE);
 //        progressBar.setVisibility(View.VISIBLE);
 //        clientTextView.setText(fileName + " --- " + fileCount);
 //        progressBar.setMax(totalFileSize);
 //        progressBar.setProgress(currentFileSize);
+    }
+
+    public void clientThreadResultFileSize (String fileType) {
+        if (fileShareFragment != null) {
+            fileShareFragment.clientThreadResultFileSize(fileType);
+        }
     }
 
     @Override
