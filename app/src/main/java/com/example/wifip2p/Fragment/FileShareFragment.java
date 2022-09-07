@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.wifip2p.ClientThread;
+import com.example.wifip2p.MainActivity2;
 import com.example.wifip2p.Media.Apk;
 import com.example.wifip2p.Media.Audio;
 import com.example.wifip2p.Media.AudioMedia;
@@ -24,6 +25,7 @@ import com.example.wifip2p.Media.Video;
 import com.example.wifip2p.Utils.CommunicationInterface;
 import com.example.wifip2p.Utils.CommunicationInterfaceReference;
 import com.example.wifip2p.Utils.Constant;
+import com.example.wifip2p.Utils.LoadingDialog;
 import com.example.wifip2p.databinding.FragmentFileShareBinding;
 
 import java.io.Serializable;
@@ -52,7 +54,7 @@ public class FileShareFragment extends Fragment {
     List<Apk> apkList = new ArrayList<>();
     private ClientThread clientThread;
     private String groupOwnerAddress;
-    private boolean loadingState;
+    private boolean dataLoaded;
 
     private int totalImageSize;
     private int totalAudioSize;
@@ -61,8 +63,6 @@ public class FileShareFragment extends Fragment {
     private int totalContactSize;
     private int totalApkSize;
     private String currentSharedFile;
-
-    private CommunicationInterfaceReference communicationInterfaceReference;
 
     public FileShareFragment() {
         // Required empty public constructor
@@ -98,25 +98,23 @@ public class FileShareFragment extends Fragment {
 //?        is transferred to file share fragment
 //?        from mainActivity2.java
 
+//        LoadingDialog loadingDialog = new LoadingDialog(getActivity());
+//        loadingDialog.startLoadingDialog();
+
         dataListLogic();
-
         setupTextViews();
-
         clientThreadSendMessage();
 
         return view;
     }
 
     public void setupTextViews() {
-        binding.imageTextView.setText(totalImageSize + "/ " + imageList.size() + " items ");
+        binding.imageTextView.setText(totalImageSize + " / " + imageList.size() + " items ");
         binding.audioTextView.setText(totalAudioSize + " / " + audioList.size() + " items ");
         binding.videoTextView.setText(totalVideoSize + " / " + videoList.size() + " items ");
         binding.documentTextView.setText(totalDocumentSize + " / " + documentList.size() + " items ");
         binding.contactTextView.setText(totalContactSize + " / " + contactList.size() + " items ");
         binding.apkTextView.setText(totalApkSize + " / " + apkList.size() + " items ");
-    }
-
-    public void setupMaterialCardLogic() {
     }
 
     public void dataListLogic() {
@@ -130,13 +128,9 @@ public class FileShareFragment extends Fragment {
 
     public void displayLoadingScreen(boolean state) {
         if (state) {
-            loadingState = state;
-//?            loading screen view visible
-//            Toast.makeText(context, "data preparing", Toast.LENGTH_SHORT).show();
+            binding.loadingContainer.setVisibility(View.VISIBLE);
         } else {
-            loadingState = state;
-//?           loading screen view gone
-//            Toast.makeText(context, "loading finished!", Toast.LENGTH_SHORT).show();
+            binding.loadingContainer.setVisibility(View.GONE);
         }
     }
 
@@ -173,9 +167,9 @@ public class FileShareFragment extends Fragment {
 
     public void clientThreadSendMessage() {
 
-        if (groupOwnerAddress == null) {
-            return;
-        }
+//        if (groupOwnerAddress == null) {
+//            return;
+//        }
 
         sendImageData();
         sendAudioData();
@@ -190,20 +184,20 @@ public class FileShareFragment extends Fragment {
             return;
         }
 
-//        ImageMedia imageMedia = new ImageMedia(context);
-
         Toast.makeText(context, "image called", Toast.LENGTH_SHORT).show();
 
         for (Image image : imageList) {
 
             Bundle bundle = new Bundle();
             bundle.putString(Constant.GROUP_OWNER_TAG, groupOwnerAddress);
-            bundle.putSerializable(Constant.IMAGE_TAG, image);
+            bundle.putSerializable(Constant.DYNAMIC_OBJ_TAG, image);
+            bundle.putInt(Constant.DYNAMIC_INT_TAG, 0);
 
             Message message = Message.obtain();
             message.setData(bundle);
 
             clientThread.clientThreadHandler.sendMessage(message);
+
         }
     }
 
@@ -220,8 +214,8 @@ public class FileShareFragment extends Fragment {
 
             Bundle bundle = new Bundle();
             bundle.putString(Constant.GROUP_OWNER_TAG, groupOwnerAddress);
-            bundle.putSerializable(Constant.AUDIO_TAG, audio);
-            bundle.putInt(Constant.DYNAMIC_OBJ_TAG, 1);
+            bundle.putSerializable(Constant.DYNAMIC_OBJ_TAG, audio);
+            bundle.putInt(Constant.DYNAMIC_INT_TAG, 1);
 
             Message message = Message.obtain();
             message.setData(bundle);
@@ -240,7 +234,8 @@ public class FileShareFragment extends Fragment {
         for (Video video : videoList) {
             Bundle bundle = new Bundle();
             bundle.putString(Constant.GROUP_OWNER_TAG, groupOwnerAddress);
-            bundle.putSerializable(Constant.VIDEO_TAG, video);
+            bundle.putSerializable(Constant.DYNAMIC_OBJ_TAG, video);
+            bundle.putInt(Constant.DYNAMIC_INT_TAG, 2);
 
             Message message = Message.obtain();
             message.setData(bundle);
@@ -256,11 +251,11 @@ public class FileShareFragment extends Fragment {
 
         Toast.makeText(context, "document called", Toast.LENGTH_SHORT).show();
 
-
         for (Document document : documentList) {
             Bundle bundle = new Bundle();
             bundle.putString(Constant.GROUP_OWNER_TAG, groupOwnerAddress);
-            bundle.putSerializable(Constant.DOCUMENT_TAG, document);
+            bundle.putSerializable(Constant.DYNAMIC_OBJ_TAG, document);
+            bundle.putInt(Constant.DYNAMIC_INT_TAG, 3);
 
             Message message = Message.obtain();
             message.setData(bundle);
@@ -279,7 +274,8 @@ public class FileShareFragment extends Fragment {
         for (Contact contact : contactList) {
             Bundle bundle = new Bundle();
             bundle.putString(Constant.GROUP_OWNER_TAG, groupOwnerAddress);
-            bundle.putSerializable(Constant.CONTACT_TAG, contact);
+            bundle.putSerializable(Constant.DYNAMIC_OBJ_TAG, contact);
+            bundle.putInt(Constant.DYNAMIC_INT_TAG, 4);
 
             Message message = Message.obtain();
             message.setData(bundle);
@@ -299,21 +295,13 @@ public class FileShareFragment extends Fragment {
         for (Apk apk : apkList) {
             Bundle bundle = new Bundle();
             bundle.putString(Constant.GROUP_OWNER_TAG, groupOwnerAddress);
-            bundle.putSerializable(Constant.APK_TAG, apk);
+            bundle.putSerializable(Constant.DYNAMIC_OBJ_TAG, apk);
+            bundle.putInt(Constant.DYNAMIC_INT_TAG, 5);
 
             Message message = Message.obtain();
             message.setData(bundle);
 
             clientThread.clientThreadHandler.sendMessage(message);
-        }
-    }
-
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-
-        if (context instanceof CommunicationInterface) {
-            communicationInterfaceReference = new CommunicationInterfaceReference(context);
         }
     }
 

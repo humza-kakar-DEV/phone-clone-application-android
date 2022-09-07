@@ -104,6 +104,7 @@ public class AudioMedia {
                 // Stores column values and the contentUri in a local object
                 // that represents the media file.
                 audioList.add(new Audio(contentUri.toString(), mimeType, songName, songArtist, duration, false));
+                Log.d(TAG, "getAudios: " + contentUri);
             }
 
             return audioList;

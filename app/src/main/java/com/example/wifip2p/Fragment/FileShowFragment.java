@@ -12,6 +12,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.util.Log;
@@ -35,6 +36,7 @@ import com.example.wifip2p.databinding.FragmentFileShowBinding;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.DoubleConsumer;
@@ -103,13 +105,13 @@ public class FileShowFragment extends Fragment {
                 imageList.addAll((List<Image>) mParam2);
                 communicationInterfaceReference.invokeCheckSelection(binding.allSelectCheckBox, mParam1);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-//                    try {
-//                        for (Image image : imageList) {
-////                            thumbnails.add(context.getApplicationContext().getContentResolver().loadThumbnail(image.getUri(), new Size(640, 480), null));
-//                        }
-//                    }
-//                    catch (IOException e) {
-//                    }
+                    try {
+                        for (Image image : imageList) {
+                            thumbnails.add(context.getApplicationContext().getContentResolver().loadThumbnail(Uri.parse(image.getUri()), new Size(640, 480), null));
+                        }
+                    }
+                    catch (IOException e) {
+                    }
                 }
                 fileType = "image";
                 fileRecyclerViewAdapter = new FileRecyclerViewAdapter (imageList, fileType, thumbnails, binding.allSelectCheckBox, context, getActivity());
@@ -119,12 +121,12 @@ public class FileShowFragment extends Fragment {
                 videoList.addAll((List<Video>) mParam2);
                 communicationInterfaceReference.invokeCheckSelection(binding.allSelectCheckBox, mParam1);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-//                    try {
-//                        for (Video video : videoList) {
-//                            thumbnails.add(context.getApplicationContext().getContentResolver().loadThumbnail(video.getUri(), new Size(640, 480), null));
-//                        }
-//                    } catch (IOException e) {
-//                    }
+                    try {
+                        for (Video video : videoList) {
+                            thumbnails.add(context.getApplicationContext().getContentResolver().loadThumbnail(Uri.parse(video.getUri()), new Size(640, 480), null));
+                        }
+                    } catch (IOException e) {
+                    }
                 }
                 fileType = "video";
                 fileRecyclerViewAdapter = new FileRecyclerViewAdapter (videoList, fileType, thumbnails, binding.allSelectCheckBox, context, getActivity());
@@ -168,10 +170,9 @@ public class FileShowFragment extends Fragment {
                 break;
         }
 
-
-
 //        recyclerView.setHasFixedSize(true);
-        binding.recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
+//        binding.recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
+        binding.recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
         binding.recyclerView.setAdapter(fileRecyclerViewAdapter);
 
         binding.doneButton.setOnClickListener(new View.OnClickListener() {

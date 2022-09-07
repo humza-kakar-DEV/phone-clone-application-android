@@ -26,6 +26,8 @@ import java.io.BufferedReader;
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,25 +42,37 @@ import java.util.List;
 
 public class ServerThread extends Thread {
 
-    public ServerThreadHandler serverThreadHandler;
     MainActivity mainActivity;
     Context context;
-    ServerSocket serverSocket;
-    Socket client;
     FileOutputStream fos;
-    int len;
-    boolean clientConnected;
+    InputStream is;
     int fileCount;
-
-    List<Audio> audioList = new ArrayList<>();
-    List<Image> imageList = new ArrayList<>();
-    List<Video> videoList = new ArrayList<>();
-    List<Document> documentList = new ArrayList<>();
-    List<Apk> apkList = new ArrayList<>();
+    String imageMimeType = "image/jpeg";
+    String audioMimeType = "audio/mpeg";
+    String videoMimeType = "video/mp4";
+    ContentValues values = new ContentValues();
+    Uri uri;
 
     public ServerThread(MainActivity mainActivity) {
         this.mainActivity = mainActivity;
         context = mainActivity.getApplicationContext();
+    }
+
+    public void dynamicCasting (String name, int fileType) {
+        switch (fileType) {
+            case 0:
+                values.put(MediaStore.MediaColumns.DISPLAY_NAME, "wifi-direct_" + name);       //file name
+                values.put(MediaStore.MediaColumns.MIME_TYPE, imageMimeType);        //file extension, will automatically add to file
+                values.put(MediaStore.MediaColumns.RELATIVE_PATH, MediaStore.Images.Media.RELATIVE_PATH);     //end "/" is not mandatory
+                uri = context.getContentResolver().insert(MediaStore.Files.getContentUri("external"), values);
+                break;
+            case 1:
+                values.put(MediaStore.MediaColumns.DISPLAY_NAME, "wifi-direct_" + name);       //file name
+                values.put(MediaStore.MediaColumns.MIME_TYPE, audioMimeType);        //file extension, will automatically add to file
+                values.put(MediaStore.MediaColumns.RELATIVE_PATH, MediaStore.Audio.Media.RELATIVE_PATH);     //end "/" is not mandatory
+                uri = context.getContentResolver().insert(MediaStore.Files.getContentUri("external"), values);
+                break;
+        }
     }
 
     @Override
@@ -70,8 +84,6 @@ public class ServerThread extends Thread {
 
         try {
 
-
-
             welcomeSocket = new ServerSocket(8888);
 
             while(true)
@@ -81,31 +93,19 @@ public class ServerThread extends Thread {
                 //Block thread until someone connects
                 socket = welcomeSocket.accept();
 
-                InputStream is = socket.getInputStream();
-                InputStreamReader isr = new InputStreamReader(is);
-                BufferedReader br = new BufferedReader(isr);
-
-                OutputStream os = socket.getOutputStream();
-                PrintWriter pw = new PrintWriter(os);
+                is = socket.getInputStream();
 
                 DataInputStream dataInputStream = new DataInputStream(is);
                 String name = dataInputStream.readUTF();
+                int fileType = dataInputStream.readInt();
 
-                String inputData = "";
-
-                String savedAs = "WDFL_File_" + System.currentTimeMillis();
+                Log.d(Constant.THREAD_TAG, "client thread: file name: " + name);
 
                 byte[] buffer = new byte[4096];
+
                 int bytesRead;
 
-                ContentValues values = new ContentValues();
-
-                values.put(MediaStore.MediaColumns.DISPLAY_NAME, "wifi-direct_" + name);       //file name
-                values.put(MediaStore.MediaColumns.MIME_TYPE, "audio/mpeg");        //file extension, will automatically add to file
-                values.put(MediaStore.MediaColumns.RELATIVE_PATH, MediaStore.Audio.Media.RELATIVE_PATH);     //end "/" is not mandatory
-
-                Uri uri = context.getContentResolver().insert(MediaStore.Files.getContentUri("external"), values);
-
+                dynamicCasting(name, fileType);
 
                 fos = (FileOutputStream) context.getContentResolver().openOutputStream(uri);
 
@@ -191,9 +191,6 @@ class ServerThreadHandler extends Handler {
             client = serverSocket.accept();
 
             Log.d(Constant.THREAD_TAG, "server thread: socket status - " + client.isConnected());
-
-            InputStream inputStream = client.getInputStream();
-            ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
 
 //              ************* RECEIVING AUDIO FILE THROUGH CLIENT SOCKET **********
 

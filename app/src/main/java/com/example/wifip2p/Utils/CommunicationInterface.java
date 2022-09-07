@@ -24,6 +24,4 @@ public interface CommunicationInterface {
     void allSelectionInterfaceMethod(List<Image> imageList, List<Audio> audioList, List<Video> videoList, List<Contact> contactList, List<Document> documentList, List<Apk> apkList);
 
     void sendData();
-
-    void fileShareFragmentState(boolean state);
 }

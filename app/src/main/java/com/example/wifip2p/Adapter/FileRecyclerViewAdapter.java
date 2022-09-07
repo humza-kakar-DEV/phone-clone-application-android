@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
@@ -22,6 +23,9 @@ import com.example.wifip2p.Media.Video;
 import com.example.wifip2p.R;
 import com.example.wifip2p.Utils.CommunicationInterface;
 import com.example.wifip2p.Utils.CommunicationInterfaceReference;
+import com.makeramen.roundedimageview.RoundedImageView;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,13 +55,6 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
         this.fileType = fileType;
         this.fragmentActivity = fragmentActivity;
         this.typeCheckBox = typeCheckBox;
-    }
-
-    @NonNull
-    @Override
-    public FileRecyclerViewAdapter.MyRecyclerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        LayoutInflater layoutInflater = LayoutInflater.from(context);
-        View view = layoutInflater.inflate(R.layout.recycler_view_file_layout, parent, false);
         if (fragmentActivity instanceof CommunicationInterface) {
             communicationInterfaceReference = new CommunicationInterfaceReference (fragmentActivity);
         }
@@ -81,6 +78,13 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
                 apkList.addAll((List<Apk>) dynamicList);
                 break;
         }
+    }
+
+    @NonNull
+    @Override
+    public FileRecyclerViewAdapter.MyRecyclerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        LayoutInflater layoutInflater = LayoutInflater.from(context);
+        View view = layoutInflater.inflate(R.layout.recycler_view_file_layout_v2, parent, false);
         return new MyRecyclerViewHolder(view);
     }
 
@@ -88,10 +92,12 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
     public void onBindViewHolder(@NonNull FileRecyclerViewAdapter.MyRecyclerViewHolder holder, int position) {
         switch (fileType) {
             case "image":
-                Image image = imageList.get(position);
                 Glide.with(context)
                         .load(thumbnails.get(position))
+                        .centerCrop()
                         .into(holder.imageView);
+                Image image = imageList.get(position);
+                holder.textView.setText(image.getName());
                 holder.bind(image);
                 if (image.isSelected()) {
                     holder.checkBox.setChecked(true);
@@ -100,8 +106,12 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
                 }
                 break;
             case "video":
+                Glide.with(context)
+                        .load(thumbnails.get(position))
+                        .centerCrop()
+                        .into(holder.imageView);
                 Video video = videoList.get(position);
-                holder.imageView.setImageBitmap(thumbnails.get(position));
+                holder.textView.setText(video.getName());
                 holder.bind(video);
                 if (video.isSelected()) {
                     holder.checkBox.setChecked(true);
@@ -110,8 +120,12 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
                 }
                 break;
             case "audio":
+                Glide.with(context)
+                        .load(R.drawable.ic_baseline_audiotrack_24)
+                        .centerCrop()
+                        .into(holder.imageView);
                 Audio audio = audioList.get(position);
-                holder.imageView.setImageResource(R.drawable.ic_baseline_audiotrack_24);
+                holder.textView.setText(audio.getSongName());
                 holder.bind(audio);
                 if (audio.isSelected()) {
                     holder.checkBox.setChecked(true);
@@ -120,8 +134,12 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
                 }
                 break;
             case "contact":
+                Glide.with(context)
+                        .load(R.drawable.ic_baseline_person_24)
+                        .centerCrop()
+                        .into(holder.imageView);
                 Contact contact = contactList.get(position);
-                holder.imageView.setImageResource(R.drawable.ic_baseline_person_24);
+                holder.textView.setText(contact.getPhoneNo());
                 holder.bind(contact);
                 if (contact.isSelected()) {
                     holder.checkBox.setChecked(true);
@@ -130,8 +148,12 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
                 }
                 break;
             case "document":
-                holder.imageView.setImageResource(R.drawable.ic_baseline_article_24);
+                Glide.with(context)
+                        .load(R.drawable.ic_baseline_article_24)
+                        .centerCrop()
+                        .into(holder.imageView);
                 Document document = documentList.get(position);
+                holder.textView.setText(document.getName());
                 holder.bind(document);
                 if (document.isSelected()) {
                     holder.checkBox.setChecked(true);
@@ -141,7 +163,11 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
                 break;
             case "apk":
                 Apk apk = apkList.get(position);
-                holder.imageView.setImageDrawable(apk.getAppIcon());
+                Glide.with(context)
+                        .load(apk.getAppIcon())
+                        .centerCrop()
+                        .into(holder.imageView);
+                holder.textView.setText(apk.getAppPackageName());
                 holder.bind(apk);
                 if (apk.isSelected()) {
                     holder.checkBox.setChecked(true);
@@ -169,15 +195,16 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
 
     public class MyRecyclerViewHolder extends RecyclerView.ViewHolder {
 
-        ImageView imageView;
+        RoundedImageView imageView;
         CheckBox checkBox;
-
+        TextView textView;
 
         public MyRecyclerViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            imageView = itemView.findViewById(R.id.imageView);
+            imageView = itemView.findViewById(R.id.roundedImageView);
             checkBox = itemView.findViewById(R.id.checkBox);
+            textView = itemView.findViewById(R.id.textView);
 
         }
 

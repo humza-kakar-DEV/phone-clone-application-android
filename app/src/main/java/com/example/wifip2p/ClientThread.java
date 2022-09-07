@@ -76,14 +76,15 @@ public class ClientThread extends Thread {
         Object object;
         int objectType;
         String fileType;
+        String fileName;
 
         public ClientThreadHandler(MainActivity2 mainActivity2) {
-           this.mainActivity2 = mainActivity2;
-           this.context = mainActivity2.getApplicationContext();
-           contentResolver = context.getApplicationContext().getContentResolver();
+            this.mainActivity2 = mainActivity2;
+            this.context = mainActivity2.getApplicationContext();
+            contentResolver = context.getApplicationContext().getContentResolver();
         }
 
-        public void dynamicCasting (Object object, int objectType) {
+        public void dynamicCasting(Object object, int objectType) {
             switch (objectType) {
                 case 0:
                     image = (Image) object;
@@ -91,7 +92,9 @@ public class ClientThread extends Thread {
                         fis = (FileInputStream) contentResolver.openInputStream(Uri.parse(image.getUri()));
                         DataOutputStream dataOutputStream = new DataOutputStream(os);
                         dataOutputStream.writeUTF(image.getName());
+                        dataOutputStream.writeInt(0);
                         fileType = "Image";
+                        fileName = image.getName();
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     } catch (IOException e) {
@@ -104,7 +107,9 @@ public class ClientThread extends Thread {
                         fis = (FileInputStream) contentResolver.openInputStream(Uri.parse(audio.getUri()));
                         DataOutputStream dataOutputStream = new DataOutputStream(os);
                         dataOutputStream.writeUTF(audio.getSongName());
+                        dataOutputStream.writeInt(1);
                         fileType = "Audio";
+                        fileName = audio.getSongName();
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     } catch (IOException e) {
@@ -118,6 +123,7 @@ public class ClientThread extends Thread {
                         DataOutputStream dataOutputStream = new DataOutputStream(os);
                         dataOutputStream.writeUTF(video.getName());
                         fileType = "Video";
+                        fileName = video.getName();
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     } catch (IOException e) {
@@ -125,12 +131,45 @@ public class ClientThread extends Thread {
                     }
                     break;
                 case 3:
+                    document = (Document) object;
+                    try {
+                        fis = (FileInputStream) contentResolver.openInputStream(Uri.parse(document.getContentUri()));
+                        DataOutputStream dataOutputStream = new DataOutputStream(os);
+                        dataOutputStream.writeUTF(document.getName());
+                        fileType = "Document";
+                        fileName = document.getName();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     break;
                 case 4:
+//                    contact = (Contact) object;
+//                    try {
+//                        fis = (FileInputStream) contentResolver.openInputStream(Uri.parse());
+//                        DataOutputStream dataOutputStream = new DataOutputStream(os);
+//                        dataOutputStream.writeUTF(video.getName());
+//                        fileType = "Video";
+//                    } catch (FileNotFoundException e) {
+//                        e.printStackTrace();
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
                     break;
                 case 5:
-                    break;
-                case 6:
+                    apk = (Apk) object;
+                    try {
+                        fis = (FileInputStream) contentResolver.openInputStream(Uri.parse(apk.getAppPath()));
+                        DataOutputStream dataOutputStream = new DataOutputStream(os);
+                        dataOutputStream.writeUTF(apk.getAppName());
+                        fileType = "Apk";
+                        fileName = apk.getAppName();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     break;
             }
         }
@@ -141,8 +180,8 @@ public class ClientThread extends Thread {
 
             if (msg.getData().getString(Constant.GROUP_OWNER_TAG) != null) {
                 hostAddress = msg.getData().getString(Constant.GROUP_OWNER_TAG);
-                object = (Object) msg.getData().getSerializable(Constant.AUDIO_TAG);
-                objectType = msg.getData().getInt(Constant.DYNAMIC_OBJ_TAG);
+                object = (Object) msg.getData().getSerializable(Constant.DYNAMIC_OBJ_TAG);
+                objectType = msg.getData().getInt(Constant.DYNAMIC_INT_TAG);
             } else {
                 return;
             }
@@ -167,14 +206,9 @@ public class ClientThread extends Thread {
 
                 totalFileSize += bytesToSend;
 
-                Log.d(Constant.THREAD_TAG, "song name: " + audio.getSongName());
-
-                Log.d(Constant.THREAD_TAG, "file size: " + FileSizeCalculator.getSize(bytesToSend));
-
                 mainActivity2.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-//                        mainActivity2.clientThreadResult(100, 100, audio.getSongName(), fileType);
                         mainActivity2.clientThreadResultFileSize(fileType);
                     }
                 });
@@ -189,13 +223,11 @@ public class ClientThread extends Thread {
 
                     currentFileSize += bytesRead;
 
-//                    Log.d(Constant.THREAD_TAG, "bytes: " + currentFileSize);
-
                     mainActivity2.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             try {
-                                mainActivity2.clientThreadResult(fis.available(), currentFileSize, audio.getSongName(), fileType);
+                                mainActivity2.clientThreadResult(fis.available(), currentFileSize, fileName, fileType);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -223,11 +255,7 @@ public class ClientThread extends Thread {
                 os.close();
                 clientSocket.close();
 
-                Log.d(Constant.THREAD_TAG, "total file size sent: " + FileSizeCalculator.getSize(totalFileSize));
-
             } catch (IOException e) {
-                Log.d(Constant.THREAD_TAG, "client thread: " + e.getMessage());
-            } catch (Exception e) {
                 Log.d(Constant.THREAD_TAG, "client thread: " + e.getMessage());
             }
 

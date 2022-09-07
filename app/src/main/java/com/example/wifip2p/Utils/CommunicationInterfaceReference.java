@@ -44,8 +44,4 @@ public class CommunicationInterfaceReference {
     public void invokeAllSelectionInterfaceMethod (List<Image> imageList, List<Audio> audioList, List<Video> videoList, List<Contact> contactList, List<Document> documentList, List<Apk> apkList) {
         communicationInterface.allSelectionInterfaceMethod(imageList, audioList, videoList, contactList, documentList, apkList);
     }
-
-    public void invokeFileShareFragmentState (boolean state) {
-        communicationInterface.fileShareFragmentState(state);
-    }
 }

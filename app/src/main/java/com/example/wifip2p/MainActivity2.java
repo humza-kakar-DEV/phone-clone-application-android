@@ -228,33 +228,16 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
 
     @Override
     public void sendData() {
-        Log.d(TAG, "image size: " + imageMegaList.size());
-        Log.d(TAG, "video size: " + videoMegaList.size());
-        Log.d(TAG, "audio size: " + audioMegaList.size());
-        Log.d(TAG, "contact size: " + contactMegaList.size());
-        Log.d(TAG, "document size: " + documentMegaList.size());
-        Log.d(TAG, "apk size: " + apkMegaList.size());
-
-//        Toast.makeText(this, "image size: " + imageMegaList.size(), Toast.LENGTH_SHORT).show();
-//        Toast.makeText(this, "audio size: " + audioMegaList.size(), Toast.LENGTH_SHORT).show();
-//        Toast.makeText(this, "video size: " + videoMegaList.size(), Toast.LENGTH_SHORT).show();
-//        Toast.makeText(this, "contact size: " + contactMegaList.size(), Toast.LENGTH_SHORT).show();
-//        Toast.makeText(this, "document size: " + documentMegaList.size(), Toast.LENGTH_SHORT).show();
-//        Toast.makeText(this, "apk size: " + apkMegaList.size(), Toast.LENGTH_SHORT).show();
+        Log.d(Constant.MAIN_ACTIVITY_TAG, "image size: " + imageMegaList.size());
+        Log.d(Constant.MAIN_ACTIVITY_TAG, "video size: " + videoMegaList.size());
+        Log.d(Constant.MAIN_ACTIVITY_TAG, "audio size: " + audioMegaList.size());
+        Log.d(Constant.MAIN_ACTIVITY_TAG, "contact size: " + contactMegaList.size());
+        Log.d(Constant.MAIN_ACTIVITY_TAG, "document size: " + documentMegaList.size());
+        Log.d(Constant.MAIN_ACTIVITY_TAG, "apk size: " + apkMegaList.size());
 
         if (imageMegaList.size() == 0 && videoMegaList.size() == 0 && audioMegaList.size() == 0 && contactMegaList.size() == 0 && documentMegaList.size() == 0 && apkMegaList.size() == 0) {
             return;
         }
-
-//        FileSizes fileSizes = new FileSizes();
-//        fileSizes.setTotalImageSize(imageMegaList.size());
-//        fileSizes.setTotalAudioSize(audioMegaList.size());
-//        fileSizes.setTotalVideoSize(videoMegaList.size());
-//        fileSizes.setTotalDocumentSize(documentMegaList.size());
-//        fileSizes.setTotalContactSize(contactMegaList.size());
-//        fileSizes.setTotalApkSize(apkMegaList.size());
-//
-//        clientThread.clientThreadHandler.setFileSizes(fileSizes);
 
         fileShareFragment = FileShareFragment.newInstance(null, audioMegaList);
 
@@ -269,8 +252,6 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
                 .replace(frameLayout.getId(), fileShareFragment)
                 .addToBackStack(null)
                 .commit();
-
-        fileShareFragment.displayLoadingScreen(true);
 
         fileShareFragment.setClientThread(clientThread);
         fileShareFragment.setGroupOwnerAddress(groupOwnerAddress);
@@ -288,19 +269,12 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
         fileShareFragment.setDocumentList(documentMegaList);
         fileShareFragment.setContactList(contactMegaList);
         fileShareFragment.setApkList(apkMegaList);
-
-        fileShareFragment.displayLoadingScreen(false);
     }
 
     public void clientThreadResult(int totalFileSize, int currentFileSize, String fileName, String fileType) {
         if (fileShareFragment != null) {
             fileShareFragment.clientThreadResult(totalFileSize, currentFileSize, fileName, fileType);
         }
-//        clientTextView.setVisibility(View.VISIBLE);
-//        progressBar.setVisibility(View.VISIBLE);
-//        clientTextView.setText(fileName + " --- " + fileCount);
-//        progressBar.setMax(totalFileSize);
-//        progressBar.setProgress(currentFileSize);
     }
 
     public void clientThreadResultFileSize (String fileType) {
@@ -309,7 +283,4 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
         }
     }
 
-    @Override
-    public void fileShareFragmentState(boolean state) {
-    }
 }

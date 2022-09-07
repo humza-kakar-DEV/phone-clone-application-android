@@ -83,7 +83,7 @@ public class ImageMedia {
                 projection,
                 null,
                 null,
-                sortOrder
+                null
         )) {
             // Cache column indices.
             int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
