@@ -45,6 +45,7 @@ import com.example.wifip2p.Media.VideoMedia;
 import com.example.wifip2p.Utils.ClientFileTransfer;
 import com.example.wifip2p.Utils.Constant;
 import com.example.wifip2p.Utils.ServerFileTransfer;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.w3c.dom.Text;
 
@@ -62,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
     ClientThread clientThread;
 
     private Button button;
+    private FloatingActionButton floatingActionButton;
     private ListView listView;
     private TextView textView, serverTextView, clientTextView;
     private ProgressBar progressBar;
@@ -102,6 +104,21 @@ public class MainActivity extends AppCompatActivity {
         serverTextView = (TextView) findViewById(R.id.serverTextView);
         clientTextView = (TextView) findViewById(R.id.clientTextView);
         progressBar = (ProgressBar) findViewById(R.id.clientProgressBar);
+        floatingActionButton = (FloatingActionButton) findViewById(R.id.floatingActionButton);
+
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, MainActivity2.class);
+                intent.putExtra("per1", imageSize);
+                intent.putExtra("per2", audioSize);
+                intent.putExtra("per3", videoSize);
+                intent.putExtra("per4", documentSize);
+                intent.putExtra("per5", contactSize);
+                intent.putExtra("per6", apkSize);
+                startActivity(intent);
+            }
+        });
 
         serverTextView.setVisibility(View.GONE);
         clientTextView.setVisibility(View.GONE);
@@ -264,23 +281,6 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("per5", contactSize);
                 intent.putExtra("per6", apkSize);
                 startActivity(intent);
-
-//                AudioMedia audioMedia = new AudioMedia(MainActivity.this);
-//
-//                for (int i = 2; i <= 10; i++) {
-//
-//                    Audio audio = audioMedia.generateAudios().get(i);
-//
-//                    Bundle bundle = new Bundle();
-//                    bundle.putString(Constant.GROUP_OWNER_TAG, groupOwnerAddress);
-//                    bundle.putSerializable(Constant.AUDIO_TAG, audio);
-//
-//                    Message message = Message.obtain();
-//                    message.setData(bundle);
-//
-//                    clientThread.clientThreadHandler.sendMessage(message);
-//
-//                }
 
             }
         }
