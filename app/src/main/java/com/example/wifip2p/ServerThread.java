@@ -50,6 +50,7 @@ public class ServerThread extends Thread {
     String imageMimeType = "image/jpeg";
     String audioMimeType = "audio/mpeg";
     String videoMimeType = "video/mp4";
+    String documentMimeType = "";
     ContentValues values = new ContentValues();
     Uri uri;
 
@@ -62,14 +63,26 @@ public class ServerThread extends Thread {
         switch (fileType) {
             case 0:
                 values.put(MediaStore.MediaColumns.DISPLAY_NAME, "wifi-direct_" + name);       //file name
-                values.put(MediaStore.MediaColumns.MIME_TYPE, imageMimeType);        //file extension, will automatically add to file
-                values.put(MediaStore.MediaColumns.RELATIVE_PATH, MediaStore.Images.Media.RELATIVE_PATH);     //end "/" is not mandatory
+                values.put(MediaStore.MediaColumns.MIME_TYPE, MediaStore.Images.Media.MIME_TYPE);        //file extension, will automatically add to file
+                values.put(MediaStore.MediaColumns.RELATIVE_PATH, MediaStore.Images.ImageColumns.RELATIVE_PATH);     //end "/" is not mandatory
                 uri = context.getContentResolver().insert(MediaStore.Files.getContentUri("external"), values);
                 break;
             case 1:
                 values.put(MediaStore.MediaColumns.DISPLAY_NAME, "wifi-direct_" + name);       //file name
-                values.put(MediaStore.MediaColumns.MIME_TYPE, audioMimeType);        //file extension, will automatically add to file
-                values.put(MediaStore.MediaColumns.RELATIVE_PATH, MediaStore.Audio.Media.RELATIVE_PATH);     //end "/" is not mandatory
+                values.put(MediaStore.MediaColumns.MIME_TYPE, MediaStore.Audio.Media.MIME_TYPE);        //file extension, will automatically add to file
+                values.put(MediaStore.MediaColumns.RELATIVE_PATH, MediaStore.Audio.AudioColumns.RELATIVE_PATH);     //end "/" is not mandatory
+                uri = context.getContentResolver().insert(MediaStore.Files.getContentUri("external"), values);
+                break;
+            case 2:
+                values.put(MediaStore.MediaColumns.DISPLAY_NAME, "wifi-direct_" + name);       //file name
+                values.put(MediaStore.MediaColumns.MIME_TYPE, MediaStore.Video.Media.MIME_TYPE);        //file extension, will automatically add to file
+                values.put(MediaStore.MediaColumns.RELATIVE_PATH, MediaStore.Video.VideoColumns.RELATIVE_PATH);     //end "/" is not mandatory
+                uri = context.getContentResolver().insert(MediaStore.Files.getContentUri("external"), values);
+                break;
+            case 3:
+                values.put(MediaStore.MediaColumns.DISPLAY_NAME, "wifi-direct_" + name);       //file name
+                values.put(MediaStore.MediaColumns.MIME_TYPE, MediaStore.Files.FileColumns.MIME_TYPE);        //file extension, will automatically add to file
+                values.put(MediaStore.MediaColumns.RELATIVE_PATH, MediaStore.Files.FileColumns.MEDIA_TYPE_DOCUMENT);     //end "/" is not mandatory
                 uri = context.getContentResolver().insert(MediaStore.Files.getContentUri("external"), values);
                 break;
         }

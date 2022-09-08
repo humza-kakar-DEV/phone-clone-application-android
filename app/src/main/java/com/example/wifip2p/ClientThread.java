@@ -122,6 +122,7 @@ public class ClientThread extends Thread {
                         fis = (FileInputStream) contentResolver.openInputStream(Uri.parse(video.getUri()));
                         DataOutputStream dataOutputStream = new DataOutputStream(os);
                         dataOutputStream.writeUTF(video.getName());
+                        dataOutputStream.writeInt(2);
                         fileType = "Video";
                         fileName = video.getName();
                     } catch (FileNotFoundException e) {
@@ -136,6 +137,7 @@ public class ClientThread extends Thread {
                         fis = (FileInputStream) contentResolver.openInputStream(Uri.parse(document.getContentUri()));
                         DataOutputStream dataOutputStream = new DataOutputStream(os);
                         dataOutputStream.writeUTF(document.getName());
+                        dataOutputStream.writeInt(3);
                         fileType = "Document";
                         fileName = document.getName();
                     } catch (FileNotFoundException e) {

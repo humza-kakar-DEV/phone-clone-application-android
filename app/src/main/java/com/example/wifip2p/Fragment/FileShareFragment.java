@@ -127,6 +127,7 @@ public class FileShareFragment extends Fragment {
     }
 
     public void displayLoadingScreen(boolean state) {
+//!     code loading logic int this method
         if (state) {
             binding.loadingContainer.setVisibility(View.VISIBLE);
         } else {
@@ -167,15 +168,15 @@ public class FileShareFragment extends Fragment {
 
     public void clientThreadSendMessage() {
 
-//        if (groupOwnerAddress == null) {
-//            return;
-//        }
+        if (groupOwnerAddress == null) {
+            return;
+        }
 
-        sendImageData();
-        sendAudioData();
-        sendVideoData();
-        sendDocumentData();
         sendContactData();
+        sendImageData();
+        sendVideoData();
+        sendAudioData();
+        sendDocumentData();
         sendApkData();
     }
 
@@ -207,8 +208,6 @@ public class FileShareFragment extends Fragment {
         }
 
         Toast.makeText(context, "audio called", Toast.LENGTH_SHORT).show();
-
-//        AudioMedia audioMedia = new AudioMedia(context);
 
         for (Audio audio : audioList) {
 
