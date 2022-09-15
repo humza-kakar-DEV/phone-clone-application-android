@@ -1,12 +1,20 @@
 package com.example.wifip2p.Fragment;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.os.Environment;
 import android.os.Message;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +35,18 @@ import com.example.wifip2p.Utils.CommunicationInterfaceReference;
 import com.example.wifip2p.Utils.Constant;
 import com.example.wifip2p.Utils.LoadingDialog;
 import com.example.wifip2p.databinding.FragmentFileShareBinding;
+import com.opencsv.CSVWriter;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -270,17 +289,62 @@ public class FileShareFragment extends Fragment {
 
         Toast.makeText(context, "contact called", Toast.LENGTH_SHORT).show();
 
-        for (Contact contact : contactList) {
-            Bundle bundle = new Bundle();
-            bundle.putString(Constant.GROUP_OWNER_TAG, groupOwnerAddress);
-            bundle.putSerializable(Constant.DYNAMIC_OBJ_TAG, contact);
-            bundle.putInt(Constant.DYNAMIC_INT_TAG, 4);
+        FileInputStream fileInputStream = null;
+        File directory = null;
+        File csvFile = null;
 
-            Message message = Message.obtain();
-            message.setData(bundle);
+        try {
+            directory = new File(Environment.getExternalStorageDirectory() + File.separator + "wifi_direct");
+            csvFile = new File(directory.getAbsolutePath() + File.separator + "Contact.csv");
+            if (!directory.exists()) {
+                directory.mkdir();
+            }
+            if (!csvFile.exists()) {
+                csvFile.createNewFile();
+            }
 
-            clientThread.clientThreadHandler.sendMessage(message);
+//!         READING FILE
+            fileInputStream = new FileInputStream(csvFile);
+
+            FileWriter outputfile = new FileWriter(csvFile);
+
+            // create CSVWriter object fileWriter object as parameter
+            CSVWriter writer = new CSVWriter(outputfile);
+
+            // create a List which contains String array
+            List<String[]> data = new ArrayList<String[]>();
+            for (Contact contact : contactList) {
+                data.add(new String[] {contact.getName(), contact.getPhoneNo()});
+                totalContactSize -= 1;
+                setupTextViews();
+            }
+
+            writer.writeAll(data);
+            writer.close();
+
+            Log.d(TAG, "csv file size: " + fileInputStream.available());
+
+//!         WRITING FILE
+
+        } catch (Exception e) {
+            Log.d(TAG, "exception: " + e.getMessage());
         }
+
+        Bundle bundle = new Bundle();
+        bundle.putString(Constant.GROUP_OWNER_TAG, groupOwnerAddress);
+        bundle.putSerializable(Constant.DYNAMIC_OBJ_TAG, null);
+        bundle.putInt(Constant.DYNAMIC_INT_TAG, 4);
+        Message message = Message.obtain();
+        message.setData(bundle);
+
+        clientThread.clientThreadHandler.getFile(fileInputStream, csvFile);
+
+        clientThread.clientThreadHandler.sendMessage(message);
+
+    }
+
+    public interface sendFileToThread {
+        void getFile (FileInputStream fileInputStream, File contactsCsvFile);
     }
 
     public void sendApkData() {
@@ -289,7 +353,6 @@ public class FileShareFragment extends Fragment {
         }
 
         Toast.makeText(context, "apk called", Toast.LENGTH_SHORT).show();
-
 
         for (Apk apk : apkList) {
             Bundle bundle = new Bundle();

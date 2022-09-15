@@ -252,7 +252,7 @@ public class MainActivity extends AppCompatActivity {
 //                server block which will receive files from client
 
 //              UI coding
-                Toast.makeText(MainActivity.this, "connection owner", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "connection server", Toast.LENGTH_SHORT).show();
                 textView.setText("CONNECTION SERVER");
                 serverTextView.setVisibility(View.VISIBLE);
 

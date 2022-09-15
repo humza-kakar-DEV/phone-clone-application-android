@@ -32,6 +32,7 @@ public class PermissionActivity extends AppCompatActivity {
             Manifest.permission.READ_CONTACTS,
             Manifest.permission.QUERY_ALL_PACKAGES,
             Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.WRITE_CONTACTS,
     };
 
     @Override
@@ -65,8 +66,9 @@ public class PermissionActivity extends AppCompatActivity {
         int result3 = checkSelfPermission(permissions[2]);
         int result4 = checkSelfPermission(permissions[3]);
         int result5 = checkSelfPermission(permissions[4]);
+        int result6 = checkSelfPermission(permissions[5]);
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-            if (Environment.isExternalStorageManager() && (result1 == PackageManager.PERMISSION_GRANTED) && (result2 == PackageManager.PERMISSION_GRANTED) && (result3 == PackageManager.PERMISSION_GRANTED) && (result4 == PackageManager.PERMISSION_GRANTED) && (result5 == PackageManager.PERMISSION_GRANTED)) {
+            if (Environment.isExternalStorageManager() && (result1 == PackageManager.PERMISSION_GRANTED) && (result2 == PackageManager.PERMISSION_GRANTED) && (result3 == PackageManager.PERMISSION_GRANTED) && (result4 == PackageManager.PERMISSION_GRANTED) && (result5 == PackageManager.PERMISSION_GRANTED) && (result6 == PackageManager.PERMISSION_GRANTED)) {
                 olderPhone = true;
             } else {
                 Toast.makeText(this, "All file access is required", Toast.LENGTH_SHORT).show();

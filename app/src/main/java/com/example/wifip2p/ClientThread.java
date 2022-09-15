@@ -7,9 +7,11 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.example.wifip2p.Fragment.FileShareFragment;
 import com.example.wifip2p.Media.Apk;
 import com.example.wifip2p.Media.Audio;
 import com.example.wifip2p.Media.AudioMedia;
@@ -26,14 +28,18 @@ import com.example.wifip2p.Utils.FileSizes;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ClientThread extends Thread {
 
@@ -54,14 +60,17 @@ public class ClientThread extends Thread {
 
     }
 
-    public class ClientThreadHandler extends Handler {
+    public class ClientThreadHandler extends Handler implements FileShareFragment.sendFileToThread {
 
         MainActivity2 mainActivity2;
         Context context;
-        FileInputStream fis;
+        FileInputStream fis = null;
         ContentResolver contentResolver;
         Socket clientSocket = null;
         OutputStream os = null;
+
+        File contactsFile;
+        boolean receivedContact = false;
 
         String hostAddress;
         int currentFileSize = 0;
@@ -147,24 +156,25 @@ public class ClientThread extends Thread {
                     }
                     break;
                 case 4:
-//                    contact = (Contact) object;
-//                    try {
-//                        fis = (FileInputStream) contentResolver.openInputStream(Uri.parse());
-//                        DataOutputStream dataOutputStream = new DataOutputStream(os);
-//                        dataOutputStream.writeUTF(video.getName());
-//                        fileType = "Video";
-//                    } catch (FileNotFoundException e) {
-//                        e.printStackTrace();
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
+                    try {
+                        DataOutputStream dataOutputStream = new DataOutputStream(os);
+                        dataOutputStream.writeUTF("Contacts");
+                        dataOutputStream.writeInt(4);
+                        fileType = "Contacts";
+                        fileName = "Contacts.csv";
+                        receivedContact = true;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     break;
                 case 5:
                     apk = (Apk) object;
                     try {
-                        fis = (FileInputStream) contentResolver.openInputStream(Uri.parse(apk.getAppPath()));
+                        fis = new FileInputStream(apk.getAppPath());
+                        Log.d(Constant.THREAD_DATA_SEND, "apk file size: " + fis.available());
                         DataOutputStream dataOutputStream = new DataOutputStream(os);
                         dataOutputStream.writeUTF(apk.getAppName());
+                        dataOutputStream.writeInt(5);
                         fileType = "Apk";
                         fileName = apk.getAppName();
                     } catch (FileNotFoundException e) {
@@ -200,11 +210,13 @@ public class ClientThread extends Thread {
 
                 dynamicCasting(object, objectType);
 
-                byte[] buffer = new byte[4096];
-
                 BufferedInputStream bis = new BufferedInputStream(fis);
 
                 long bytesToSend = fis.available();
+
+                Log.d(Constant.THREAD_TAG, "client thread: bytes = " + bytesToSend);
+
+                byte[] buffer = new byte[4096];
 
                 totalFileSize += bytesToSend;
 
@@ -246,6 +258,11 @@ public class ClientThread extends Thread {
                 currentFileSize = 0;
                 totalFileSize = 0;
 
+                if (receivedContact) {
+                    contactsFile.delete();
+                    receivedContact = !receivedContact;
+                }
+
                 fis.close();
                 bis.close();
 
@@ -279,6 +296,18 @@ public class ClientThread extends Thread {
 
 ////!                --------------------------------------------------------
 
+        }
+
+
+        @Override
+        public void getFile(FileInputStream fileInputStream, File contactsCsvFile) {
+            this.fis = fileInputStream;
+            this.contactsFile = contactsCsvFile;
+            try {
+                Log.d(Constant.THREAD_TAG, "getFile interface: " + fis.available());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

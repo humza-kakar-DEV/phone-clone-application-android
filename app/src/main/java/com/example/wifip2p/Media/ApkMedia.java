@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +45,8 @@ public class ApkMedia {
             Drawable appIcon = resolveInfo.activityInfo.loadIcon(context.getPackageManager());
 
             apkList.add(new Apk(appName, appPackageName, appPath, appIcon, false));
+
+            Log.d(TAG, "apk media: " + appPath);
         }
 
         return apkList;

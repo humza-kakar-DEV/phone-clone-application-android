@@ -1,11 +1,15 @@
 package com.example.wifip2p;
 
+import android.content.ContentProviderOperation;
 import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.ResultReceiver;
+import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
@@ -26,12 +30,14 @@ import java.io.BufferedReader;
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -46,11 +52,13 @@ public class ServerThread extends Thread {
     Context context;
     FileOutputStream fos;
     InputStream is;
+
     int fileCount;
     String imageMimeType = "image/jpeg";
     String audioMimeType = "audio/mpeg";
     String videoMimeType = "video/mp4";
     String documentMimeType = "";
+    List<String[]> data = new ArrayList<String[]>();
     ContentValues values = new ContentValues();
     Uri uri;
 
@@ -59,31 +67,62 @@ public class ServerThread extends Thread {
         context = mainActivity.getApplicationContext();
     }
 
-    public void dynamicCasting (String name, int fileType) {
+    public void dynamicCasting(String name, int fileType) throws IOException, ClassNotFoundException {
         switch (fileType) {
+//?         storing image case
             case 0:
                 values.put(MediaStore.MediaColumns.DISPLAY_NAME, "wifi-direct_" + name);       //file name
                 values.put(MediaStore.MediaColumns.MIME_TYPE, MediaStore.Images.Media.MIME_TYPE);        //file extension, will automatically add to file
                 values.put(MediaStore.MediaColumns.RELATIVE_PATH, MediaStore.Images.ImageColumns.RELATIVE_PATH);     //end "/" is not mandatory
                 uri = context.getContentResolver().insert(MediaStore.Files.getContentUri("external"), values);
+                fos = (FileOutputStream) context.getContentResolver().openOutputStream(uri);
                 break;
+//?         storing audio case
             case 1:
                 values.put(MediaStore.MediaColumns.DISPLAY_NAME, "wifi-direct_" + name);       //file name
                 values.put(MediaStore.MediaColumns.MIME_TYPE, MediaStore.Audio.Media.MIME_TYPE);        //file extension, will automatically add to file
                 values.put(MediaStore.MediaColumns.RELATIVE_PATH, MediaStore.Audio.AudioColumns.RELATIVE_PATH);     //end "/" is not mandatory
                 uri = context.getContentResolver().insert(MediaStore.Files.getContentUri("external"), values);
+                fos = (FileOutputStream) context.getContentResolver().openOutputStream(uri);
                 break;
+//?         storing video case
             case 2:
                 values.put(MediaStore.MediaColumns.DISPLAY_NAME, "wifi-direct_" + name);       //file name
                 values.put(MediaStore.MediaColumns.MIME_TYPE, MediaStore.Video.Media.MIME_TYPE);        //file extension, will automatically add to file
                 values.put(MediaStore.MediaColumns.RELATIVE_PATH, MediaStore.Video.VideoColumns.RELATIVE_PATH);     //end "/" is not mandatory
                 uri = context.getContentResolver().insert(MediaStore.Files.getContentUri("external"), values);
+                fos = (FileOutputStream) context.getContentResolver().openOutputStream(uri);
                 break;
+//?         storing document case
             case 3:
                 values.put(MediaStore.MediaColumns.DISPLAY_NAME, "wifi-direct_" + name);       //file name
                 values.put(MediaStore.MediaColumns.MIME_TYPE, MediaStore.Files.FileColumns.MIME_TYPE);        //file extension, will automatically add to file
                 values.put(MediaStore.MediaColumns.RELATIVE_PATH, MediaStore.Files.FileColumns.MEDIA_TYPE_DOCUMENT);     //end "/" is not mandatory
                 uri = context.getContentResolver().insert(MediaStore.Files.getContentUri("external"), values);
+                fos = (FileOutputStream) context.getContentResolver().openOutputStream(uri);
+                break;
+//?         storing apk case
+            case 4:
+                File contactsDirectory = new File(Environment.getExternalStorageDirectory() + File.separator + "wifi_direct");
+                if (!contactsDirectory.exists()) {
+                    contactsDirectory.mkdir();
+                }
+                File contactsFolder = new File(contactsDirectory.getAbsolutePath() + File.separator + "Contacts");
+                if (!contactsFolder.exists()) {
+                    contactsFolder.mkdirs();
+                }
+                fos = new FileOutputStream(contactsFolder.getAbsolutePath() + File.separator + name + ".csv");
+                break;
+            case 5:
+                File apkDirectory = new File(Environment.getExternalStorageDirectory() + File.separator + "wifi_direct");
+                if (!apkDirectory.exists()) {
+                    apkDirectory.mkdir();
+                }
+                File apkFolder = new File(apkDirectory.getAbsolutePath() + File.separator + "Apk");
+                if (!apkFolder.exists()) {
+                    apkFolder.mkdirs();
+                }
+                fos = new FileOutputStream(apkFolder.getAbsolutePath() + File.separator + name + ".apk");
                 break;
         }
     }
@@ -99,8 +138,7 @@ public class ServerThread extends Thread {
 
             welcomeSocket = new ServerSocket(8888);
 
-            while(true)
-            {
+            while (true) {
 
                 //Listen for incoming connections on specified port
                 //Block thread until someone connects
@@ -112,32 +150,35 @@ public class ServerThread extends Thread {
                 String name = dataInputStream.readUTF();
                 int fileType = dataInputStream.readInt();
 
-                Log.d(Constant.THREAD_TAG, "client thread: file name: " + name);
+                Log.d(Constant.THREAD_TAG, "server thread: " + name + " | " + fileType);
+
+                mainActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(mainActivity, "file name: " + name, Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                dynamicCasting(name, fileType);
 
                 byte[] buffer = new byte[4096];
 
                 int bytesRead;
 
-                dynamicCasting(name, fileType);
-
-                fos = (FileOutputStream) context.getContentResolver().openOutputStream(uri);
-
                 BufferedOutputStream bos = new BufferedOutputStream(fos);
 
-                while(true)
-                {
+                while (true) {
                     bytesRead = is.read(buffer, 0, buffer.length);
-                    if(bytesRead == -1)
-                    {
+                    if (bytesRead == -1) {
                         break;
                     }
                     bos.write(buffer, 0, bytesRead);
                     bos.flush();
-
                 }
 
 //!             Whole while loop socket code finishes here :
 
+                fos.close();
                 bos.close();
                 socket.close();
 
@@ -155,149 +196,107 @@ public class ServerThread extends Thread {
 
         } catch (IOException e) {
             Log.d(Constant.THREAD_TAG, "server thread: " + e.getMessage());
-        }
-        catch(Exception e)
-        {
+        } catch (Exception e) {
             Log.d(Constant.THREAD_TAG, "server thread: " + e.getMessage());
         }
 
     }
-}
 
-class ServerThreadHandler extends Handler {
+    public void createContact (String displayName, String mobileNumber) {
+//        String displayName  = "ABC";
+//        String mobileNumber = "88888888";
+        String emailID      = "abc@mail.com";
+        String homeNumber   = "1111";
+        String workNumber   = "2222";
+        String company      = "xyz";
+        String jobTitle     = "boss";
 
-    MainActivity mainActivity;
-    Context context;
-    ServerSocket serverSocket;
-    Socket client;
-    byte buf[] = new byte[1024];
-    int len;
-    String name;
+        ArrayList<ContentProviderOperation> contentProviderOperationArrayList = new ArrayList <ContentProviderOperation> ();
 
-    List<Audio> audioList = new ArrayList<>();
+        contentProviderOperationArrayList.add(ContentProviderOperation.newInsert(ContactsContract.RawContacts.CONTENT_URI)
+                .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
+                .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null)
+                .build());
 
-    Image image;
-    Video video;
-    Audio audio;
-    Document document;
-    Apk apk;
-    Contact contact;
-    Object object;
+        //! Name
+        if (displayName != null) {
+            contentProviderOperationArrayList.add(ContentProviderOperation.newInsert(
+                            ContactsContract.Data.CONTENT_URI)
+                    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                    .withValue(ContactsContract.Data.MIMETYPE,
+                            ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+                    .withValue(
+                            ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME,
+                            displayName).build());
+        }
 
+        //! Mobile Number
+        if (mobileNumber != null) {
+            contentProviderOperationArrayList.add(ContentProviderOperation.
+                    newInsert(ContactsContract.Data.CONTENT_URI)
+                    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                    .withValue(ContactsContract.Data.MIMETYPE,
+                            ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+                    .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, mobileNumber)
+                    .withValue(ContactsContract.CommonDataKinds.Phone.TYPE,
+                            ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE)
+                    .build());
+        }
 
-    public ServerThreadHandler(MainActivity mainActivity) {
-        this.mainActivity = mainActivity;
-        context = mainActivity.getApplicationContext();
-    }
+        //Home
+//        if (homeNumber != null) {
+//            contentProviderOperationArrayList.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+//                    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+//                    .withValue(ContactsContract.Data.MIMETYPE,
+//                            ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+//                    .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, homeNumber)
+//                    .withValue(ContactsContract.CommonDataKinds.Phone.TYPE,
+//                            ContactsContract.CommonDataKinds.Phone.TYPE_HOME)
+//                    .build());
+//        }
 
-    @Override
-    public void handleMessage(@NonNull Message msg) {
-        super.handleMessage(msg);
+        //Work
+//        if (workNumber != null) {
+//            contentProviderOperationArrayList.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+//                    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+//                    .withValue(ContactsContract.Data.MIMETYPE,
+//                            ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+//                    .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, workNumber)
+//                    .withValue(ContactsContract.CommonDataKinds.Phone.TYPE,
+//                            ContactsContract.CommonDataKinds.Phone.TYPE_WORK)
+//                    .build());
+//        }
 
+        //Email
+//        if (emailID != null) {
+//            contentProviderOperationArrayList.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+//                    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+//                    .withValue(ContactsContract.Data.MIMETYPE,
+//                            ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE)
+//                    .withValue(ContactsContract.CommonDataKinds.Email.DATA, emailID)
+//                    .withValue(ContactsContract.CommonDataKinds.Email.TYPE, ContactsContract.CommonDataKinds.Email.TYPE_WORK)
+//                    .build());
+//        }
+
+        //Organization
+//        if (!company.equals("") && !jobTitle.equals("")) {
+//            contentProviderOperationArrayList.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+//                    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+//                    .withValue(ContactsContract.Data.MIMETYPE,
+//                            ContactsContract.CommonDataKinds.Organization.CONTENT_ITEM_TYPE)
+//                    .withValue(ContactsContract.CommonDataKinds.Organization.COMPANY, company)
+//                    .withValue(ContactsContract.CommonDataKinds.Organization.TYPE, ContactsContract.CommonDataKinds.Organization.TYPE_WORK)
+//                    .withValue(ContactsContract.CommonDataKinds.Organization.TITLE, jobTitle)
+//                    .withValue(ContactsContract.CommonDataKinds.Organization.TYPE, ContactsContract.CommonDataKinds.Organization.TYPE_WORK)
+//                    .build());
+//        }
+
+        // Creating new contact
         try {
-
-//              ************** RECEIVING OBJECT THROUGH CLIENT SOCKET **********
-
-            Log.d(Constant.THREAD_TAG, "server thread: socket status - " + client.isConnected());
-
-            serverSocket = new ServerSocket(8888);
-            client = serverSocket.accept();
-
-            Log.d(Constant.THREAD_TAG, "server thread: socket status - " + client.isConnected());
-
-//              ************* RECEIVING AUDIO FILE THROUGH CLIENT SOCKET **********
-
-                ContentValues values = new ContentValues();
-
-                values.put(MediaStore.MediaColumns.DISPLAY_NAME, audioList.get(0).getSongName());       //file name
-                values.put(MediaStore.MediaColumns.MIME_TYPE, "audio/mpeg");        //file extension, will automatically add to file
-                values.put(MediaStore.MediaColumns.RELATIVE_PATH, MediaStore.Audio.Media.RELATIVE_PATH);     //end "/" is not mandatory
-
-                Uri uri = context.getContentResolver().insert(MediaStore.Files.getContentUri("external"), values);
-
-                InputStream is = client.getInputStream();
-                InputStreamReader isr = new InputStreamReader(is);
-                BufferedReader br = new BufferedReader(isr);
-
-                OutputStream os = client.getOutputStream();
-                PrintWriter pw = new PrintWriter(os);
-
-                byte[] buffer = new byte[is.available()];
-                int bytesRead;
-
-                FileOutputStream fos = (FileOutputStream) context.getContentResolver().openOutputStream(uri);
-                BufferedOutputStream bos = new BufferedOutputStream(fos);
-
-                while (true) {
-
-                    bytesRead = is.read(buffer, 0, buffer.length);
-
-                    if (bytesRead == -1) {
-                        break;
-                    }
-
-//                    Log.d(Constant.THREAD_TAG, "server thread - file size: " + bytesRead);
-
-                    bos.write(buffer, 0, bytesRead);
-                    bos.flush();
-
-                }
-
-                serverSocket.close();
-                client.close();
-
-//                --------------------------------------------------------
-
-//                Uri collection;
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-//                    collection = MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL);
-//                } else {
-//                    collection = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-//                }
-//
-//                FileOutputStream fileOutputStream = (FileOutputStream) context.getContentResolver().openOutputStream(collection);
-//
-//                while ((len = inputStream.read()) != -1) {
-//                    Log.d(TAG_FILE, "server thread - file size: " + len);
-//                    fileOutputStream.write(len);
-//                }
-
-            //                final File f = new File(Environment.getExternalStorageDirectory() + "/"
-//                        + context.getPackageName() + "/wifip2pshared-" + System.currentTimeMillis()
-//                        + ".jpg");
-//
-//                File dirs = new File(f.getParent());
-//                if (!dirs.exists())
-//                    Log.d(TAG_FILE, "server thread - folder created: " + dirs.mkdirs());
-//                Log.d(TAG_FILE, "server thread - file created: " + f.createNewFile());
-
-//                Log.d(TAG_FILE, "server thread - file size: " + inputStream.available());
-
-//                while ((len = inputStream.read()) != -1) {
-//                    fileOutputStream.write(len);
-//                }
-//                serverSocket.close();
-//                Log.d(TAG_FILE, "server thread: - file path: " + f.getAbsolutePath());
-//
-//                mainActivity.runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        mainActivity.showFile(f.getAbsolutePath());
-//                    }
-//                });
-
+            context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, contentProviderOperationArrayList);
         } catch (Exception e) {
-
-            System.err.println("Client Error: " + e.getMessage());
-            System.err.println("Localized: " + e.getLocalizedMessage());
-            System.err.println("Stack Trace: " + e.getStackTrace());
-
-            Log.d(Constant.THREAD_TAG, "server error: " + e.getMessage());
-            Log.d(Constant.THREAD_TAG, "server localized: " + e.getLocalizedMessage());
-            Log.d(Constant.THREAD_TAG, "server stack trace: " + e.getStackTrace());
-
-        } finally {
-
+            e.printStackTrace();
         }
     }
+
 }
