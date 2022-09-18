@@ -2,35 +2,23 @@ package com.example.wifip2p;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.Fragment;
 import android.os.Bundle;
-import android.os.Message;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
-import android.widget.Toast;
 
 import com.example.wifip2p.Fragment.FileShareFragment;
 import com.example.wifip2p.Fragment.FileShowFragment;
 import com.example.wifip2p.Fragment.FileTypeFragment;
 import com.example.wifip2p.Media.Apk;
-import com.example.wifip2p.Media.ApkMedia;
 import com.example.wifip2p.Media.Audio;
-import com.example.wifip2p.Media.AudioMedia;
 import com.example.wifip2p.Media.Contact;
-import com.example.wifip2p.Media.ContactMedia;
 import com.example.wifip2p.Media.Document;
-import com.example.wifip2p.Media.DocumentMedia;
 import com.example.wifip2p.Media.Image;
-import com.example.wifip2p.Media.ImageMedia;
 import com.example.wifip2p.Media.Video;
-import com.example.wifip2p.Media.VideoMedia;
 import com.example.wifip2p.Utils.CommunicationInterface;
-import com.example.wifip2p.Utils.CommunicationInterfaceReference;
 import com.example.wifip2p.Utils.Constant;
-import com.example.wifip2p.Utils.FileSizes;
+import com.example.wifip2p.Utils.LoadingDialog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,12 +27,12 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
 
     private static final String TAG = "hmMainActivity2";
     public static final String TAG_FILE_THREAD = "humLoad";
-    private List<Image> imageMegaList = new ArrayList<Image>();
-    private List<Video> videoMegaList = new ArrayList<>();
-    private List<Audio> audioMegaList = new ArrayList<>();
-    private List<Contact> contactMegaList = new ArrayList<>();
-    private List<Document> documentMegaList = new ArrayList<>();
-    private List<Apk> apkMegaList = new ArrayList<>();
+    private final List<Image> imageMegaList = new ArrayList<Image>();
+    private final List<Video> videoMegaList = new ArrayList<>();
+    private final List<Audio> audioMegaList = new ArrayList<>();
+    private final List<Contact> contactMegaList = new ArrayList<>();
+    private final List<Document> documentMegaList = new ArrayList<>();
+    private final List<Apk> apkMegaList = new ArrayList<>();
     int imageSize;
     int audioSize;
     int videoSize;
@@ -55,8 +43,10 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
     ClientThread clientThread;
 
     private FrameLayout frameLayout;
+    private FileTypeFragment fileTypeFragment;
     private FileShowFragment fileShowFragment;
     private FileShareFragment fileShareFragment;
+    private LoadingDialog loadingDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,19 +55,20 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
 
         frameLayout = findViewById(R.id.frameLayout);
 
+        loadingDialog = new LoadingDialog(this);
+
+//! LOAD DATA HERE
+//! ------------------------------------------------------------------
+
         if (getIntent() != null) {
             groupOwnerAddress = getIntent().getStringExtra(Constant.GROUP_OWNER_TAG);
-            imageSize = getIntent().getIntExtra("per1", 0);
-            audioSize = getIntent().getIntExtra("per2", 0);
-            videoSize = getIntent().getIntExtra("per3", 0);
-            documentSize = getIntent().getIntExtra("per4", 0);
-            contactSize = getIntent().getIntExtra("per5", 0);
-            apkSize = getIntent().getIntExtra("per6", 0);
         }
 
         clientThread = new ClientThread(MainActivity2.this);
         clientThread.setName("client thread");
         clientThread.start();
+
+        fileTypeFragment = new FileTypeFragment();
 
         getSupportFragmentManager()
                 .beginTransaction()
@@ -87,9 +78,29 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
                         R.anim.fragment_fade_in,   // popEnter
                         R.anim.fragment_slide_out  // popExit
                 )
-                .replace(frameLayout.getId(), new FileTypeFragment())
+                .replace(frameLayout.getId(), fileTypeFragment)
                 .addToBackStack(null)
                 .commit();
+    }
+
+    public void loadFileThreadResults (int imageSize, int audioSize, int videoSize, int documentSize, int contactSize, int apkSize) {
+        this.imageSize = imageSize;
+        this.audioSize = audioSize;
+        this.videoSize = videoSize;
+        this.documentSize = documentSize;
+        this.contactSize = contactSize;
+        this.apkSize = apkSize;
+    }
+
+    public void startLoadingDialog () {
+        loadingDialog.startLoadingDialog();
+    }
+
+    public void stopLoadingDialog () {
+        loadingDialog.dismissDialog();
+//!        this method will trigger after
+//!        files are loaded in LoadFileThread
+        fileTypeFragment.loadFileThreadResults();
     }
 
     @Override
@@ -219,11 +230,7 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
             checkBox.setChecked(true);
         } else if (documentMegaList.size() == documentSize && type.equals("document")) {
             checkBox.setChecked(true);
-        } else if (apkMegaList.size() == apkSize && type.equals("apk")) {
-            checkBox.setChecked(true);
-        } else {
-            checkBox.setChecked(false);
-        }
+        } else checkBox.setChecked(apkMegaList.size() == apkSize && type.equals("apk"));
     }
 
     @Override

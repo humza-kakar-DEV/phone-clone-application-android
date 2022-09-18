@@ -71,19 +71,29 @@ public class ServerThread extends Thread {
         switch (fileType) {
 //?         storing image case
             case 0:
-                values.put(MediaStore.MediaColumns.DISPLAY_NAME, "wifi-direct_" + name);       //file name
-                values.put(MediaStore.MediaColumns.MIME_TYPE, MediaStore.Images.Media.MIME_TYPE);        //file extension, will automatically add to file
-                values.put(MediaStore.MediaColumns.RELATIVE_PATH, MediaStore.Images.ImageColumns.RELATIVE_PATH);     //end "/" is not mandatory
-                uri = context.getContentResolver().insert(MediaStore.Files.getContentUri("external"), values);
-                fos = (FileOutputStream) context.getContentResolver().openOutputStream(uri);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    values.put(MediaStore.MediaColumns.DISPLAY_NAME, "wifi-direct_" + name);       //file name
+                    values.put(MediaStore.MediaColumns.MIME_TYPE, MediaStore.Images.Media.MIME_TYPE);        //file extension, will automatically add to file
+                    values.put(MediaStore.MediaColumns.RELATIVE_PATH, "hamzaPhoneCloneImage");     //end "/" is not mandatory
+                    uri = context.getContentResolver().insert(MediaStore.Files.getContentUri("external"), values);
+                    fos = (FileOutputStream) context.getContentResolver().openOutputStream(uri);
+                } else {
+                    File imageFolder = new File(Environment.getExternalStorageDirectory() + File.separator + Environment.DIRECTORY_PICTURES);
+                    fos = new FileOutputStream(imageFolder);
+                }
                 break;
 //?         storing audio case
             case 1:
-                values.put(MediaStore.MediaColumns.DISPLAY_NAME, "wifi-direct_" + name);       //file name
-                values.put(MediaStore.MediaColumns.MIME_TYPE, MediaStore.Audio.Media.MIME_TYPE);        //file extension, will automatically add to file
-                values.put(MediaStore.MediaColumns.RELATIVE_PATH, MediaStore.Audio.AudioColumns.RELATIVE_PATH);     //end "/" is not mandatory
-                uri = context.getContentResolver().insert(MediaStore.Files.getContentUri("external"), values);
-                fos = (FileOutputStream) context.getContentResolver().openOutputStream(uri);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    values.put(MediaStore.MediaColumns.DISPLAY_NAME, "wifi-direct_" + name);       //file name
+                    values.put(MediaStore.MediaColumns.MIME_TYPE, MediaStore.Audio.Media.MIME_TYPE);        //file extension, will automatically add to file
+                    values.put(MediaStore.MediaColumns.RELATIVE_PATH, "hamzaPhoneCloneAudio");     //end "/" is not mandatory
+                    uri = context.getContentResolver().insert(MediaStore.Files.getContentUri("external"), values);
+                    fos = (FileOutputStream) context.getContentResolver().openOutputStream(uri);
+                } else {
+                    File audioFolder = new File(Environment.getExternalStorageDirectory() + File.separator + Environment.DIRECTORY_MUSIC);
+                    fos = new FileOutputStream(audioFolder);
+                }
                 break;
 //?         storing video case
             case 2:
@@ -147,6 +157,7 @@ public class ServerThread extends Thread {
                 is = socket.getInputStream();
 
                 DataInputStream dataInputStream = new DataInputStream(is);
+
                 String name = dataInputStream.readUTF();
                 int fileType = dataInputStream.readInt();
 
@@ -194,8 +205,6 @@ public class ServerThread extends Thread {
             }
 
 
-        } catch (IOException e) {
-            Log.d(Constant.THREAD_TAG, "server thread: " + e.getMessage());
         } catch (Exception e) {
             Log.d(Constant.THREAD_TAG, "server thread: " + e.getMessage());
         }

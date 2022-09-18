@@ -7,6 +7,8 @@ import android.provider.ContactsContract;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.wifip2p.Utils.Constant;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
@@ -41,8 +43,6 @@ public class ContactMedia {
                             new String[]{id}, null);
                     while (pCur.moveToNext()) {
                         String phoneNo = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-//                        Log.i(TAG, "Name: " + name);
-//                        Log.i(TAG, "Phone Number: " + phoneNo);
                         contactList.add(new Contact(name, phoneNo, false));
                     }
                     pCur.close();

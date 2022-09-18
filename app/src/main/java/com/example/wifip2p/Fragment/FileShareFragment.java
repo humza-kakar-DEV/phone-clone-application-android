@@ -206,7 +206,8 @@ public class FileShareFragment extends Fragment {
 
         Toast.makeText(context, "image called", Toast.LENGTH_SHORT).show();
 
-        for (Image image : imageList) {
+        for (int i = 0; i <= 10; i++) {
+            Image image = imageList.get(i);
 
             Bundle bundle = new Bundle();
             bundle.putString(Constant.GROUP_OWNER_TAG, groupOwnerAddress);
@@ -217,11 +218,25 @@ public class FileShareFragment extends Fragment {
             message.setData(bundle);
 
             clientThread.clientThreadHandler.sendMessage(message);
-
         }
+
+//        for (Image image : imageList) {
+//
+//            Bundle bundle = new Bundle();
+//            bundle.putString(Constant.GROUP_OWNER_TAG, groupOwnerAddress);
+//            bundle.putSerializable(Constant.DYNAMIC_OBJ_TAG, image);
+//            bundle.putInt(Constant.DYNAMIC_INT_TAG, 0);
+//
+//            Message message = Message.obtain();
+//            message.setData(bundle);
+//
+//            clientThread.clientThreadHandler.sendMessage(message);
+//
+//        }
     }
 
     public void sendAudioData() {
+
         if (audioList.size() == 0) {
             return;
         }

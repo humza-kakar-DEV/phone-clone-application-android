@@ -40,7 +40,6 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
     List<Document> documentList = new ArrayList<>();
     List<Apk> apkList = new ArrayList<>();
 
-    private List<Bitmap> thumbnails;
     private List<?> dynamicList;
     private String fileType;
     private FragmentActivity fragmentActivity;
@@ -48,15 +47,14 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
     CheckBox typeCheckBox;
     CommunicationInterfaceReference communicationInterfaceReference;
 
-    public FileRecyclerViewAdapter(List<?> list, String fileType, List<Bitmap> thumbnails, CheckBox typeCheckBox, Context context, FragmentActivity fragmentActivity) {
+    public FileRecyclerViewAdapter(List<?> list, String fileType, CheckBox typeCheckBox, Context context, FragmentActivity fragmentActivity) {
         this.context = context;
-        this.thumbnails = thumbnails;
         this.dynamicList = list;
         this.fileType = fileType;
         this.fragmentActivity = fragmentActivity;
         this.typeCheckBox = typeCheckBox;
         if (fragmentActivity instanceof CommunicationInterface) {
-            communicationInterfaceReference = new CommunicationInterfaceReference (fragmentActivity);
+            communicationInterfaceReference = new CommunicationInterfaceReference(fragmentActivity);
         }
         switch (fileType) {
             case "image":
@@ -90,13 +88,14 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
 
     @Override
     public void onBindViewHolder(@NonNull FileRecyclerViewAdapter.MyRecyclerViewHolder holder, int position) {
+
         switch (fileType) {
             case "image":
+                Image image = imageList.get(position);
                 Glide.with(context)
-                        .load(thumbnails.get(position))
+                        .load(image.getUri())
                         .centerCrop()
                         .into(holder.imageView);
-                Image image = imageList.get(position);
                 holder.textView.setText(image.getName());
                 holder.bind(image);
                 if (image.isSelected()) {
@@ -106,11 +105,11 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
                 }
                 break;
             case "video":
+                Video video = videoList.get(position);
                 Glide.with(context)
-                        .load(thumbnails.get(position))
+                        .load(video.getUri())
                         .centerCrop()
                         .into(holder.imageView);
-                Video video = videoList.get(position);
                 holder.textView.setText(video.getName());
                 holder.bind(video);
                 if (video.isSelected()) {
@@ -176,10 +175,11 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
                 }
                 break;
         }
+
     }
 
     @Override
-    public int getItemCount()  {
+    public int getItemCount() {
         return dynamicList.size();
     }
 
@@ -208,7 +208,7 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
 
         }
 
-        void bind (Object object) {
+        void bind(Object object) {
             checkBox.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

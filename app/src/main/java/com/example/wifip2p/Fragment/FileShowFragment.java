@@ -60,7 +60,6 @@ public class FileShowFragment extends Fragment {
     private List<Contact> contactList = new ArrayList<Contact>();
     private List<Document> documentList = new ArrayList<Document>();
     private List<Apk> apkList = new ArrayList<Apk>();
-    private List<Bitmap> thumbnails = new ArrayList<Bitmap>();
     private String fileType;
 
     private Context context;
@@ -104,54 +103,29 @@ public class FileShowFragment extends Fragment {
                 binding.textViewHeading.setText("IMAGES");
                 imageList.addAll((List<Image>) mParam2);
                 communicationInterfaceReference.invokeCheckSelection(binding.allSelectCheckBox, mParam1);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    try {
-                        for (Image image : imageList) {
-                            thumbnails.add(context.getApplicationContext().getContentResolver().loadThumbnail(Uri.parse(image.getUri()), new Size(640, 480), null));
-                        }
-                    }
-                    catch (IOException e) {
-                    }
-                }
                 fileType = "image";
-                fileRecyclerViewAdapter = new FileRecyclerViewAdapter (imageList, fileType, thumbnails, binding.allSelectCheckBox, context, getActivity());
+                fileRecyclerViewAdapter = new FileRecyclerViewAdapter (imageList, fileType, binding.allSelectCheckBox, context, getActivity());
                 break;
             case "video":
                 binding.textViewHeading.setText("VIDEOS");
                 videoList.addAll((List<Video>) mParam2);
                 communicationInterfaceReference.invokeCheckSelection(binding.allSelectCheckBox, mParam1);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    try {
-                        for (Video video : videoList) {
-                            thumbnails.add(context.getApplicationContext().getContentResolver().loadThumbnail(Uri.parse(video.getUri()), new Size(640, 480), null));
-                        }
-                    } catch (IOException e) {
-                    }
-                }
                 fileType = "video";
-                fileRecyclerViewAdapter = new FileRecyclerViewAdapter (videoList, fileType, thumbnails, binding.allSelectCheckBox, context, getActivity());
+                fileRecyclerViewAdapter = new FileRecyclerViewAdapter (videoList, fileType, binding.allSelectCheckBox, context, getActivity());
                 break;
             case "audio":
                 binding.textViewHeading.setText("AUDIOS");
                 audioList.addAll((List<Audio>) mParam2);
                 communicationInterfaceReference.invokeCheckSelection(binding.allSelectCheckBox, mParam1);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    try {
-                        for (Audio audio : audioList) {
-                            thumbnails.add(context.getApplicationContext().getContentResolver().loadThumbnail(Uri.parse(audio.getUri()), new Size(640, 480), null));
-                        }
-                    } catch (IOException e) {
-                    }
-                }
                 fileType = "audio";
-                fileRecyclerViewAdapter = new FileRecyclerViewAdapter (audioList, fileType, thumbnails, binding.allSelectCheckBox, context, getActivity());
+                fileRecyclerViewAdapter = new FileRecyclerViewAdapter (audioList, fileType, binding.allSelectCheckBox, context, getActivity());
                 break;
             case "contact":
                 binding.textViewHeading.setText("CONTACTS");
                 contactList.addAll((List<Contact>) mParam2);
                 communicationInterfaceReference.invokeCheckSelection(binding.allSelectCheckBox, mParam1);
                 fileType = "contact";
-                fileRecyclerViewAdapter = new FileRecyclerViewAdapter (contactList, fileType, thumbnails, binding.allSelectCheckBox, context, getActivity());
+                fileRecyclerViewAdapter = new FileRecyclerViewAdapter (contactList, fileType, binding.allSelectCheckBox, context, getActivity());
                 break;
             case "document":
                 binding.textViewHeading.setText("DOCUMENTS");
@@ -159,14 +133,14 @@ public class FileShowFragment extends Fragment {
                 Log.d(TAG, "onCreateView: " + documentList.size());
                 communicationInterfaceReference.invokeCheckSelection(binding.allSelectCheckBox, mParam1);
                 fileType = "document";
-                fileRecyclerViewAdapter = new FileRecyclerViewAdapter (documentList, fileType, thumbnails, binding.allSelectCheckBox, context, getActivity());
+                fileRecyclerViewAdapter = new FileRecyclerViewAdapter (documentList, fileType, binding.allSelectCheckBox, context, getActivity());
                 break;
             case "apk":
                 binding.textViewHeading.setText("APPLICATIONS");
                 apkList.addAll((List<Apk>) mParam2);
                 communicationInterfaceReference.invokeCheckSelection(binding.allSelectCheckBox, mParam1);
                 fileType = "apk";
-                fileRecyclerViewAdapter = new FileRecyclerViewAdapter (apkList, fileType, thumbnails, binding.allSelectCheckBox, context, getActivity());
+                fileRecyclerViewAdapter = new FileRecyclerViewAdapter (apkList, fileType, binding.allSelectCheckBox, context, getActivity());
                 break;
         }
 

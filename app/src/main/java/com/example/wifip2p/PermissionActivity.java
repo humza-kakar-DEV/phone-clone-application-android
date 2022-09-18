@@ -1,6 +1,7 @@
 package com.example.wifip2p;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
@@ -23,8 +24,9 @@ public class PermissionActivity extends AppCompatActivity {
     private static final int ALL_FILE_ACCESS = 2296;
     private static final String TAG_FILE_THREAD = "humLoad";
     private static final String TAG = "hmPermission";
+
+    private boolean permissionGranted = false;
     private boolean newerPhone = false;
-    private boolean olderPhone = false;
 
     String[] permissions = new String[] {
             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -40,26 +42,33 @@ public class PermissionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_permission);
 
-        checkPermission();
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            newerPhone = true;
+            checkPermission();
+        }
 
-        if (newerPhone) {
-            LoadFileThread loadFileThread = new LoadFileThread(this);
-            loadFileThread.start();
+        if (newerPhone && permissionGranted) {
+            Intent intent = new Intent(PermissionActivity.this, MainActivity.class);
+            startActivity(intent);
+        } else {
+            Intent intent = new Intent(PermissionActivity.this, MainActivity.class);
+            startActivity(intent);
         }
 
     }
 
-    public void fileLoadedFromThread (int imageSize, int audioSize, int videoSize, int contactSize, int documentSize, int apkSize) {
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra("per1", imageSize);
-        intent.putExtra("per2", audioSize);
-        intent.putExtra("per3", videoSize);
-        intent.putExtra("per4", documentSize);
-        intent.putExtra("per5", contactSize);
-        intent.putExtra("per6", apkSize);
-        startActivity(intent);
-    }
+//    public void fileLoadedFromThread (int imageSize, int audioSize, int videoSize, int contactSize, int documentSize, int apkSize) {
+//        Intent intent = new Intent(this, MainActivity.class);
+//        intent.putExtra("per1", imageSize);
+//        intent.putExtra("per2", audioSize);
+//        intent.putExtra("per3", videoSize);
+//        intent.putExtra("per4", documentSize);
+//        intent.putExtra("per5", contactSize);
+//        intent.putExtra("per6", apkSize);
+//        startActivity(intent);
+//    }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private void checkPermission() {
         int result1 = checkSelfPermission(permissions[0]);
         int result2 = checkSelfPermission(permissions[1]);
@@ -69,7 +78,7 @@ public class PermissionActivity extends AppCompatActivity {
         int result6 = checkSelfPermission(permissions[5]);
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
             if (Environment.isExternalStorageManager() && (result1 == PackageManager.PERMISSION_GRANTED) && (result2 == PackageManager.PERMISSION_GRANTED) && (result3 == PackageManager.PERMISSION_GRANTED) && (result4 == PackageManager.PERMISSION_GRANTED) && (result5 == PackageManager.PERMISSION_GRANTED) && (result6 == PackageManager.PERMISSION_GRANTED)) {
-                olderPhone = true;
+                newerPhone = true;
             } else {
                 Toast.makeText(this, "All file access is required", Toast.LENGTH_SHORT).show();
                 requestPermissions(permissions, REQUEST_CODE);
@@ -86,7 +95,7 @@ public class PermissionActivity extends AppCompatActivity {
             }
         }
         if (((result1 == PackageManager.PERMISSION_GRANTED) && (result2 == PackageManager.PERMISSION_GRANTED) && (result3 == PackageManager.PERMISSION_GRANTED))) {
-            newerPhone = true;
+            permissionGranted = true;
         } else {
             requestPermissions(permissions, REQUEST_CODE);
         }
@@ -102,7 +111,9 @@ public class PermissionActivity extends AppCompatActivity {
                     checkPermission();
                 }
             }
-            checkPermission();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                checkPermission();
+            }
         }
 
     }

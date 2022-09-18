@@ -3,6 +3,7 @@ package com.example.wifip2p;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -65,9 +66,11 @@ public class ClientThread extends Thread {
         MainActivity2 mainActivity2;
         Context context;
         FileInputStream fis = null;
+        BufferedInputStream bufferedInputStream = null;
         ContentResolver contentResolver;
         Socket clientSocket = null;
         OutputStream os = null;
+        DataOutputStream dataOutputStream = null;
 
         File contactsFile;
         boolean receivedContact = false;
@@ -75,6 +78,7 @@ public class ClientThread extends Thread {
         String hostAddress;
         int currentFileSize = 0;
         long totalFileSize = 0;
+        long bytesToSend;
 
         Image image;
         Audio audio;
@@ -93,43 +97,38 @@ public class ClientThread extends Thread {
             contentResolver = context.getApplicationContext().getContentResolver();
         }
 
-        public void dynamicCasting(Object object, int objectType) {
+        public void dynamicCasting(Object object, int objectType) throws IOException {
             switch (objectType) {
                 case 0:
                     image = (Image) object;
-                    try {
+                    dataOutputStream.writeUTF(image.getName());
+                    dataOutputStream.writeInt(0);
+                    fileType = "Image";
+                    fileName = image.getName();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                         fis = (FileInputStream) contentResolver.openInputStream(Uri.parse(image.getUri()));
-                        DataOutputStream dataOutputStream = new DataOutputStream(os);
-                        dataOutputStream.writeUTF(image.getName());
-                        dataOutputStream.writeInt(0);
-                        fileType = "Image";
-                        fileName = image.getName();
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    } else {
+                        File file = new File(image.getUri());
+                        fis = new FileInputStream(file);
                     }
                     break;
                 case 1:
                     audio = (Audio) object;
-                    try {
-                        fis = (FileInputStream) contentResolver.openInputStream(Uri.parse(audio.getUri()));
-                        DataOutputStream dataOutputStream = new DataOutputStream(os);
-                        dataOutputStream.writeUTF(audio.getSongName());
-                        dataOutputStream.writeInt(1);
-                        fileType = "Audio";
-                        fileName = audio.getSongName();
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    dataOutputStream.writeUTF(audio.getSongName());
+                    dataOutputStream.writeInt(1);
+                    fileType = "Image";
+                    fileName = image.getName();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        fis = (FileInputStream) contentResolver.openInputStream(Uri.parse(image.getUri()));
+                    } else {
+                        File file = new File(image.getUri());
+                        fis = new FileInputStream(file);
                     }
                     break;
                 case 2:
                     video = (Video) object;
                     try {
                         fis = (FileInputStream) contentResolver.openInputStream(Uri.parse(video.getUri()));
-                        DataOutputStream dataOutputStream = new DataOutputStream(os);
                         dataOutputStream.writeUTF(video.getName());
                         dataOutputStream.writeInt(2);
                         fileType = "Video";
@@ -144,7 +143,6 @@ public class ClientThread extends Thread {
                     document = (Document) object;
                     try {
                         fis = (FileInputStream) contentResolver.openInputStream(Uri.parse(document.getContentUri()));
-                        DataOutputStream dataOutputStream = new DataOutputStream(os);
                         dataOutputStream.writeUTF(document.getName());
                         dataOutputStream.writeInt(3);
                         fileType = "Document";
@@ -172,7 +170,6 @@ public class ClientThread extends Thread {
                     try {
                         fis = new FileInputStream(apk.getAppPath());
                         Log.d(Constant.THREAD_DATA_SEND, "apk file size: " + fis.available());
-                        DataOutputStream dataOutputStream = new DataOutputStream(os);
                         dataOutputStream.writeUTF(apk.getAppName());
                         dataOutputStream.writeInt(5);
                         fileType = "Apk";
@@ -202,19 +199,15 @@ public class ClientThread extends Thread {
 
                 clientSocket = new Socket(hostAddress, 8888);
                 os = clientSocket.getOutputStream();
-                PrintWriter pw = new PrintWriter(os);
-
                 InputStream is = clientSocket.getInputStream();
-                InputStreamReader isr = new InputStreamReader(is);
-                BufferedReader br = new BufferedReader(isr);
+                dataOutputStream = new DataOutputStream(os);
+                bufferedInputStream = new BufferedInputStream(fis);
 
                 dynamicCasting(object, objectType);
 
-                BufferedInputStream bis = new BufferedInputStream(fis);
-
-                long bytesToSend = fis.available();
-
-                Log.d(Constant.THREAD_TAG, "client thread: bytes = " + bytesToSend);
+                bytesToSend = fis.available();
+                
+               Log.d(Constant.THREAD_TAG, "client thread: bytes = " + bytesToSend);
 
                 byte[] buffer = new byte[4096];
 
@@ -223,13 +216,14 @@ public class ClientThread extends Thread {
                 mainActivity2.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        Log.d(Constant.CONNECTION_TAG, "client thread file type: " + fileType);
                         mainActivity2.clientThreadResultFileSize(fileType);
                     }
                 });
 
                 while (true) {
 
-                    int bytesRead = bis.read(buffer, 0, buffer.length);
+                    int bytesRead = bufferedInputStream.read(buffer, 0, buffer.length);
 
                     if (bytesRead == -1) {
                         break;
@@ -240,11 +234,7 @@ public class ClientThread extends Thread {
                     mainActivity2.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            try {
-                                mainActivity2.clientThreadResult(fis.available(), currentFileSize, fileName, fileType);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
+                            mainActivity2.clientThreadResult(0, currentFileSize, fileName, fileType);
                         }
                     });
 
@@ -263,38 +253,18 @@ public class ClientThread extends Thread {
                     receivedContact = !receivedContact;
                 }
 
+                dataOutputStream.close();
                 fis.close();
-                bis.close();
-
-                br.close();
-                isr.close();
+                bufferedInputStream.close();
                 is.close();
-
-                pw.close();
                 os.close();
                 clientSocket.close();
 
-            } catch (IOException e) {
-                Log.d(Constant.THREAD_TAG, "client thread: " + e.getMessage());
             }
 
-////!                --------------------------------------------------------
-
-////                OutputStream outputStream = socket.getOutputStream();
-////                ContentResolver cr = context.getContentResolver();
-////                File file = new File("/sdcard/DCIM/Camera/download.jpg");
-////                FileInputStream fileInputStream = new FileInputStream(file);
-////
-////                Log.d(TAG_FILE, "client thread - file size: " + fileInputStream.available());
-////
-////                while ((len = fileInputStream.read(buf)) != -1) {
-////                    outputStream.write(buf, 0, len);
-////                }
-////
-////                outputStream.close();
-////                fileInputStream.close();
-
-////!                --------------------------------------------------------
+            catch (IOException e) {
+                Log.d(Constant.THREAD_TAG, "client thread connection: " + e.getMessage());
+            }
 
         }
 

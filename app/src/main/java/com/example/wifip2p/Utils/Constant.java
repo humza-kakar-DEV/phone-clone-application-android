@@ -19,4 +19,5 @@ public class Constant {
     public static final String APK_TAG = "hmApk";
     public static final String DYNAMIC_OBJ_TAG = "hmDynamicInt";
     public static final String DYNAMIC_INT_TAG = "hmDynamicObj";
+    public static final String OLD_DEVICE = "hmOldMedia";
 }

@@ -1,20 +1,19 @@
 package com.example.wifip2p.Fragment;
 
 import android.content.Context;
-import android.hardware.lights.LightState;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.os.Environment;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.Toast;
 
+import com.example.wifip2p.LoadFileThread;
 import com.example.wifip2p.Media.Apk;
 import com.example.wifip2p.Media.ApkMedia;
 import com.example.wifip2p.Media.Audio;
@@ -25,13 +24,17 @@ import com.example.wifip2p.Media.Document;
 import com.example.wifip2p.Media.DocumentMedia;
 import com.example.wifip2p.Media.Image;
 import com.example.wifip2p.Media.ImageMedia;
+import com.example.wifip2p.Media.MediaOldDevice;
 import com.example.wifip2p.Media.Video;
 import com.example.wifip2p.Media.VideoMedia;
 import com.example.wifip2p.R;
 import com.example.wifip2p.Utils.CommunicationInterface;
 import com.example.wifip2p.Utils.CommunicationInterfaceReference;
+import com.example.wifip2p.Utils.Constant;
+import com.example.wifip2p.Utils.LoadingDialog;
 import com.example.wifip2p.databinding.FragmentFileTypeBinding;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +56,8 @@ public class FileTypeFragment extends Fragment {
     private List<Document> documentList = new ArrayList<>();
     private List<Apk> apkList = new ArrayList<>();
 
+    private LoadFileThread loadFileThread;
+
     ImageMedia imageMedia;
     VideoMedia videoMedia;
     AudioMedia audioMedia;
@@ -63,7 +68,7 @@ public class FileTypeFragment extends Fragment {
     private Context context;
     private CommunicationInterfaceReference communicationInterfaceReference;
 
-    final int[] drawableId = new int[] {
+    final int[] drawableId = new int[]{
             R.drawable.ic_baseline_person_24,
             R.drawable.ic_baseline_image_24,
             R.drawable.ic_baseline_video_library_24,
@@ -71,7 +76,7 @@ public class FileTypeFragment extends Fragment {
             R.drawable.ic_baseline_article_24,
             R.drawable.ic_baseline_apps_24,
     };
-    final String[] fileType = new String[] {
+    final String[] fileType = new String[]{
             "Contacts",
             "Images",
             "Videos",
@@ -81,6 +86,7 @@ public class FileTypeFragment extends Fragment {
     };
 
     FragmentFileTypeBinding binding;
+    private boolean loadFileThreadResultDataLoadedCheck = false;
 
     public FileTypeFragment() {
 
@@ -96,6 +102,16 @@ public class FileTypeFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        loadFileThread = new LoadFileThread(getActivity());
+        loadFileThread.setImageList(imageList);
+        loadFileThread.setVideoList(videoList);
+        loadFileThread.setAudioList(audioList);
+        loadFileThread.setDocumentList(documentList);
+        loadFileThread.setContactList(contactList);
+        loadFileThread.setApkList(apkList);
+        loadFileThread.start();
+
         if (getArguments() != null) {
             return;
         }
@@ -103,29 +119,44 @@ public class FileTypeFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
         // Inflate the layout for this fragment
         binding = FragmentFileTypeBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         context = view.getContext();
 
-        if (imageList.size() == 0) {
-            imageMedia = new ImageMedia(context);
-            videoMedia = new VideoMedia(context);
-            audioMedia = new AudioMedia(context);
-            contactMedia = new ContactMedia(context);
-            documentMedia = new DocumentMedia(context);
-            apkMedia = new ApkMedia(context);
+//!     TESTING OLD FILE CODE
 
-            imageList.addAll(imageMedia.generateImages());
-            videoList.addAll(videoMedia.generateVideos());
-            audioList.addAll(audioMedia.generateAudios());
-            contactList.addAll(contactMedia.getContactList());
-            documentList.addAll(documentMedia.generateDocuments());
-            apkList.addAll(apkMedia.getInstalledPackages());
-        }
+//        Runnable runnable = new Runnable() {
+//            @Override
+//            public void run() {
+//                MediaOldDevice mediaOldDevice = new MediaOldDevice();
+//                contactMedia = new ContactMedia(context);
+//                apkMedia = new ApkMedia(context);
+//            }
+//        };
+//
+//        Thread oldFileThread = new Thread(runnable);
+//        oldFileThread.start();
 
-//        TEXT VIEWS 
+//!     ---------------------------------------------------
+
+//        if (imageList.size() == 0) {
+//            imageMedia = new ImageMedia(context);
+//            videoMedia = new VideoMedia(context);
+//            audioMedia = new AudioMedia(context);
+//            contactMedia = new ContactMedia(context);
+//            documentMedia = new DocumentMedia(context);
+//            apkMedia = new ApkMedia(context);
+//
+//            imageList.addAll(imageMedia.generateImages());
+//            videoList.addAll(videoMedia.generateVideos());
+//            audioList.addAll(audioMedia.generateAudios());
+//            contactList.addAll(contactMedia.getContactList());
+//            documentList.addAll(documentMedia.generateDocuments());
+//            apkList.addAll(apkMedia.getInstalledPackages());
+//        }
+
+//        TEXT VIEWS
 
         binding.imageTextView.setText(imageList.size() + " items");
         binding.videoTextView.setText(videoList.size() + " items");
@@ -216,7 +247,7 @@ public class FileTypeFragment extends Fragment {
                         communicationInterfaceReference.invokeSingleSelection(image, "image", true);
                         image.setSelected(true);
                     }
-                    checkAllSelection ();
+                    checkAllSelection();
                 } else {
                     binding.allSelectCheckBox.setChecked(false);
                     for (Image image : imageList) {
@@ -236,7 +267,7 @@ public class FileTypeFragment extends Fragment {
                         communicationInterfaceReference.invokeSingleSelection(video, "video", true);
                         video.setSelected(true);
                     }
-                    checkAllSelection ();
+                    checkAllSelection();
                 } else {
                     binding.allSelectCheckBox.setChecked(false);
                     for (Video video : videoList) {
@@ -256,7 +287,7 @@ public class FileTypeFragment extends Fragment {
                         communicationInterfaceReference.invokeSingleSelection(audio, "audio", true);
                         audio.setSelected(true);
                     }
-                    checkAllSelection ();
+                    checkAllSelection();
                 } else {
                     binding.allSelectCheckBox.setChecked(false);
                     for (Audio audio : audioList) {
@@ -276,7 +307,7 @@ public class FileTypeFragment extends Fragment {
                         communicationInterfaceReference.invokeSingleSelection(contact, "contact", true);
                         contact.setSelected(true);
                     }
-                    checkAllSelection ();
+                    checkAllSelection();
                 } else {
                     binding.allSelectCheckBox.setChecked(false);
                     for (Contact contact : contactList) {
@@ -296,7 +327,7 @@ public class FileTypeFragment extends Fragment {
                         communicationInterfaceReference.invokeSingleSelection(document, "document", true);
                         document.setSelected(true);
                     }
-                    checkAllSelection ();
+                    checkAllSelection();
                 } else {
                     binding.allSelectCheckBox.setChecked(false);
                     for (Document document : documentList) {
@@ -316,7 +347,7 @@ public class FileTypeFragment extends Fragment {
                         communicationInterfaceReference.invokeSingleSelection(apk, "apk", true);
                         apk.setSelected(true);
                     }
-                    checkAllSelection ();
+                    checkAllSelection();
                 } else {
                     binding.allSelectCheckBox.setChecked(false);
                     for (Apk apk : apkList) {
@@ -337,41 +368,42 @@ public class FileTypeFragment extends Fragment {
         return view;
     }
 
-    public void objectTypeStates (boolean state) {
-            for (Image image : imageList) {
-                image.setSelected(state);
-            }
-            for (Audio audio : audioList) {
-                audio.setSelected(state);
-            }
-            for (Video video : videoList) {
-                video.setSelected(state);
-            }
-            for (Document document : documentList) {
-                document.setSelected(state);
-            }
-            for (Contact contact : contactList) {
-                contact.setSelected(state);
-            }
-            for (Apk apk : apkList) {
-                apk.setSelected(state);
-            }
+    public void objectTypeStates(boolean state) {
+        for (Image image : imageList) {
+            image.setSelected(state);
+        }
+        for (Audio audio : audioList) {
+            audio.setSelected(state);
+        }
+        for (Video video : videoList) {
+            video.setSelected(state);
+        }
+        for (Document document : documentList) {
+            document.setSelected(state);
+        }
+        for (Contact contact : contactList) {
+            contact.setSelected(state);
+        }
+        for (Apk apk : apkList) {
+            apk.setSelected(state);
+        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        
-        communicationInterfaceReference.invokeCheckSelection(binding.imageCheckBox, "image");
-        communicationInterfaceReference.invokeCheckSelection(binding.videoCheckBox, "video");
-        communicationInterfaceReference.invokeCheckSelection(binding.audioCheckBox, "audio");
-        communicationInterfaceReference.invokeCheckSelection(binding.contactCheckBox, "contact");
-        communicationInterfaceReference.invokeCheckSelection(binding.documentCheckBox, "document");
-        communicationInterfaceReference.invokeCheckSelection(binding.apkCheckBox, "apk");
-        checkAllSelection();
+        if (loadFileThreadResultDataLoadedCheck) {
+            communicationInterfaceReference.invokeCheckSelection(binding.imageCheckBox, "image");
+            communicationInterfaceReference.invokeCheckSelection(binding.videoCheckBox, "video");
+            communicationInterfaceReference.invokeCheckSelection(binding.audioCheckBox, "audio");
+            communicationInterfaceReference.invokeCheckSelection(binding.contactCheckBox, "contact");
+            communicationInterfaceReference.invokeCheckSelection(binding.documentCheckBox, "document");
+            communicationInterfaceReference.invokeCheckSelection(binding.apkCheckBox, "apk");
+            checkAllSelection();
+        }
     }
 
-    public void checkAllSelection () {
+    public void checkAllSelection() {
         if (binding.imageCheckBox.isChecked() && binding.videoCheckBox.isChecked() && binding.audioCheckBox.isChecked() && binding.documentCheckBox.isChecked() && binding.apkCheckBox.isChecked() && binding.contactCheckBox.isChecked()) {
             binding.allSelectCheckBox.setChecked(true);
         } else {
@@ -385,5 +417,15 @@ public class FileTypeFragment extends Fragment {
         if (context instanceof CommunicationInterface) {
             communicationInterfaceReference = new CommunicationInterfaceReference(context);
         }
+    }
+
+    public void loadFileThreadResults() {
+        loadFileThreadResultDataLoadedCheck = true;
+        binding.imageTextView.setText(imageList.size() + " items");
+        binding.videoTextView.setText(videoList.size() + " items");
+        binding.audioTextView.setText(audioList.size() + " items");
+        binding.contactTextView.setText(contactList.size() + " items");
+        binding.documentTextView.setText(documentList.size() + " items");
+        binding.apkTextView.setText(apkList.size() + " items");
     }
 }
