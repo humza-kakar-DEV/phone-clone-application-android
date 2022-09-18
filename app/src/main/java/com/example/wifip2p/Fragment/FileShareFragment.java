@@ -161,7 +161,7 @@ public class FileShareFragment extends Fragment {
         binding.progressBar.setProgress(currentFileSize);
     }
 
-    public void clientThreadResultFileSize(String fileType) {
+    public void clientThreadResultFileCount(String fileType) {
         switch (fileType) {
             case "Image":
                 totalImageSize--;
@@ -206,7 +206,7 @@ public class FileShareFragment extends Fragment {
 
         Toast.makeText(context, "image called", Toast.LENGTH_SHORT).show();
 
-        for (int i = 0; i <= 10; i++) {
+        for (int i = 0; i <= 20; i++) {
             Image image = imageList.get(i);
 
             Bundle bundle = new Bundle();

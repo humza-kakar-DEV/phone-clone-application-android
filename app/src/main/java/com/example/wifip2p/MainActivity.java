@@ -102,9 +102,8 @@ public class MainActivity extends AppCompatActivity {
         listView = (ListView) findViewById(R.id.listView);
         textView = (TextView) findViewById(R.id.textView);
         serverTextView = (TextView) findViewById(R.id.serverTextView);
-        clientTextView = (TextView) findViewById(R.id.clientTextView);
-        progressBar = (ProgressBar) findViewById(R.id.clientProgressBar);
         floatingActionButton = (FloatingActionButton) findViewById(R.id.floatingActionButton);
+        serverTextView.setVisibility(View.GONE);
 
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -120,9 +119,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        serverTextView.setVisibility(View.GONE);
-        clientTextView.setVisibility(View.GONE);
-        progressBar.setVisibility(View.GONE);
 
         imageMedia = new ImageMedia(this);
         audioMedia = new AudioMedia(this);
@@ -292,11 +288,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void clientResult(int totalFileSize, int currentFileSize, String fileName, int fileCount) {
-        clientTextView.setVisibility(View.VISIBLE);
-        progressBar.setVisibility(View.VISIBLE);
-        clientTextView.setText(fileName + " --- " + fileCount);
-        progressBar.setMax(totalFileSize);
-        progressBar.setProgress(currentFileSize);
+//        clientTextView.setVisibility(View.VISIBLE);
+//        progressBar.setVisibility(View.VISIBLE);
+//        clientTextView.setText(fileName + " --- " + fileCount);
+//        progressBar.setMax(totalFileSize);
+//        progressBar.setProgress(currentFileSize);
     }
 
     //  this method is called from server thread

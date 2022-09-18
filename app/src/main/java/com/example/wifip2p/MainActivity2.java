@@ -284,9 +284,9 @@ public class MainActivity2 extends AppCompatActivity implements CommunicationInt
         }
     }
 
-    public void clientThreadResultFileSize (String fileType) {
+    public void clientThreadResultFileCount(String fileType) {
         if (fileShareFragment != null) {
-            fileShareFragment.clientThreadResultFileSize(fileType);
+            fileShareFragment.clientThreadResultFileCount(fileType);
         }
     }
 
